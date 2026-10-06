@@ -1,0 +1,145 @@
+\documentclass[9pt,aspectratio=169,xcolor=table]{beamer}
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Use roboto Font (recommended)
+\usepackage[sfdefault]{roboto}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Define where theme files are located. ('/styles')
+\usepackage{styles/fluxmacros}
+\usefolder{styles}
+% Use Flux theme v0.1 beta
+% Available style: asphalt, blue, red, green, gray
+\usetheme[style=gray]{flux}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Extra packages
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{ragged2e}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, calc, decorations.pathreplacing}
+\setbeamertemplate{itemize items}[square]
+\usepackage[scaled=.8]{beramono}
+\usepackage{listings}
+\usepackage{styles/lstlangarm}
+\usepackage{array}
+\definecolor{bgcolor}{HTML}{F2E9E9}
+% lstlangarm.sty references \color{mauve} for string literals but never defines
+% it -- only fires when a listing contains a string. Define it here.
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+% lstlangarm's C style sets commentstyle=green!20, which is unreadable on the
+% pink listing background. Darken it globally.
+\lstset{commentstyle=\color{green!45!black}}
+% ragged-right fixed-width column -- must be defined in the preamble, never
+% inside a frame (\newcolumntype's #1 breaks beamer's frame scanner)
+\newcolumntype{R}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Table striping: odd rows white, even rows very light gray.
+% Needs \documentclass[...,xcolor=table]{beamer} (beamer loads xcolor itself,
+% so the option must go on the class, not \usepackage).
+\definecolor{stripe}{gray}{0.94}
+% \striped makes body rows alternate white, gray, white, ... starting white.
+% \rowcolors counts from the first coloured body row; the header is not counted.
+\newcommand{\striped}{\rowcolors{1}{white}{stripe}}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% TikZ block styles -- matches ch1/ch2
+% Colour variables are named identically in the book's stm32primer.tex, so any
+% tikzpicture using only the \tikzset{...} styles below can be copied verbatim
+% between slides and book. Only the \definecolor/\colorlet VALUES differ: the
+% book is printed, so it keeps every stroke pure black with muted fills. These
+% slides are projected, so both fill AND stroke are bright and saturated to
+% grab attention -- see stm32primer.tex for the print palette.
+\definecolor{blkfill}{HTML}{DCEBFF}
+\definecolor{blkline}{HTML}{1565C0}
+\definecolor{accentfill}{HTML}{FFE0B2}
+\definecolor{accentline}{HTML}{E65100}
+\definecolor{memfill}{HTML}{DFF5DA}
+\definecolor{memline}{HTML}{2E7D32}
+\definecolor{cellfill}{HTML}{FFFFFF}
+\definecolor{cellline}{HTML}{424242}
+\definecolor{bitmaskfill}{HTML}{DCEBFF}
+\definecolor{bitmaskline}{HTML}{1565C0}
+\definecolor{bithitfill}{HTML}{FFE0B2}
+\definecolor{bithitline}{HTML}{E65100}
+\tikzset{
+  blk/.style   = {rectangle, rounded corners=2pt, draw=blkline, fill=blkfill,
+                  thick, align=center, font=\small, minimum height=9mm, inner sep=3pt},
+  cpublk/.style= {rectangle, rounded corners=2pt, draw=accentline, fill=accentfill,
+                  thick, align=center, font=\small\bfseries, minimum height=9mm, inner sep=3pt},
+  memblk/.style= {rectangle, rounded corners=2pt, draw=memline, fill=memfill,
+                  thick, align=center, font=\small, minimum height=9mm, inner sep=3pt},
+  cell/.style  = {rectangle, draw=cellline, fill=cellfill, align=center,
+                  font=\small\ttfamily, minimum height=7mm, inner sep=2pt},
+  bitcell/.style={rectangle, draw=cellline, fill=cellfill, thick,
+                  minimum width=5.4mm, minimum height=5.4mm, inner sep=0pt,
+                  font=\scriptsize\ttfamily, anchor=center},
+  bitmask/.style={bitcell, fill=bitmaskfill, draw=bitmaskline},
+  bithit/.style ={bitcell, fill=bithitfill, draw=bithitline, font=\scriptsize\ttfamily\bfseries},
+  rowlab/.style ={font=\scriptsize, text=Gray, anchor=east},
+  oplab/.style  ={font=\scriptsize\itshape, text=Gray, anchor=west},
+  lbl/.style   = {font=\scriptsize, text=Gray},
+  flow/.style  = {-{Stealth[length=2mm]}, thick, draw=blkline},
+  busline/.style={thick, draw=cellline},
+}
+% NOTE (theme quirks -- all fail SILENTLY, always page through the PDF):
+%  - a second \\ inside a nested {...} group in a TikZ node breaks parsing
+%  - {\small ...} wrapped around a nested itemize eats the frame title + list
+%  - \usebeamercolor on a [plain] frame falls through to an unstyled default
+%  - \newcolumntype inside a frame breaks beamer's frame scanner
+%  - lstlisting needs \begin{frame}[fragile]
+%  - a TikZ picture wider than its column silently overflows into neighbours
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BEGIN CONDITIONAL COMPILATION %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newif\ifwebex
+%\webextrue % uncomment to generate section separator
+\ifwebex
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+\else
+\AtBeginSection[]
+{
+{
+    \setbeamercolor{background canvas}{bg=yellow!10}
+    \begin{frame}[plain]
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsection]
+    \end{frame}
+}
+}
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END CONDITIONAL COMPILATION   %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Information
+\title{From Digital Systems to Microcontrollers}
+\subtitle{\emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 1}
+\author{Mun\'{i}m Zabidi}
+\institute{\color{primary}Faculty of Electrical Engineering, Universiti Teknologi Malaysia}
+\date{\today}
+\titlegraphic{assets/logoutmwhite.png}
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\begin{document}
+
