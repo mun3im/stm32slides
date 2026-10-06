@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="355.84436"
+   height="183.54176"
+   viewBox="0 0 355.84436 183.54177"
+   sodipodi:docname="data_movement_inst.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect34"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,11.643195,0,1 @ F,0,0,1,0,11.474454,0,1 @ F,0,0,1,0,11.693818,0,1 @ F,0,0,1,0,11.525076,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="4.3799247"
+     inkscape:cx="143.95225"
+     inkscape:cy="130.25338"
+     inkscape:window-width="3240"
+     inkscape:window-height="2024"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1">
+    <inkscape:page
+       x="0"
+       y="0"
+       inkscape:label="1"
+       id="page1"
+       width="355.84436"
+       height="183.54176"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <g
+     id="g1"
+     inkscape:groupmode="layer"
+     inkscape:label="1"
+     transform="translate(-19.198856,-15.748074)">
+    <path
+       id="path38"
+       style="fill:#660033;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+       d="m 159.04214,154.36719 -4.7e-4,14.41211 -19.06984,-0.0801 0.0918,-8.55664 2.07617,0.01 -4.44921,-5.44336 -4.48829,5.40625 2.07637,0.01 v 13.45508 l 28.547,0.0176 v -19.21289 z"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       id="path1"
+       d="M 118.45745,41 H 191 v 120 h -72.54255 z"
+       style="fill:#dae8fc;fill-opacity:1;fill-rule:nonzero;stroke:#6c8ebf;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.9567429,0,0,0.9567429,0.47837145,0.47837145)"
+       sodipodi:nodetypes="ccccc" />
+    <g
+       id="g2" />
+    <text
+       id="text2"
+       xml:space="preserve"
+       x="123.169"
+       y="101.74954"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan2"
+         style="font-variant:normal;font-weight:normal;font-size:11.4809px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="123.169"
+         y="101.74954">Registers</tspan></text>
+    <path
+       id="path2"
+       d="m 331,41 h 60 v 120 h -60 z"
+       style="fill:#d5e8d4;fill-opacity:1;fill-rule:nonzero;stroke:#82b366;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.9567429,0,0,0.9567429,0.47837145,0.47837145)" />
+    <g
+       id="g3" />
+    <text
+       id="text3"
+       xml:space="preserve"
+       transform="matrix(0.9567429,0,0,0.9567429,324.64978,100.458)"><tspan
+         id="tspan3"
+         style="font-variant:normal;font-weight:normal;font-size:12px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         x="0"
+         y="0">Memory</tspan></text>
+    <path
+       id="path3"
+       d="m 330.5,68.5 v 5 H 197.17 v 2.169998 L 191.5,71 197.17,66.330002 V 68.5 Z"
+       style="fill:#660033;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       transform="matrix(0.9567429,0,0,0.9567429,0.47837145,0.47837145)" />
+    <g
+       id="g4" />
+    <g
+       id="g5" />
+    <g
+       id="g6" />
+    <text
+       id="text6"
+       xml:space="preserve"
+       x="231.61229"
+       y="142.55469"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan6"
+         style="font-variant:normal;font-weight:700;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="231.61229"
+         y="142.55469">Stores</tspan></text>
+    <g
+       id="g7" />
+    <g
+       id="g8">
+      <g
+         id="g9" />
+    </g>
+    <g
+       id="g10" />
+    <text
+       id="text10"
+       xml:space="preserve"
+       x="211.48004"
+       y="158.5033"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan10"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande Medium';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="211.48004"
+         y="158.5033">STR STRB STRH</tspan></text>
+    <g
+       id="g11" />
+    <g
+       id="g12" />
+    <path
+       id="path12"
+       d="m 191.5,133.5 v -5 h 133.32999 v -2.17 L 330.5,131 l -5.67001,4.67 v -2.17 z"
+       style="fill:#660033;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       transform="matrix(0.9567429,0,0,0.9567429,0.47837145,0.47837145)" />
+    <path
+       id="path13"
+       d="m 66.838614,99.967658 -0.01913,-4.783714 41.455666,-0.143512 -0.01,-2.076132 5.44387,4.448854 -5.4056,4.487126 -0.01,-2.076133 -41.455667,0.143511 z"
+       style="fill:#660033;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743" />
+    <g
+       id="g13" />
+    <text
+       id="text13"
+       xml:space="preserve"
+       x="232.21959"
+       y="22.596634"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan13"
+         style="font-variant:normal;font-weight:700;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="232.21959"
+         y="22.596634">Loads</tspan></text>
+    <g
+       id="g14" />
+    <text
+       id="text14"
+       xml:space="preserve"
+       x="244.68108"
+       y="22.708752"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan14"
+         style="font-variant:normal;font-weight:normal;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="244.68108"
+         y="22.708752">: </tspan></text>
+    <g
+       id="g15">
+      <g
+         id="g16" />
+    </g>
+    <text
+       id="text16"
+       xml:space="preserve"
+       x="246.44226"
+       y="26.708752"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan16"
+         style="font-variant:normal;font-weight:normal;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="246.44226"
+         y="26.708752"> </tspan></text>
+    <g
+       id="g17" />
+    <text
+       id="text17"
+       xml:space="preserve"
+       x="209.6698"
+       y="52.708752"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan17"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="209.6698"
+         y="52.708752">LDR LDRB LDRH</tspan></text>
+    <g
+       id="g18" />
+    <text
+       id="text18"
+       xml:space="preserve"
+       x="215.18929"
+       y="38.535904"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan18"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="215.18929"
+         y="38.535904">LDRSB LDRSH</tspan></text>
+    <g
+       id="g19" />
+    <g
+       id="g20">
+      <g
+         id="g21" />
+    </g>
+    <text
+       id="text21"
+       xml:space="preserve"
+       x="276.2894"
+       y="26.708752"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan21"
+         style="font-variant:normal;font-weight:normal;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="276.2894"
+         y="26.708752"> </tspan></text>
+    <g
+       id="g22" />
+    <g
+       id="g23" />
+    <g
+       id="g24" />
+    <g
+       id="g25" />
+    <g
+       id="g26">
+      <g
+         id="g27" />
+    </g>
+    <text
+       id="text27"
+       xml:space="preserve"
+       transform="matrix(0.9567429,0,0,0.9567429,172.37817,207.61321)"
+       style="white-space:pre;inline-size:124.091"><tspan
+         x="0"
+         y="0"
+         id="tspan4"><tspan
+           style="font-size:10px;font-family:Arial"
+           id="tspan1"> </tspan></tspan></text>
+    <g
+       id="g28" />
+    <g
+       id="g29" />
+    <g
+       id="g30" />
+    <g
+       id="g31">
+      <g
+         id="g32" />
+    </g>
+    <path
+       id="path32"
+       d="M 32.643195,80.718089 H 69.525546 A 11.474454,11.474454 45 0 1 81,92.192543 v 0.672139 A 11.693818,11.693818 135 0 1 69.306182,104.5585 H 32.525076 A 11.525076,11.525076 45 0 1 21,93.033424 v -0.67214 A 11.643195,11.643195 135 0 1 32.643195,80.718089 Z"
+       style="fill:#f8cecc;fill-opacity:1;fill-rule:nonzero;stroke:#b85450;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.9567429,0,0,0.9567429,0.47837145,8.478372)"
+       inkscape:path-effect="#path-effect34"
+       inkscape:original-d="M 21,80.718089 H 81 V 104.5585 H 21 Z"
+       sodipodi:nodetypes="ccccc" />
+    <g
+       id="g33" />
+    <text
+       id="text33"
+       xml:space="preserve"
+       x="34.08305"
+       y="100.68877"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan33"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.4809px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="34.08305"
+         y="100.68877">const</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:48px;font-family:Arial;-inkscape-font-specification:'Arial Bold';writing-mode:lr-tb;direction:ltr;fill:#039501;stroke-width:1.2;stroke-linejoin:round"
+       x="234.73766"
+       y="47.948475"
+       id="text34"><tspan
+         sodipodi:role="line"
+         id="tspan34"
+         x="234.73766"
+         y="47.948475"></tspan></text>
+    <text
+       id="text35"
+       xml:space="preserve"
+       x="112.76692"
+       y="184.85266"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan35"
+         style="font-variant:normal;font-weight:700;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="112.76692"
+         y="184.85266">Register moves</tspan></text>
+    <text
+       id="text38"
+       xml:space="preserve"
+       x="125.2541"
+       y="199.11699"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan38"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande Medium';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="125.2541"
+         y="199.11699">MOV MVN</tspan></text>
+    <text
+       id="text40"
+       xml:space="preserve"
+       x="25.888456"
+       y="121.39243"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         id="tspan40"
+         style="font-variant:normal;font-weight:700;font-size:9.56743px;font-family:Arial;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+         x="25.888456"
+         y="121.39243">Constants</tspan></text>
+    <text
+       id="text41"
+       xml:space="preserve"
+       x="26.012383"
+       y="135.33636"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         sodipodi:role="line"
+         id="tspan43"
+         x="26.012383"
+         y="135.33636"><tspan
+           id="tspan41"
+           style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande Medium';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+           x="26.012383"
+           y="135.33636">MOV MVN</tspan></tspan></text>
+    <text
+       id="text45"
+       xml:space="preserve"
+       x="18.306581"
+       y="149.33636"
+       style="font-size:11.4809px;stroke-width:0.956743"><tspan
+         sodipodi:role="line"
+         id="tspan45"
+         x="18.306581"
+         y="149.33636"><tspan
+           id="tspan44"
+           style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:9.56743px;font-family:'Lucida Grande';-inkscape-font-specification:'Lucida Grande Medium';writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.956743"
+           x="18.306581"
+           y="149.33636">MOVW MOVT</tspan></tspan></text>
+  </g>
+</svg>

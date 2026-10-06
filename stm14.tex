@@ -148,7 +148,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    Every previous chapter examined one peripheral in isolation. Real systems are not like that: they sample on a schedule while responding to buttons, driving indicators, and reporting to a host --- all at once, on one processor, with no operating system. But the hard part is neither the peripherals nor the code. It is deciding, before any code exists, which peripherals the requirement demands and whether the timing can be met at all --- and then \emph{showing} that the result meets the requirement rather than merely appearing to work. This chapter does all three, in the order an engineer works in.
+    Every earlier chapter looked at one peripheral by itself. Real systems do not work that way. A real system samples on a schedule. It responds to buttons. It drives indicators. It reports to a host. It does all of this at once, on one processor, with no operating system. The hard part is not the peripherals, and it is not the code. The hard part is deciding, before any code exists, which peripherals the job needs and whether the timing can work at all. Then you must \emph{prove} the result meets the requirement, not just that it seems to work. This chapter does all three steps, in the order an engineer actually works.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -487,11 +487,11 @@ while (1) {
 \begin{frame}{Design Challenge}{To be worked on paper, before any code}
     \leavevmode
     \begin{block}{The brief}
-        A greenhouse controller must: read a temperature sensor every 2~s; read a soil-moisture sensor every 30~s; drive a ventilation fan through a PWM output whose duty follows temperature; open a water valve (a single digital output) for 5~s whenever moisture falls below a threshold; accept a manual override button at any time; and report all readings to a host once per minute.
+        A greenhouse controller must do the following: read a temperature sensor every 2~s; read a soil-moisture sensor every 30~s; drive a ventilation fan through a PWM output whose duty cycle follows temperature; open a water valve (a single digital output) for 5~s whenever moisture drops below a threshold; accept a manual override button at any time; and report all readings to a host once per minute.
     \end{block}
 
     \vspace{2mm}
-    {\small Do not write any code. Produce the design: the functional decomposition, the peripheral assigned to each activity, the event structure chosen for each (with justification), a pin allocation checked for collisions on the STM32F446RE, a timing budget, and the initialization order. Then write the verification plan that would accompany it: what measurement establishes each timing requirement, with what instrument, and what the acceptance criterion is. Identify the one activity whose timing is hardest to guarantee, and the single measurement you would take first.}
+    {\small Do not write any code. Produce the design: the functional decomposition, the peripheral assigned to each activity, the event structure chosen for each (with reasons), a pin allocation checked for collisions on the STM32F446RE, a timing budget, and the initialization order. Then write the verification plan that goes with it: what measurement proves each timing requirement, with what instrument, and what the pass/fail criterion is. Identify the one activity whose timing is hardest to guarantee, and the single measurement you would take first.}
 \end{frame}
 
 \begin{frame}[plain]

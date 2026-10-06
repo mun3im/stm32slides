@@ -148,7 +148,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    UART connects two devices at modest speed, and it does so without a clock --- which is why both ends must agree on the baud rate in advance. Adding a clock wire removes that agreement and, with it, the speed ceiling. This chapter covers the two synchronous buses every microcontroller provides. SPI is fast and simple, and costs a pin per device. $I^2$C is slower and cleverer, and connects dozens of devices to the same two wires. Both are also where you finally read a real sensor and turn its raw registers into a physical measurement --- the complete chain from silicon to engineering units.
+    UART connects two devices at modest speed. It does this without a clock signal, so both ends must agree on the baud rate in advance. Adding a clock wire removes that need for agreement. It also removes the speed limit. This chapter covers the two synchronous buses every microcontroller provides. SPI is fast and simple, and costs one pin per device. $I^2$C is slower but cleverer: it connects dozens of devices using the same two wires. In both cases, you will finally read a real sensor and turn its raw register values into a physical measurement. This is the complete chain from silicon to engineering units.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -461,7 +461,7 @@ uint8_t read_register(uint8_t addr)
 \begin{frame}{Design Challenge}{To be worked on paper, before any code}
     \leavevmode
     \begin{block}{The brief}
-        A data logger must connect six devices to one STM32F446RE: an accelerometer sampled at 200~Hz (available in both SPI and $I^2$C versions), a display controller refreshed 10 times per second with 1024 bytes (SPI only, mode 3, tolerates 8~MHz), a real-time clock read once per second ($I^2$C only, address \texttt{0x68}), a configuration EEPROM written rarely ($I^2$C only, address \texttt{0x50}), and two identical temperature sensors read once per second ($I^2$C only, address \texttt{0x48} with one address-select pin).
+        A data logger must connect six devices to one STM32F446RE: an accelerometer sampled at 200~Hz (available in both SPI and $I^2$C versions), a display controller refreshed 10 times per second with 1024 bytes (SPI only, mode 3, tolerates 8~MHz), a real-time clock read once per second ($I^2$C only, address \texttt{0x68}), a configuration EEPROM written rarely ($I^2$C only, address \texttt{0x50}), and two identical temperature sensors read once per second ($I^2$C only, address \texttt{0x48}, with one address-select pin).
     \end{block}
 
     \vspace{2mm}

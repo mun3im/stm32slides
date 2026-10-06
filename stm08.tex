@@ -148,13 +148,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    This is where the book stops being only theory. So far you have
-    learned about registers, addresses, pointers, and bit masks. All of
-    that exists for what this chapter does: change a pin's voltage under
-    program control, and read the voltage another circuit puts on it. A
-    GPIO pin is the simplest bridge between software and the physical
-    world. Every peripheral later in this book builds on these same
-    ideas.
+    Chapter~4 already blinked an LED in C. Chapters~5--7 then opened up what that program became underneath --- the load, the mask, the store, the branch. This chapter closes the loop: the same \texttt{MODER}/\texttt{ODR} pattern you have now seen at both levels becomes the foundation for every peripheral in the rest of this book. A GPIO pin is the simplest bridge between software and the physical world, so it is where that pattern is easiest to see start to finish.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -164,13 +158,13 @@
     \vspace{2mm}
     {\small
     \begin{enumerate}\itemsep2pt
-        \item Describe the internal structure of a GPIO pin, including the Schmitt trigger, output driver, and pull resistors.
-        \item Choose between push-pull and open-drain output configurations for a given external circuit.
+        \item Describe the parts inside a GPIO pin: the Schmitt trigger, the output driver, and the pull resistors.
+        \item Choose between push-pull and open-drain outputs for a given external circuit.
         \item Configure any pin's mode, output type, speed, and pull resistors using the GPIO registers.
         \item Explain why a peripheral clock must be enabled before its registers respond.
-        \item Use \texttt{BSRR} for atomic pin changes and explain its advantage over read-modify-write on \texttt{ODR}.
+        \item Use \texttt{BSRR} for atomic pin changes, and explain why it beats a read-modify-write on \texttt{ODR}.
         \item Read a switch input reliably, including software debouncing.
-        \item Drive a multi-segment display from a lookup table rather than per-segment logic.
+        \item Drive a multi-segment display from a lookup table instead of per-segment logic.
     \end{enumerate}}
 \end{frame}
 
@@ -715,12 +709,7 @@ int main(void) {
     \end{block}
 
     \vspace{2mm}
-    {\small Produce a complete pin-level design for the STM32F446RE.
-    State which port and pins to use, which \texttt{MODER} setting each
-    needs, push-pull or open-drain for each output, and which pull
-    resistors each input needs. Justify your choice for the relay output
-    in particular. Then say how many register writes your design needs
-    to set up the whole panel, and whether any of them can be combined.}
+    {\small Produce the complete pin-level design for the STM32F446RE: which port and pins, which \texttt{MODER} setting for each, push-pull or open-drain for each output, and which pull resistors for each input. Justify the relay output's configuration in particular. Then state how many register writes your design needs to initialize the whole panel, and whether any of them can be combined.}
 \end{frame}
 
 \begin{frame}[plain]

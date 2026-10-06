@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1482.5"
+   height="674.22168"
+   viewBox="0 0 1482.5 674.22168"
+   version="1.1"
+   id="svg63"
+   sodipodi:docname="keybounce.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs63" />
+  <sodipodi:namedview
+     id="namedview63"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.455625"
+     inkscape:cx="769.77243"
+     inkscape:cy="413.22456"
+     inkscape:window-width="3240"
+     inkscape:window-height="2024"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg63" />
+  <title
+     id="title1">Button bounce and processor sampling timing diagram</title>
+  <desc
+     id="desc1">Four-row technical timing diagram showing ideal, bouncy, analog button signals and processor pin samples.</desc>
+  <!-- Styles are intentionally simple so the SVG remains easy to edit in Illustrator, Inkscape, Figma, etc. -->
+  <text
+     x="0"
+     y="145.89551"
+     font-size="27px"
+     font-weight="600"
+     id="text1"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Ideal button signal</text>
+  <text
+     x="0"
+     y="340.89551"
+     font-size="27px"
+     font-weight="600"
+     id="text2"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Bouncy button signal</text>
+  <text
+     x="0"
+     y="535.89551"
+     font-size="27px"
+     font-weight="600"
+     id="text3"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Analog button signal</text>
+  <text
+     x="0"
+     y="668.89551"
+     font-size="27px"
+     font-weight="600"
+     id="text4"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Processor pin read</text>
+  <text
+     x="545"
+     y="17.895508"
+     font-size="25px"
+     text-anchor="middle"
+     id="text5"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Button press</text>
+  <line
+     x1="545"
+     y1="31.895508"
+     x2="545"
+     y2="83.895508"
+     stroke="#111111"
+     stroke-width="2.5"
+     id="line5"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111" />
+  <polygon
+     points="582,146 575,160 568,146 "
+     fill="#111111"
+     id="polygon5"
+     transform="translate(-30,-64.104492)"
+     style="font-family:Arial, Helvetica, sans-serif" />
+  <text
+     x="1070"
+     y="17.895508"
+     font-size="25px"
+     text-anchor="middle"
+     id="text6"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111">Button release</text>
+  <line
+     x1="1070"
+     y1="31.895508"
+     x2="1070"
+     y2="83.895508"
+     stroke="#111111"
+     stroke-width="2.5"
+     id="line6"
+     style="font-family:Arial, Helvetica, sans-serif;fill:#111111" />
+  <polygon
+     points="1107,146 1100,160 1093,146 "
+     fill="#111111"
+     id="polygon6"
+     transform="translate(-30,-64.104492)"
+     style="font-family:Arial, Helvetica, sans-serif" />
+  <!-- Subtle vertical sample guides -->
+  <g
+     stroke="#b8c0c8"
+     stroke-width="1.5"
+     stroke-dasharray="7, 7"
+     id="g22"
+     transform="translate(-30,-200.10449)">
+    <line
+       x1="350"
+       y1="300"
+       x2="350"
+       y2="835"
+       id="line7" />
+    <line
+       x1="427.32999"
+       y1="300"
+       x2="427.32999"
+       y2="835"
+       id="line8" />
+    <line
+       x1="504.67001"
+       y1="300"
+       x2="504.67001"
+       y2="835"
+       id="line9" />
+    <line
+       x1="582"
+       y1="300"
+       x2="582"
+       y2="835"
+       id="line10" />
+    <line
+       x1="659.33002"
+       y1="300"
+       x2="659.33002"
+       y2="835"
+       id="line11" />
+    <line
+       x1="736.66998"
+       y1="300"
+       x2="736.66998"
+       y2="835"
+       id="line12" />
+    <line
+       x1="814"
+       y1="300"
+       x2="814"
+       y2="835"
+       id="line13" />
+    <line
+       x1="891.33002"
+       y1="300"
+       x2="891.33002"
+       y2="835"
+       id="line14" />
+    <line
+       x1="968.66998"
+       y1="300"
+       x2="968.66998"
+       y2="835"
+       id="line15" />
+    <line
+       x1="1046"
+       y1="300"
+       x2="1046"
+       y2="835"
+       id="line16" />
+    <line
+       x1="1123.33"
+       y1="300"
+       x2="1123.33"
+       y2="835"
+       id="line17" />
+    <line
+       x1="1200.67"
+       y1="300"
+       x2="1200.67"
+       y2="835"
+       id="line18" />
+    <line
+       x1="1278"
+       y1="300"
+       x2="1278"
+       y2="835"
+       id="line19" />
+    <line
+       x1="1355.33"
+       y1="300"
+       x2="1355.33"
+       y2="835"
+       id="line20" />
+    <line
+       x1="1432.67"
+       y1="300"
+       x2="1432.67"
+       y2="835"
+       id="line21" />
+    <line
+       x1="1510"
+       y1="300"
+       x2="1510"
+       y2="835"
+       id="line22" />
+  </g>
+  <!-- Ideal button signal -->
+  <path
+     d="m 320,97.895508 h 225 v 80.000002 h 525 V 97.895508 h 410"
+     fill="none"
+     stroke="#1976d2"
+     stroke-width="5"
+     stroke-linejoin="miter"
+     id="path22" />
+  <!-- Bouncy digital signal -->
+  <path
+     d="m 320,287.89551 h 225 v 65 h 13 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v 0 h 372 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 14 v 65 h 14 v -65 h 270"
+     fill="none"
+     stroke="#159447"
+     stroke-width="5"
+     stroke-linejoin="round"
+     id="path23"
+     sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccc" />
+  <!-- Bounce interval arrows and labels -->
+  <line
+     x1="556.17474"
+     y1="402.89551"
+     x2="674.82526"
+     y2="402.89551"
+     stroke-width="1.76124"
+     id="line23"
+     style="fill:#111111;stroke:#111111" />
+  <polygon
+     points="588,458 588,472 575,465 "
+     id="polygon23"
+     transform="translate(-30,-62.104492)"
+     style="fill:#111111;stroke:#111111" />
+  <polygon
+     points="715,458 715,472 728,465 "
+     id="polygon24"
+     transform="translate(-42,-62.104492)"
+     style="fill:#111111;stroke:#111111" />
+  <line
+     x1="1081.2357"
+     y1="402.89551"
+     x2="1210.7643"
+     y2="402.89551"
+     stroke-width="1.75614"
+     id="line24"
+     style="fill:#111111;stroke:#111111" />
+  <polygon
+     points="1113,458 1113,472 1100,465 "
+     id="polygon25"
+     transform="translate(-30,-62.104492)"
+     style="fill:#111111;stroke:#111111" />
+  <polygon
+     points="1255,458 1255,472 1268,465 "
+     id="polygon26"
+     transform="translate(-54,-62.104492)"
+     style="fill:#111111;stroke:#111111" />
+  <text
+     x="617.5"
+     y="430.89551"
+     id="text26"
+     style="font-size:21px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;fill:#111111">10-20ms</text>
+  <text
+     x="1146"
+     y="430.89551"
+     id="text27"
+     style="font-size:21px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;fill:#111111">10-20ms</text>
+  <!-- Analog interpretation -->
+  <path
+     d="m 320,482.89551 h 221 c 5,0 8,8 11,25 4,20 12,28 18,10 7,-20 12,-25 18,-2 6,23 12,32 19,8 7,-26 14,-27 21,-3 7,23 13,32 20,9 7,-21 14,-18 21,4 7,18 13,16 19,-2 4,-12 7,24 10,21 h 372 c 5,0 8,-40 12,-19 4,22 10,15 17,-6 7,-22 13,-23 20,0 7,23 13,6 20,-18 7,-24 14,-14 21,9 7,24 14,23 21,-3 7,-22 14,-28 21,-8 7,19 14,16 21,-6 5,-15 4.5041,-19.99184 15,-19 h 242"
+     fill="none"
+     stroke="#f28c18"
+     stroke-width="5"
+     stroke-linecap="round"
+     id="path27"
+     sodipodi:nodetypes="csccsccccscsccsscccccc" />
+  <!-- Analog bounce interval arrows and labels -->
+  <!-- Processor read baseline -->
+  <!-- Processor samples: 1,1,1,?,?,0,0,0,0,0,0,?,?,1,1,1 -->
+  <g
+     font-family="Arial, Helvetica, sans-serif"
+     font-size="25px"
+     fill="#111111"
+     text-anchor="middle"
+     id="g47"
+     transform="translate(-30,-126.10449)">
+    <text
+       x="350"
+       y="795"
+       id="text32">1</text>
+    <text
+       x="427.32999"
+       y="795"
+       id="text33">1</text>
+    <text
+       x="504.67001"
+       y="795"
+       id="text34">1</text>
+    <text
+       x="582"
+       y="795"
+       id="text35">?</text>
+    <text
+       x="659.33002"
+       y="795"
+       id="text36">?</text>
+    <text
+       x="736.66998"
+       y="795"
+       id="text37">0</text>
+    <text
+       x="814"
+       y="795"
+       id="text38">0</text>
+    <text
+       x="891.33002"
+       y="795"
+       id="text39">0</text>
+    <text
+       x="968.66998"
+       y="795"
+       id="text40">0</text>
+    <text
+       x="1046"
+       y="795"
+       id="text41">0</text>
+    <text
+       x="1123.33"
+       y="795"
+       id="text42">?</text>
+    <text
+       x="1200.67"
+       y="795"
+       id="text43">?</text>
+    <text
+       x="1278"
+       y="795"
+       id="text44">1</text>
+    <text
+       x="1355.33"
+       y="795"
+       id="text45">1</text>
+    <text
+       x="1432.67"
+       y="795"
+       id="text46">1</text>
+    <text
+       x="1510"
+       y="795"
+       id="text47">1</text>
+  </g>
+  <!-- Sample labels t0 ... t15 -->
+  <metadata
+     id="metadata63">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Button bounce and processor sampling timing diagram</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>

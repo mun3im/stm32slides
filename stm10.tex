@@ -155,7 +155,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    Every program so far has used \texttt{delay\_ms()} --- a loop that counts down and does nothing. It is wrong in three ways: its timing changes if you change the compiler optimization level or the clock frequency, it consumes 100\% of the CPU while waiting, and it cannot be calibrated accurately. A hardware timer solves all three. It counts independently of the processor, generates precise intervals, measures elapsed time exactly, and produces the pulse-width modulated signals that dim LEDs and drive motors.
+    Every program so far has used \texttt{delay\_ms()} --- a loop that counts down while doing nothing. This approach has three problems. Its timing can change with compiler optimization or clock frequency. It uses the CPU the whole time it waits. And it cannot give an accurate time base for measuring events. A hardware timer solves all three problems. It separates \textbf{timekeeping from program execution}. Once configured, it counts on its own, independent of the processor. By itself, it can \textbf{schedule} an event at a precise time, \textbf{measure} when an external event happens, or \textbf{generate} a precisely timed output --- such as the PWM signal used to dim an LED or drive a motor. This chapter covers those three uses, in that order.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -165,12 +165,12 @@
     \vspace{2mm}
     {\small
     \begin{enumerate}\itemsep2pt
-        \item Explain how a prescaler and auto-reload register set a timer's period.
-        \item Calculate the prescaler and reload values needed for a required timing interval.
-        \item Configure a general-purpose timer for periodic update interrupts.
+        \item Explain how a prescaler and auto-reload register determine a timer's period.
+        \item Calculate the prescaler and reload values required for a specified timing interval.
+        \item Configure a general-purpose timer to generate periodic update interrupts.
         \item Use SysTick to maintain a millisecond system time base.
-        \item Select the correct alternate function number to route a pin to a timer channel.
-        \item Calculate PWM frequency and duty cycle, and configure a timer output compare channel to generate one.
+        \item Select the correct alternate-function number to route a pin to a timer channel.
+        \item Calculate PWM frequency and duty cycle, and configure a timer output-compare channel to generate them.
         \item Apply PWM to control LED brightness and motor speed.
     \end{enumerate}}
 \end{frame}
@@ -598,10 +598,10 @@ TIM2->CR1   |= (1U << 0);        // start
     \end{block}
 
     \vspace{2mm}
-    {\small Design the timing structure using a single hardware time base. Specify the timer's \texttt{PSC} and \texttt{ARR} values for a 16~MHz clock, and show how one interrupt can schedule all three tasks without drift. Then determine what happens if the log write takes 40~ms, identify which requirement breaks first, and give two different ways to fix it --- one that changes the schedule and one that changes the architecture.}
+    {\small Design the timing structure using a single hardware time base. Specify the timer's \texttt{PSC} and \texttt{ARR} values for a 16~MHz clock, and show how one interrupt can schedule all three tasks without drift. Then work out what happens if the log write takes 40~ms, identify which requirement breaks first, and give two different ways to fix it --- one that changes the schedule and one that changes the architecture.}
 
     \vspace{2mm}
-    {\small \textbf{Extension --- a listening device.} Now add a fourth activity to the same processor: sampling a microphone at 16~kHz for keyword spotting, as in audio timing. On paper, determine whether the system above can still meet all its deadlines. Produce a cycle budget at 16~MHz showing what fraction of the processor the sampling ISR alone consumes; decide which of the four activities may be delayed and which may not, and justify the ranking in terms of what breaks when each one slips. State where the audio buffer lives and how the main loop knows a window is ready without racing the ISR. Finally, identify the one activity in the original three that is now unsafe to leave as written, and say what you would change about it --- without adding a second processor.}
+    {\small \textbf{Extension --- a listening device.} Now add a fourth activity to the same processor: sampling a microphone at 16~kHz for keyword spotting, as in audio timing. On paper, decide whether the system above can still meet all its deadlines. Produce a cycle budget at 16~MHz showing what fraction of the processor the sampling ISR alone uses. Decide which of the four activities may be delayed and which may not, and justify the ranking in terms of what breaks when each one slips. State where the audio buffer lives and how the main loop knows a window is ready without racing the ISR. Finally, identify the one activity in the original three that is now unsafe to leave as written, and say what you would change about it, without adding a second processor.}
 \end{frame}
 
 \begin{frame}[fragile]{Design-Challenge Skeleton: One Time Base, Three Tasks}

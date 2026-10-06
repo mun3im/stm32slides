@@ -148,7 +148,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    Every \texttt{if}, every \texttt{while}, and every function call in C becomes something simple on the processor: a comparison that sets flags, and a branch that tests them. This chapter explains that mechanism. Once you understand it, several mysteries become clear. Why can an unsigned comparison give a different answer than a signed one, on the same bits? Why can a recursive function crash a microcontroller? Why does a function that forgets one instruction never return? This chapter also prepares you for interrupts, which are function calls that the hardware makes on its own.
+    Every \texttt{if}, every \texttt{while}, and every function call you write in C becomes the same thing on the processor: a comparison that sets flags, and a branch that tests them. Understanding this mechanism explains things that seem mysterious. Why can an unsigned comparison give a different answer than a signed one, on the exact same bits? Why can a recursive function crash a microcontroller? Why does a function that forgets one instruction never return? This chapter also prepares you for interrupts. An interrupt is a function call that the hardware makes on its own.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -158,12 +158,12 @@
     \vspace{2mm}
     {\small
     \begin{enumerate}\itemsep2pt
-        \item Explain the effect of the \texttt{S} suffix on the APSR flags and use condition codes for conditional execution.
+        \item Explain the effect of the \texttt{S} suffix on the APSR flags, and use condition codes for conditional execution.
         \item Use \texttt{CMP}, \texttt{TST}, and the condition-code suffixes to branch on a computed condition.
-        \item Distinguish signed from unsigned comparison suffixes and select the correct one for given data.
+        \item Tell signed and unsigned comparison suffixes apart, and choose the correct one for a given kind of data.
         \item Translate C \texttt{if}/\texttt{else} statements and loops into equivalent assembly.
+        \item Explain how a full descending stack works, and trace SP through \texttt{PUSH} and \texttt{POP}.
         \item Call and return from subroutines using \texttt{BL} and \texttt{BX LR}, and explain why nested calls must preserve LR.
-        \item Explain the operation of a full descending stack and trace SP through \texttt{PUSH} and \texttt{POP}.
         \item State the AAPCS rules for argument passing, return values, and which registers a function must preserve.
     \end{enumerate}}
 \end{frame}
@@ -1609,13 +1609,7 @@ foo  PUSH {R4, R5}    ; save registers this function will use
     \end{block}
 
     \vspace{2mm}
-    {\small Design the control flow before writing any code. Decide
-    whether the four checks should be a sequence of \texttt{if}
-    statements, a loop over an array, or a table of function pointers.
-    Justify your choice by looking at the instructions each option
-    becomes. Compute the worst-case instruction budget available. Then
-    say which of the three designs you could check by reading its
-    disassembly, and what you would look for.}
+    {\small Design the control flow before writing code: decide whether the four checks should be a sequence of \texttt{if} statements, a loop over an array, or a table of function pointers, and justify the choice in terms of the instructions each becomes. Work out the worst-case instruction budget available. Then state which of the three designs you could check by reading its disassembly, and what you would look for.}
 \end{frame}
 
 \begin{frame}[plain]

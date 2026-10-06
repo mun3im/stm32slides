@@ -160,7 +160,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    You have just written C code that reaches a hardware register. That code compiles into instructions. Sooner or later, you must read those instructions: when a debugger stops in a fault handler, when the compiler produces something you did not expect, when a timing loop must be exact, or when a startup file must run before any C code can execute. The next three chapters make the machine visible. Their goal is not to make you fluent in assembly. Instead, they let you look underneath any line of C code and see what the processor is really doing.
+    You have just written C code that reaches a hardware register. That code compiles into instructions. Sooner or later, you must read those instructions. This happens when a debugger stops in a fault handler, when the compiler produces something you did not expect, when a timing loop must be exact, or when a startup file must run before any C code can execute. The next three chapters make the machine visible. Their goal is not to make you fluent in assembly. Instead, they let you look underneath any line of C code and see what the processor is really doing.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -1497,21 +1497,11 @@ LDR  R2, [R3]
 \begin{frame}{Design Challenge}{To be worked on paper, before any code}
     \leavevmode
     \begin{block}{The brief}
-        A colleague's driver reads a 12-bit ADC result with
-        \texttt{LDR} (a full word), then masks off the top 20 bits in
-        C. Another engineer suggests using \texttt{LDRH} instead, since
-        the ADC data register is only 16 bits wide.
+        A colleague's driver reads a 12-bit ADC result with \texttt{LDR} (a full word), then masks off the top 20 bits in C. Another engineer suggests using \texttt{LDRH} instead, since the ADC data register is only 16 bits wide.
     \end{block}
 
     \vspace{2mm}
-    {\small Compare the two approaches instruction by instruction: how
-    many instructions does each need, and does either risk reading
-    memory that does not belong to the ADC register? Then consider a
-    signed sensor reading stored as a 16-bit two's-complement value.
-    Explain which load instruction is required, and what goes wrong if
-    the wrong one is used. State the general rule you would give a
-    junior engineer for choosing between \texttt{LDR}, \texttt{LDRH},
-    and \texttt{LDRSH}.}
+    {\small Compare the two approaches instruction by instruction: how many instructions does each need, and does either risk reading memory that does not belong to the ADC register? Then consider a signed sensor reading stored as a 16-bit two's-complement value. Explain which load instruction is required, and what goes wrong if the wrong one is used. State the general rule you would give a junior engineer for choosing between \texttt{LDR}, \texttt{LDRH}, and \texttt{LDRSH}.}
 \end{frame}
 
 \begin{frame}[plain]

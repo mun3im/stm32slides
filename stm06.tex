@@ -134,7 +134,7 @@
 
 \begin{frame}[fragile]{Why This Chapter Matters}
     \leavevmode
-    Last chapter showed how data moves between memory and registers with \texttt{LDR} and \texttt{STR}. This chapter asks the next question: once data is in a register, what can ARM do with it? Arithmetic changes values; logical instructions change individual bits; and a hardware barrel shifter lets ARM fold a shift into almost any instruction, including the ones that calculate an address. After this chapter, when you write \verb+GPIOA->MODER |= (1U << 10)+, you will know exactly which instructions the processor runs, and why each one is needed.
+    Every peripheral you configured in C was controlled by setting and clearing individual bits inside a 32-bit register. You did this without disturbing the neighbouring bits that control other pins. That operation --- load, modify specific bits, store back --- is the single most common pattern in embedded firmware. This chapter builds it from the instruction level up. After this chapter, when you write \verb+GPIOA->MODER |= (1U << 10)+, you will know exactly which instructions the processor executes and why each one is necessary.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -144,12 +144,12 @@
     \vspace{2mm}
     {\small
     \begin{enumerate}\itemsep2pt
-        \item Choose the correct arithmetic instruction, and explain why a 32-bit constant may need more than one instruction.
-        \item Write a read-modify-write sequence that changes a bit field without harming adjacent bits.
-        \item Predict the result of a shift instruction, and distinguish logical from arithmetic shifts.
+        \item Choose the correct arithmetic instruction. Explain why a 32-bit constant may need more than one instruction.
+        \item Write a read-modify-write sequence that changes a bit field without harming the neighbouring bits.
+        \item Predict the result of a shift instruction. Tell logical shifts apart from arithmetic shifts.
         \item Use the flexible second operand, including barrel-shifter forms, to combine a shift with an arithmetic operation.
-        \item Use offset addressing, pre-indexed, and post-indexed forms to reach a structure member, and state which registers each mode changes.
-        \item Use a scaled register offset to reach an array element, and trace a complete array-processing program.
+        \item Apply offset addressing, pre-indexed, and post-indexed forms to reach a structure member. State which registers each mode changes.
+        \item Use a scaled register offset to reach an array element. Trace a complete array-processing program.
     \end{enumerate}}
 \end{frame}
 
@@ -1145,21 +1145,11 @@ loop
 \begin{frame}{Design Challenge}{To be worked on paper, before any code}
     \leavevmode
     \begin{block}{The brief}
-        A colleague argues that the Cortex-M4 has a single-cycle
-        hardware multiplier, so the barrel shifter is just a historical
-        curiosity. They say the compiler should simply use \texttt{MUL}
-        everywhere.
+        A colleague argues that the Cortex-M4 has a single-cycle hardware multiplier. Because of this, they say, the barrel shifter is a historical curiosity, and the compiler should simply emit \texttt{MUL} everywhere.
     \end{block}
 
     \vspace{2mm}
-    {\small Judge this claim. Identify what a barrel-shifted operand
-    gives you that \texttt{MUL} does not. Think about the instruction
-    count, register pressure, and the fact that the shift happens on
-    the path into the ALU, not as a separate step. Then find three
-    constants for which multiplying with shifts is cheaper than
-    \texttt{MUL}, and one constant for which \texttt{MUL} is clearly
-    better. State what you would measure to settle this argument on
-    real hardware.}
+    {\small Evaluate the claim. Identify what a barrel-shifted operand gives you that \texttt{MUL} does not. Consider instruction count, register pressure, and the fact that the shift happens on the path into the ALU rather than as a separate step. Then find three constants for which multiplication is cheaper with shifts than with \texttt{MUL}, and one for which \texttt{MUL} is clearly better. State what you would measure to settle the argument on real hardware.}
 \end{frame}
 
 \begin{frame}[plain]

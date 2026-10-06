@@ -339,6 +339,43 @@
     {\small \textbf{Digital-electronics connection:} registers sit only a few gate delays from the ALU. Memory sits across a bus, with address decoding and longer settling times. Forcing operands through registers first is what lets the clock run fast.}
 \end{frame}
 
+\begin{frame}{Von Neumann vs Harvard: Why It Matters for Pipelining}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm]
+        % ---- left: Von Neumann ----
+        \node[cpublk, minimum width=16mm, minimum height=24mm] (vcpu) at (0,0) {CPU};
+        \node[memblk, minimum width=18mm, minimum height=24mm] (vmem) at (3.4,0) {Code\\+\\Data};
+        \draw[busline, line width=1.4pt, draw=primary]
+              (vcpu.east) -- node[lbl, above, inner sep=3pt] {one shared bus} (vmem.west);
+        \node[font=\small\bfseries] at (1.7,-2.0) {Von Neumann};
+        % ---- right: Harvard ----
+        \node[cpublk, minimum width=16mm, minimum height=24mm] (hcpu) at (7.8,0) {CPU};
+        \node[memblk, minimum width=18mm, minimum height=10mm] (hcode) at (11.2,0.85)  {Code};
+        \node[memblk, minimum width=18mm, minimum height=10mm] (hdata) at (11.2,-0.85) {Data};
+        \draw[busline, line width=1.4pt, draw=secondary]
+              (hcpu.east |- hcode) -- node[lbl, above, inner sep=2pt] {bus 1} (hcode.west);
+        \draw[busline, line width=1.4pt, draw=primary]
+              (hcpu.east |- hdata) -- node[lbl, below, inner sep=2pt] {bus 2} (hdata.west);
+        \node[font=\small\bfseries] at (9.5,-2.0) {Harvard};
+    \end{tikzpicture}
+    \end{center}
+    \vspace{1mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{itemize}
+            \item Instruction fetch and data access \alert{share one bus}. They cannot happen together.
+            \item The shared bus is the \alert{Von Neumann bottleneck}.
+        \end{itemize}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{itemize}
+            \item The CPU fetches the \alert{next instruction} while the current one reads or writes data.
+            \item This overlap is what a pipeline needs. The Cortex-M4 is \alert{modified Harvard}: separate buses, one address space.
+        \end{itemize}
+    \end{column}
+    \end{columns}
+\end{frame}
+
 \begin{frame}[plain]{Pipelining}
     \leavevmode
     Doing fetch, decode, and execute strictly one after another \alert{wastes hardware}. While the ALU is busy, the fetch unit sits idle, doing nothing.

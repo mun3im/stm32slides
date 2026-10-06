@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 660.31348 475.66113"
+   width="660.31348"
+   height="475.66113"
+   version="1.1"
+   id="svg86"
+   sodipodi:docname="m4-memory-map.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs86" />
+  <sodipodi:namedview
+     id="namedview86"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.8758065"
+     inkscape:cx="375.03869"
+     inkscape:cy="270.5503"
+     inkscape:window-width="2560"
+     inkscape:window-height="1382"
+     inkscape:window-x="3240"
+     inkscape:window-y="1150"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg86" />
+  <style
+     id="style1">
+    .title   { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; }
+    .addr    { font-family: Consolas, 'Courier New', monospace; font-size: 11px; fill: #333; }
+    .label   { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #222; }
+    .boxtext { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-anchor: middle; }
+    .small   { font-family: Arial, Helvetica, sans-serif; font-size: 10px; fill: #444; }
+  </style>
+  <rect
+     x="384.78076"
+     y="10.5"
+     width="200"
+     height="40"
+     fill="#f48fb1"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect1" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="35.5"
+     id="text2">Vendor Specific</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="20.5"
+     id="text3">0xEFFFFFFF</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="48.5"
+     id="text4">0xE0100000</text>
+  <rect
+     x="384.78076"
+     y="50.5"
+     width="200"
+     height="28"
+     fill="#b2ebf2"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect4" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="68.5"
+     id="text5">Private Peripheral Bus - External</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="76.5"
+     id="text6">0xE0040000</text>
+  <rect
+     x="384.78076"
+     y="78.5"
+     width="200"
+     height="28"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect6" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="96.5"
+     id="text7">Private Peripheral Bus - Internal</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="115.5"
+     id="text8">0xDFFFFFFF</text>
+  <rect
+     x="384.78076"
+     y="106.5"
+     width="200"
+     height="90"
+     fill="#ffffff"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect8" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="153.5"
+     id="text9">External Device</text>
+  <text
+     class="small"
+     x="544.78076"
+     y="180.5"
+     id="text10">1GB</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="192.5"
+     id="text11">0xA0000000</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="206.5"
+     id="text12">0x9FFFFFFF</text>
+  <rect
+     x="384.78076"
+     y="196.5"
+     width="200"
+     height="90"
+     fill="#fff9c4"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect12" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="245.5"
+     id="text13">External RAM</text>
+  <text
+     class="small"
+     x="544.78076"
+     y="270.5"
+     id="text14">1GB</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="282.5"
+     id="text15">0x60000000</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="296.5"
+     id="text16">0x5FFFFFFF</text>
+  <rect
+     x="384.78076"
+     y="286.5"
+     width="200"
+     height="50"
+     fill="#5c6bc0"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect16" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="315.5"
+     fill="#ffffff"
+     id="text17">Peripheral</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="332.5"
+     id="text19">0x40000000</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="346.5"
+     id="text20">0x3FFFFFFF</text>
+  <rect
+     x="384.78076"
+     y="336.5"
+     width="200"
+     height="50"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect20" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="365.5"
+     id="text21">SRAM</text>
+  <text
+     class="small"
+     x="544.78076"
+     y="364.5"
+     id="text22">0.5GB</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="384.5"
+     id="text23">0x20000000</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="396.5"
+     id="text24">0x1FFFFFFF</text>
+  <rect
+     x="384.78076"
+     y="386.5"
+     width="200"
+     height="50"
+     fill="#ffb74d"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect24" />
+  <text
+     class="boxtext"
+     x="484.78076"
+     y="415.5"
+     id="text25">Code Area</text>
+  <text
+     class="small"
+     x="544.78076"
+     y="416.5"
+     id="text26">0.5GB</text>
+  <text
+     class="addr"
+     x="594.78076"
+     y="434.5"
+     id="text27">0x00000000</text>
+  <rect
+     x="74.780762"
+     y="0.5"
+     width="160"
+     height="22"
+     fill="#b2ebf2"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect27" />
+  <rect
+     x="74.780762"
+     y="22.5"
+     width="160"
+     height="22"
+     fill="#b2ebf2"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect28" />
+  <rect
+     x="74.780762"
+     y="44.5"
+     width="160"
+     height="22"
+     fill="#b2ebf2"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect29" />
+  <rect
+     x="74.780762"
+     y="66.5"
+     width="160"
+     height="22"
+     fill="#b2ebf2"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect30" />
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="15.5"
+     id="text30">ROM Table</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="37.5"
+     id="text31">External PPB</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="59.5"
+     id="text32">ETM</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="81.5"
+     id="text33">TPIU</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="21.5"
+     text-anchor="end"
+     id="text34">0xE00FF000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="43.5"
+     text-anchor="end"
+     id="text35">0xE0042000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="65.5"
+     text-anchor="end"
+     id="text36">0xE0041000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="87.5"
+     text-anchor="end"
+     id="text37">0xE0040000</text>
+  <rect
+     x="74.780762"
+     y="110.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect37" />
+  <rect
+     x="74.780762"
+     y="132.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect38" />
+  <rect
+     x="74.780762"
+     y="154.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect39" />
+  <rect
+     x="74.780762"
+     y="176.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect40" />
+  <rect
+     x="74.780762"
+     y="198.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect41" />
+  <rect
+     x="74.780762"
+     y="220.5"
+     width="160"
+     height="22"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect42" />
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="125.5"
+     id="text42">Reserved</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="147.5"
+     id="text43">NVIC</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="169.5"
+     id="text44">Reserved</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="191.5"
+     id="text45">FPB</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="213.5"
+     id="text46">DWT</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="235.5"
+     id="text47">ITM</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="131.5"
+     text-anchor="end"
+     id="text48">0xE000F000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="153.5"
+     text-anchor="end"
+     id="text49">0xE000E000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="173.5"
+     text-anchor="end"
+     id="text50">0xE0003000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="197.5"
+     text-anchor="end"
+     id="text51">0xE0002000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="219.5"
+     text-anchor="end"
+     id="text52">0xE0001000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="241.5"
+     text-anchor="end"
+     id="text53">0xE0000000</text>
+  <rect
+     x="74.780762"
+     y="280.5"
+     width="160"
+     height="28"
+     fill="#5c6bc0"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect53" />
+  <rect
+     x="74.780762"
+     y="308.5"
+     width="160"
+     height="28"
+     fill="#5c6bc0"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect54" />
+  <rect
+     x="74.780762"
+     y="336.5"
+     width="160"
+     height="28"
+     fill="#5c6bc0"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect55" />
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="298.5"
+     fill="#ffffff"
+     id="text55">32MB Bit-band alias</text>
+  <text
+     class="boxtext"
+     x="116.78076"
+     y="326.5"
+     fill="#ffffff"
+     id="text56">31MB</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="354.5"
+     fill="#ffffff"
+     id="text57">1MB Bit-band region</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="288.5"
+     text-anchor="end"
+     id="text58">0x43FFFFFF</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="306.5"
+     text-anchor="end"
+     id="text59">0x42000000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="333.5"
+     text-anchor="end"
+     id="text60">0x41FFFFFF</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="350.5"
+     text-anchor="end"
+     id="text61">0x40100000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="365.5"
+     text-anchor="end"
+     id="text62">0x40000000</text>
+  <rect
+     x="74.780762"
+     y="390.5"
+     width="160"
+     height="28"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect62" />
+  <rect
+     x="74.780762"
+     y="418.5"
+     width="160"
+     height="28"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect63" />
+  <rect
+     x="74.780762"
+     y="446.5"
+     width="160"
+     height="28"
+     fill="#a5d6a7"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect64" />
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="408.5"
+     id="text64">32MB Bit-band alias</text>
+  <text
+     class="boxtext"
+     x="116.78076"
+     y="436.5"
+     id="text65">31MB</text>
+  <text
+     class="boxtext"
+     x="154.78076"
+     y="464.5"
+     id="text66">1MB Bit-band region</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="400.5"
+     text-anchor="end"
+     id="text67">0x23FFFFFF</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="416.5"
+     text-anchor="end"
+     id="text68">0x22000000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="427.5"
+     text-anchor="end"
+     id="text69">0x21FFFFFF</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="456.5"
+     text-anchor="end"
+     id="text70">0x20100000</text>
+  <text
+     class="addr"
+     x="64.780762"
+     y="471.5"
+     text-anchor="end"
+     id="text71">0x20000000</text>
+  <path
+     d="m 234.78076,0.5 150,50"
+     id="path71"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,88.5 150,-10"
+     id="path74"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,110.5 150,-32"
+     id="path75"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,240.5 150,-134"
+     id="path80"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,280.5 150,6"
+     id="path81"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,364.5 150,-28"
+     id="path83"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,390.5 150,-30"
+     id="path84"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.78076,474.5 150,-88"
+     id="path86"
+     style="fill:none;stroke:#666666;stroke-width:1"
+     sodipodi:nodetypes="cc" />
+  <text
+     class="boxtext"
+     x="554.60883"
+     y="314.7717"
+     fill="#ffffff"
+     id="text86"
+     style="font-size:10px">0.5GB</text>
+</svg>

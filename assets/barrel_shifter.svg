@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="116.81353mm"
+   height="59.200527mm"
+   viewBox="0 0 116.81353 59.200527"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="barrel_shifter.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:c2pa="http://c2pa.org/manifest">
+  <metadata
+     id="metadata1">
+    <c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYToyNGE3YjM3Ni01MTkyLTQxN2UtYjNkNy1iMTJhZmRlNjUzMmYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaMigp7iWc076E4InmHvmUwMAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo2M2JlY2I3Ni05ZTk5LTRlMWItOTg4OC05MTg4OWIzODMxOGNscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoZqKApr79pZdjcDNBkllLsQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg+YTIIzVoFdR5iLay4M5bCUtvD0cAnjN3k4rEcG5H5++kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaAAfYfQAeoUrB1VY6QeIb4wAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIBBlOp7wE9759LzaECvq4Metdd6imwkd0M58+JvuRgc1ZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQJaZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjI0YTdiMzc2LTUxOTItNDE3ZS1iM2Q3LWIxMmFmZGU2NTMyZi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjIzZjU1NTY3LWFhZDctNDBhYi1iN2ZmLThjMzkyNjc2ZWVjMnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCD5hMgjNWgV1HmItrLgzlsJS28PRwCeM3eTisRwbkfn76JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg3W7KHpvD36nwPkiNbROc5TWtGOO1qdtoxQv2m+PPvoSiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggEOGcWnhll7z1Pxq5G7uX6xocuk6bbwtLe/Dn1NBkWuR0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQJ43prFEnkMOJT+vdr26oQr2ilnjuR8up02Rp9pNflQMFa7zD6XEhAtia3uoX6QbCYpsqNPLtsDd2j0besmBO3M=</c2pa:manifest>
+  </metadata>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="3.7349947"
+     inkscape:cx="220.74998"
+     inkscape:cy="102.14205"
+     inkscape:window-width="3240"
+     inkscape:window-height="2024"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-50.006252,-115.8875)">
+    <path
+       class="bus"
+       d="m 127.99219,158.41927 h 15.34583"
+       stroke="#a84a4a"
+       stroke-width="0.79375"
+       id="path14"
+       style="fill:none;stroke:#a84a4a;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
+    <path
+       class="bus"
+       d="m 156.03802,151.54011 v -30.1625 h -16.40417"
+       stroke="#3f7691"
+       stroke-width="0.661458"
+       id="path15"
+       style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:#a84a4a;stroke-opacity:1"
+       sodipodi:nodetypes="ccc" />
+    <path
+       class="bus"
+       d="M 76.684853,123.00106 H 102.4162"
+       stroke="#3f7691"
+       stroke-width="1.73126"
+       id="path10"
+       style="fill:none;stroke-linecap:round;stroke-linejoin:round"
+       sodipodi:nodetypes="cc" />
+    <path
+       class="bus"
+       d="m 76.634762,136.83132 h 23.812498 v 9.26042"
+       stroke="#4f7d49"
+       stroke-width="1.5875"
+       id="path11"
+       style="fill:none;stroke-linecap:round;stroke-linejoin:round"
+       sodipodi:nodetypes="ccc" />
+    <path
+       class="bus"
+       d="m 110.79425,169.00261 v 5.29167 H 63.96302 V 145.1901"
+       stroke="#4f7d49"
+       stroke-width="1.5875"
+       id="path12"
+       style="fill:none;stroke-linecap:round;stroke-linejoin:round"
+       sodipodi:nodetypes="cccc" />
+    <path
+       class="bus"
+       d="m 119.52557,131.96094 v 13.75833"
+       stroke="#3f7691"
+       stroke-width="1.32292"
+       id="path13"
+       style="fill:none;stroke-linecap:round;stroke-linejoin:round"
+       sodipodi:nodetypes="cc" />
+    <rect
+       x="50.204689"
+       y="118.73177"
+       width="26.458332"
+       height="23.8125"
+       rx="1.0583333"
+       fill="#ecdfa9"
+       stroke="#ab9042"
+       stroke-width="0.396875"
+       id="rect2"
+       style="fill:#fff1b6;fill-opacity:1" />
+    <text
+       class="box-text"
+       x="63.433853"
+       y="129.31511"
+       fill="#222222"
+       id="text2"
+       style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">Register</text>
+    <text
+       class="box-text"
+       x="63.433853"
+       y="134.60677"
+       fill="#222222"
+       id="text3"
+       style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">Bank</text>
+    <path
+       d="m 108.41305,116.08594 h 31.75 l -7.9375,15.875 h -31.75003 z"
+       fill="#a8c9dc"
+       stroke="#3f7691"
+       stroke-width="0.396875"
+       id="path3"
+       style="fill:#c3e9ff;fill-opacity:1" />
+    <g
+       id="g1"
+       transform="translate(4.4336965,-1.8469298)">
+      <text
+         class="box-text"
+         x="115.0276"
+         y="125.34636"
+         fill="#222222"
+         id="text4"
+         style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">Barrel</text>
+      <text
+         class="box-text"
+         x="115.0276"
+         y="129.84427"
+         fill="#222222"
+         id="text5"
+         style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">Shifter</text>
+    </g>
+    <path
+       d="m 92.53802,147.83594 h 17.19792 l 1.32292,2.64583 1.32291,-2.64583 h 17.19792 l -7.9375,21.16667 h -21.16667 z"
+       fill="#a9c8a4"
+       stroke="#4f7d49"
+       stroke-width="0.396875"
+       id="path5"
+       sodipodi:nodetypes="cccccccc"
+       style="fill:#d8ffd2;fill-opacity:1" />
+    <text
+       class="box-text"
+       x="111.05885"
+       y="159.20016"
+       fill="#222222"
+       id="text6"
+       style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">ALU</text>
+    <text
+       class="label"
+       x="103.12135"
+       y="152.59843"
+       text-anchor="middle"
+       id="text7"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Op1</text>
+    <text
+       class="label"
+       x="118.99635"
+       y="152.59843"
+       text-anchor="middle"
+       id="text8"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Op2</text>
+    <text
+       class="label"
+       x="111.3594"
+       y="167.13766"
+       text-anchor="middle"
+       id="text9"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Result</text>
+    <rect
+       x="145.45468"
+       y="153.12761"
+       width="21.166666"
+       height="10.583333"
+       rx="0.79374999"
+       fill="#ecdfa9"
+       stroke="#ab9042"
+       stroke-width="0.396875"
+       id="rect9"
+       style="fill:#ecdce8;fill-opacity:1;stroke:#cfabcf;stroke-opacity:1" />
+    <text
+       class="box-text"
+       x="156.03802"
+       y="159.74219"
+       fill="#222222"
+       id="text10"
+       style="font-weight:bold;font-size:3.70417px;font-family:Arial, Helvetica, sans-serif;text-anchor:middle;stroke-width:0.264583">xPSR</text>
+    <polygon
+       points="190,55 180,49 180,61 "
+       fill="#3f7691"
+       id="polygon10"
+       transform="matrix(0.26458333,0,0,0.26458333,54.438027,108.44898)" />
+    <text
+       class="label"
+       x="70.254013"
+       y="123.65353"
+       fill="#eee"
+       id="text11"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Rm</text>
+    <polygon
+       points="166,140 160,150 154,140 "
+       fill="#4f7d49"
+       id="polygon11"
+       transform="matrix(0.26458333,0,0,0.26458333,58.136978,108.14845)" />
+    <text
+       class="label"
+       x="70.593063"
+       y="137.4837"
+       fill="#eee"
+       id="text12"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Rn</text>
+    <polygon
+       points="86,140 80,130 74,140 "
+       fill="#4f7d49"
+       id="polygon12"
+       transform="matrix(0.26458333,0,0,0.26458333,42.796353,108.14844)" />
+    <text
+       class="label"
+       x="61.75642"
+       y="141.1675"
+       fill="#eee"
+       id="text13"
+       style="font-size:3.175px;font-family:Arial, Helvetica, sans-serif;fill:#222222;stroke-width:0.264583">Rd</text>
+    <polygon
+       points="244,140 256,140 250,150 "
+       fill="#3f7691"
+       id="polygon13"
+       transform="matrix(0.26458333,0,0,0.26458333,53.379693,108.14844)" />
+    <polygon
+       points="370,184 370,196 380,190 "
+       fill="#a84a4a"
+       id="polygon14"
+       transform="matrix(0.26458333,0,0,0.26458333,44.913021,108.14844)"
+       style="stroke:none;stroke-opacity:1;fill:#a84a4a;fill-opacity:1" />
+    <polygon
+       points="380,190 370,184 370,196 "
+       fill="#a84a4a"
+       id="polygon2"
+       transform="matrix(-0.26458333,0,0,0.26458333,226.41708,108.14844)"
+       style="fill:#a84a4a;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    <polygon
+       points="370,184 370,196 380,190 "
+       fill="#a84a4a"
+       id="polygon1"
+       transform="matrix(-0.26458333,0,0,0.26458333,238.27392,71.110631)"
+       style="fill:#a84a4a;fill-opacity:1;stroke:none;stroke-opacity:1" />
+  </g>
+</svg>

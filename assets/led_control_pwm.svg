@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 945.60779 421.01141"
+   width="945.60779"
+   height="421.01141"
+   font-family="Arial, Helvetica, sans-serif"
+   version="1.1"
+   id="svg48"
+   sodipodi:docname="DyyjP.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs48">
+    <marker
+       style="overflow:visible"
+       id="marker50"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path50" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Triangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="namedview48"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.743852"
+     inkscape:cx="426.92844"
+     inkscape:cy="279.55355"
+     inkscape:window-width="2560"
+     inkscape:window-height="1382"
+     inkscape:window-x="3240"
+     inkscape:window-y="1150"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg48" />
+  <!-- Background -->
+  <!-- ========== TOP SECTION: Waveforms ========== -->
+  <!-- Vertical axis labels -->
+  <text
+     x="25.716797"
+     y="61.636395"
+     font-size="14px"
+     fill="#333333"
+     text-anchor="end"
+     id="text1">Vdd</text>
+  <text
+     x="25.716797"
+     y="168.6364"
+     font-size="14px"
+     fill="#333333"
+     text-anchor="end"
+     id="text2">Gnd</text>
+  <!-- Axis line -->
+  <line
+     x1="37.716797"
+     y1="53.636395"
+     x2="37.716797"
+     y2="173.6364"
+     stroke="#333333"
+     stroke-width="1.5"
+     id="line2" />
+  <!-- PWM waveform path (black pulses) -->
+  <!-- 10% duty cycle region (x=50 to 280) -->
+  <path
+     d="M 47.716797,173.6364 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 H 107.7168 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 h 25 V 63.636395 h 5 V 173.6364 h 14.7"
+     fill="none"
+     stroke="#222222"
+     stroke-width="2"
+     id="path3"
+     sodipodi:nodetypes="ccccccccccccccccccccccccccccccccc" />
+  <!-- 50% duty cycle region (x=280 to 520) -->
+  <path
+     d="M 277.7168,173.6364 V 63.636395 h 30 V 173.6364 h 30 V 63.636395 h 30 V 173.6364 h 30 V 63.636395 h 30 V 173.6364 h 30 V 63.636395 h 30 V 173.6364 h 30"
+     fill="none"
+     stroke="#222222"
+     stroke-width="2"
+     id="path4" />
+  <!-- 90% duty cycle region (x=520 to 850) -->
+  <path
+     d="M 517.7168,173.6364 V 63.636395 h 53 V 173.6364 h 7 V 63.636395 h 53 V 173.6364 h 7 V 63.636395 h 53 V 173.6364 h 7 V 63.636395 h 53 V 173.6364 h 7 V 63.636395 h 53 V 173.6364 h 7 V 63.636395 h 38 V 173.6364"
+     fill="none"
+     stroke="#222222"
+     stroke-width="2"
+     id="path5"
+     sodipodi:nodetypes="cccccccccccccccccccccccc" />
+  <!-- Red average voltage line (V_PWM) -->
+  <path
+     d="M 47.716797,168.6364 H 197.7168 c 40,0 60,-15 80,-35 20,-20 40,-17 80,-17 h 120 c 20,0 40,-18.000005 60,-33.000005 20,-15 40,-14 80,-14 h 246"
+     fill="none"
+     stroke="#e53935"
+     stroke-width="2.5"
+     id="path6"
+     sodipodi:nodetypes="cssssssc" />
+  <!-- Arrow at end of red line -->
+  <polygon
+     points="850,50 838,44 838,56 "
+     fill="#e53935"
+     id="polygon6"
+     transform="translate(23.716797,19.636395)" />
+  <text
+     x="878.7168"
+     y="73.636398"
+     font-size="14px"
+     fill="#e53935"
+     font-weight="bold"
+     id="text6">V<tspan
+   font-size="11px"
+   baseline-shift="sub"
+   id="tspan6">PWM</tspan></text>
+  <!-- LED icons and brightness labels -->
+  <!-- Dim LED (10%) -->
+  <circle
+     cx="145.7168"
+     cy="19.958395"
+     fill="#ff5252"
+     opacity="0.6"
+     id="circle6"
+     style="stroke-width:0.571429"
+     r="4" />
+  <!-- Medium LED (50%) -->
+  <circle
+     cx="397.7168"
+     cy="20.636395"
+     fill="#ff1744"
+     id="circle8"
+     style="stroke-width:0.75"
+     r="6" />
+  <line
+     x1="385.7168"
+     y1="31.636395"
+     x2="390.7168"
+     y2="26.636395"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line9" />
+  <line
+     x1="409.7168"
+     y1="31.636395"
+     x2="404.7168"
+     y2="26.636395"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line11" />
+  <!-- Bright LED (90%) -->
+  <circle
+     cx="677.7168"
+     cy="20.636395"
+     r="9"
+     fill="#d50000"
+     id="circle11" />
+  <!-- LED Brightness label -->
+  <text
+     x="878.33533"
+     y="17.911106"
+     font-size="13px"
+     fill="#333333"
+     font-weight="bold"
+     id="text14">LED</text>
+  <text
+     x="878.33533"
+     y="32.911106"
+     font-size="13px"
+     fill="#333333"
+     font-weight="bold"
+     id="text15">Brightness</text>
+  <!-- Duty cycle labels -->
+  <!-- 10% -->
+  <line
+     x1="47.716797"
+     y1="188.6364"
+     x2="272.7168"
+     y2="188.6364"
+     stroke="#c62828"
+     stroke-width="1.2"
+     id="line15"
+     style="stroke-width:1.2;stroke-dasharray:none;marker-start:url(#Triangle);marker-end:url(#Triangle)" />
+  <text
+     x="159.7168"
+     y="208.6364"
+     font-size="13px"
+     fill="#c62828"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text17">10% Duty Cycle</text>
+  <text
+     x="159.7168"
+     y="225.6364"
+     font-size="12px"
+     fill="#c62828"
+     text-anchor="middle"
+     id="text18">V<tspan
+   font-size="9px"
+   baseline-shift="sub"
+   id="tspan17">PWM</tspan> = 0.1(Vdd)</text>
+  <!-- 50% -->
+  <text
+     x="394.7168"
+     y="208.6364"
+     font-size="13px"
+     fill="#c62828"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text20">50% Duty Cycle</text>
+  <text
+     x="394.7168"
+     y="225.6364"
+     font-size="12px"
+     fill="#c62828"
+     text-anchor="middle"
+     id="text21">V<tspan
+   font-size="9px"
+   baseline-shift="sub"
+   id="tspan20">PWM</tspan> = 0.5(Vdd)</text>
+  <!-- 90% -->
+  <text
+     x="682.7168"
+     y="208.6364"
+     font-size="13px"
+     fill="#c62828"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text23">90% Duty Cycle</text>
+  <text
+     x="682.7168"
+     y="225.6364"
+     font-size="12px"
+     fill="#c62828"
+     text-anchor="middle"
+     id="text24">V<tspan
+   font-size="9px"
+   baseline-shift="sub"
+   id="tspan23">PWM</tspan> = 0.9(Vdd)</text>
+  <!-- ========== BOTTOM LEFT: Low-pass filter circuit ========== -->
+  <!-- Yellow box for PWM Signal Source -->
+  <rect
+     x="37.716797"
+     y="293.63638"
+     width="110"
+     height="70"
+     rx="6"
+     fill="#fff9c4"
+     stroke="#fbc02d"
+     stroke-width="1.5"
+     id="rect24" />
+  <g
+     id="g55"
+     transform="translate(-2.5560958,8.4514349)">
+    <text
+       x="95"
+       y="308"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text25">PWM</text>
+    <text
+       x="95"
+       y="325"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text26">Signal</text>
+    <text
+       x="95"
+       y="342"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text27">Source</text>
+  </g>
+  <!-- Wire from source -->
+  <!-- Low-pass filter box -->
+  <rect
+     x="197.75876"
+     y="293.67834"
+     width="129.91608"
+     height="78.102852"
+     rx="3.9974177"
+     fill="#bbdefb"
+     stroke="#1976d2"
+     stroke-width="1.58393"
+     id="rect27" />
+  <text
+     x="264.62704"
+     y="285.80133"
+     font-size="12px"
+     fill="#1565c0"
+     text-anchor="middle"
+     font-weight="bold"
+     id="text28">Low-pass filter</text>
+  <!-- Resistor symbol -->
+  <path
+     d="m 148.7168,328.6364 h 64 l 6,10 9,-20 10,20 10,-20 10,20 10,-20 6,10 h 79"
+     fill="none"
+     stroke="#333333"
+     stroke-width="2"
+     id="path28"
+     sodipodi:nodetypes="cccccccccc" />
+  <text
+     x="247.7168"
+     y="358.63638"
+     font-size="12px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text29">R</text>
+  <!-- Capacitor to ground -->
+  <line
+     x1="282.7168"
+     y1="353.63638"
+     x2="302.7168"
+     y2="353.63638"
+     stroke="#333333"
+     stroke-width="2.5"
+     id="line30" />
+  <line
+     x1="282.7168"
+     y1="361.63638"
+     x2="302.7168"
+     y2="361.63638"
+     stroke="#333333"
+     stroke-width="2.5"
+     id="line31" />
+  <text
+     x="307.7168"
+     y="360.63638"
+     font-size="12px"
+     fill="#333333"
+     id="text33">C</text>
+  <!-- Output wire and red dot -->
+  <circle
+     cx="357.7168"
+     cy="328.63638"
+     r="6"
+     fill="#e53935"
+     id="circle34" />
+  <text
+     x="372.7168"
+     y="333.63638"
+     font-size="14px"
+     fill="#e53935"
+     font-weight="bold"
+     id="text34">V<tspan
+   font-size="11px"
+   baseline-shift="sub"
+   id="tspan34">PWM</tspan></text>
+  <!-- Note under left circuit -->
+  <text
+     x="165.24258"
+     y="418.27557"
+     font-size="13px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text35">Pulse frequency &gt;&gt; 3dB frequency</text>
+  <text
+     x="171.5191"
+     y="416.44598"
+     font-size="13px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text36" />
+  <text
+     x="127.0376"
+     y="433.71887"
+     font-size="13px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text37" />
+  <!-- ========== BOTTOM RIGHT: LED circuit ========== -->
+  <!-- Yellow box for PWM Signal Source -->
+  <rect
+     x="477.7168"
+     y="293.63638"
+     width="110"
+     height="70"
+     rx="6"
+     fill="#fff9c4"
+     stroke="#fbc02d"
+     stroke-width="1.5"
+     id="rect37" />
+  <g
+     id="g54"
+     transform="translate(-4.1934517,7.0869716)">
+    <text
+       x="535"
+       y="308"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text38">PWM</text>
+    <text
+       x="535"
+       y="325"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text39">Signal</text>
+    <text
+       x="535"
+       y="342"
+       font-size="13px"
+       fill="#333333"
+       text-anchor="middle"
+       font-weight="bold"
+       id="text40">Source</text>
+  </g>
+  <!-- Wire + resistor -->
+  <text
+     x="652.98059"
+     y="356.45325"
+     font-size="12px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text41">R</text>
+  <!-- LED symbol -->
+  <!-- Triangle (diode) -->
+  <polygon
+     points="750,315 720,300 720,330 "
+     fill="none"
+     stroke="#333333"
+     stroke-width="2"
+     id="polygon41"
+     style="fill:#f53333;fill-opacity:1"
+     transform="translate(-2.2832031,13.636395)" />
+  <!-- Cathode bar -->
+  <line
+     x1="747.7168"
+     y1="313.63638"
+     x2="747.7168"
+     y2="343.63638"
+     stroke="#333333"
+     stroke-width="2.5"
+     id="line41" />
+  <!-- Light rays -->
+  <line
+     x1="723.7168"
+     y1="308.63638"
+     x2="738.7168"
+     y2="293.63638"
+     stroke="#e53935"
+     stroke-width="2"
+     id="line42"
+     style="marker-end:url(#marker50)" />
+  <!-- Arrow heads on rays -->
+  <!-- Ground connection -->
+  <line
+     x1="747.7168"
+     y1="328.63638"
+     x2="787.7168"
+     y2="328.63638"
+     stroke="#333333"
+     stroke-width="2"
+     id="line44" />
+  <line
+     x1="786.7168"
+     y1="327.63638"
+     x2="786.7168"
+     y2="362.63638"
+     stroke="#333333"
+     stroke-width="2"
+     id="line45" />
+  <line
+     x1="776.7168"
+     y1="363.63638"
+     x2="796.7168"
+     y2="363.63638"
+     stroke="#333333"
+     stroke-width="2"
+     id="line46" />
+  <line
+     x1="779.7168"
+     y1="369.63638"
+     x2="793.7168"
+     y2="369.63638"
+     stroke="#333333"
+     stroke-width="1.5"
+     id="line47" />
+  <line
+     x1="782.7168"
+     y1="375.63638"
+     x2="790.7168"
+     y2="375.63638"
+     stroke="#333333"
+     stroke-width="1.2"
+     id="line48" />
+  <!-- Note under right circuit -->
+  <text
+     x="658.63251"
+     y="418.27557"
+     font-size="13px"
+     fill="#333333"
+     text-anchor="middle"
+     id="text48">Pulse frequency &gt; 60Hz</text>
+  <line
+     x1="282.35855"
+     y1="188.6364"
+     x2="512.61719"
+     y2="188.6364"
+     stroke="#c62828"
+     stroke-width="1.2"
+     id="line49"
+     style="stroke-width:1.21394;stroke-dasharray:none;marker-start:url(#Triangle);marker-end:url(#Triangle)" />
+  <line
+     x1="522.30841"
+     y1="188.63663"
+     x2="851.52618"
+     y2="188.63663"
+     stroke="#c62828"
+     stroke-width="1.2"
+     id="line50"
+     style="stroke-width:1.45162;stroke-dasharray:none;marker-start:url(#Triangle);marker-end:url(#Triangle)" />
+  <line
+     x1="739.7168"
+     y1="308.63638"
+     x2="754.7168"
+     y2="293.63638"
+     stroke="#e53935"
+     stroke-width="2"
+     id="line51"
+     style="marker-end:url(#marker50)" />
+  <line
+     x1="282.7168"
+     y1="379.63638"
+     x2="302.7168"
+     y2="379.63638"
+     stroke="#333333"
+     stroke-width="2"
+     id="line52" />
+  <line
+     x1="285.7168"
+     y1="385.63638"
+     x2="299.7168"
+     y2="385.63638"
+     stroke="#333333"
+     stroke-width="1.5"
+     id="line53" />
+  <line
+     x1="288.7168"
+     y1="391.63638"
+     x2="296.7168"
+     y2="391.63638"
+     stroke="#333333"
+     stroke-width="1.2"
+     id="line54" />
+  <path
+     d="m 292.7168,362.02633 v 16.54942"
+     fill="none"
+     stroke="#333333"
+     stroke-width="2"
+     id="path54"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 292.7168,328.93296 v 24.54942"
+     fill="none"
+     stroke="#333333"
+     stroke-width="2"
+     id="path56"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 587.51001,328.6364 h 34 l 6,10 9,-20 10,20 10,-20 10,20 10,-20 6,10 h 35"
+     fill="none"
+     stroke="#333333"
+     stroke-width="2"
+     id="path57"
+     sodipodi:nodetypes="cccccccccc" />
+  <line
+     x1="385.7168"
+     y1="8.2803917"
+     x2="390.7168"
+     y2="13.280392"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line57" />
+  <line
+     x1="397.7168"
+     y1="27.636395"
+     x2="397.7168"
+     y2="35.916786"
+     stroke="#ff1744"
+     stroke-width="2.3164"
+     id="line10" />
+  <line
+     x1="397.7168"
+     y1="12.280392"
+     x2="397.7168"
+     y2="4"
+     stroke="#ff1744"
+     stroke-width="2.3164"
+     id="line58" />
+  <line
+     x1="409.7168"
+     y1="8.2803917"
+     x2="404.7168"
+     y2="13.280392"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line59" />
+  <line
+     x1="390.03879"
+     y1="19.958393"
+     x2="381.75839"
+     y2="19.958393"
+     stroke="#ff1744"
+     stroke-width="2.3164"
+     id="line60" />
+  <line
+     x1="405.39481"
+     y1="19.958393"
+     x2="413.6752"
+     y2="19.958393"
+     stroke="#ff1744"
+     stroke-width="2.3164"
+     id="line61" />
+  <g
+     id="g78"
+     transform="translate(-2.2832031,13.636395)">
+    <line
+       x1="148"
+       y1="12"
+       x2="148"
+       y2="20.280392"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line65" />
+    <line
+       x1="148"
+       y1="0.64399576"
+       x2="148"
+       y2="-7.6363955"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line66" />
+    <line
+       x1="142.32201"
+       y1="6.322"
+       x2="134.04161"
+       y2="6.322"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line68" />
+    <line
+       x1="153.67801"
+       y1="6.322"
+       x2="161.95839"
+       y2="6.322"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line69" />
+  </g>
+  <line
+     x1="663.7168"
+     y1="33.636395"
+     x2="668.7168"
+     y2="28.636395"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line70" />
+  <line
+     x1="691.7168"
+     y1="33.636395"
+     x2="686.7168"
+     y2="28.636395"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line71" />
+  <line
+     x1="663.7168"
+     y1="6.2803912"
+     x2="668.7168"
+     y2="11.280392"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line72" />
+  <g
+     id="g74"
+     transform="translate(277.7168,13.636395)">
+    <line
+       x1="400"
+       y1="18"
+       x2="400"
+       y2="26.280392"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line73" />
+    <line
+       x1="400"
+       y1="-5.3560042"
+       x2="400"
+       y2="-13.636395"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line74" />
+  </g>
+  <line
+     x1="691.7168"
+     y1="6.2803912"
+     x2="686.7168"
+     y2="11.280392"
+     stroke="#ff1744"
+     stroke-width="1.8"
+     id="line75" />
+  <g
+     id="g77"
+     transform="rotate(90,532.0402,151.9986)">
+    <line
+       x1="400"
+       y1="18"
+       x2="400"
+       y2="26.280392"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line76" />
+    <line
+       x1="400"
+       y1="-5.3560042"
+       x2="400"
+       y2="-13.636395"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line77" />
+  </g>
+  <g
+     id="g81"
+     transform="rotate(45,130.39781,10.384126)">
+    <line
+       x1="148"
+       y1="12"
+       x2="148"
+       y2="20.280392"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line78" />
+    <line
+       x1="148"
+       y1="0.64399576"
+       x2="148"
+       y2="-7.6363955"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line79" />
+    <line
+       x1="142.32201"
+       y1="6.322"
+       x2="134.04161"
+       y2="6.322"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line80" />
+    <line
+       x1="153.67801"
+       y1="6.322"
+       x2="161.95839"
+       y2="6.322"
+       stroke="#ff1744"
+       stroke-width="2.3164"
+       id="line81" />
+  </g>
+</svg>

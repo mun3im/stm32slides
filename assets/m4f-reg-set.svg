@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 670.95593 353"
+   width="670.95593"
+   height="353"
+   version="1.1"
+   id="svg46"
+   sodipodi:docname="diagram.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs46" />
+  <sodipodi:namedview
+     id="namedview46"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.9858974"
+     inkscape:cx="321.34392"
+     inkscape:cy="204.12623"
+     inkscape:window-width="3240"
+     inkscape:window-height="2024"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg46" />
+  <style
+     id="style1">
+    .label { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222; }
+    .small  { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #444; }
+    .reg    { font-family: Consolas, 'Courier New', monospace; font-size: 13px; text-anchor: middle; }
+    .brace  { fill: none; stroke: #333; stroke-width: 1.6; }
+  </style>
+  <g
+     transform="translate(124.41602,0.50000048)"
+     id="g15">
+    <rect
+       x="0"
+       y="0"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect1" />
+    <rect
+       x="0"
+       y="22"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect2" />
+    <rect
+       x="0"
+       y="44"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect3" />
+    <rect
+       x="0"
+       y="66"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect4" />
+    <rect
+       x="0"
+       y="88"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect5" />
+    <rect
+       x="0"
+       y="110"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect6" />
+    <rect
+       x="0"
+       y="132"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect7" />
+    <rect
+       x="0"
+       y="154"
+       width="110"
+       height="22"
+       fill="#e0f7fa"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect8" />
+    <text
+       class="reg"
+       x="55"
+       y="16"
+       id="text8">R0</text>
+    <text
+       class="reg"
+       x="55"
+       y="38"
+       id="text9">R1</text>
+    <text
+       class="reg"
+       x="55"
+       y="60"
+       id="text10">R2</text>
+    <text
+       class="reg"
+       x="55"
+       y="82"
+       id="text11">R3</text>
+    <text
+       class="reg"
+       x="55"
+       y="104"
+       id="text12">R4</text>
+    <text
+       class="reg"
+       x="55"
+       y="126"
+       id="text13">R5</text>
+    <text
+       class="reg"
+       x="55"
+       y="148"
+       id="text14">R6</text>
+    <text
+       class="reg"
+       x="55"
+       y="170"
+       id="text15">R7</text>
+  </g>
+  <g
+     transform="translate(124.41602,176.5)"
+     id="g23">
+    <rect
+       x="0"
+       y="0"
+       width="110"
+       height="22"
+       fill="#bbdefb"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect15" />
+    <rect
+       x="0"
+       y="22"
+       width="110"
+       height="22"
+       fill="#bbdefb"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect16" />
+    <rect
+       x="0"
+       y="44"
+       width="110"
+       height="22"
+       fill="#bbdefb"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect17" />
+    <rect
+       x="0"
+       y="66"
+       width="110"
+       height="22"
+       fill="#bbdefb"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect18" />
+    <rect
+       x="0"
+       y="88"
+       width="110"
+       height="22"
+       fill="#bbdefb"
+       stroke="#333333"
+       stroke-width="1"
+       id="rect19" />
+    <text
+       class="reg"
+       x="55"
+       y="16"
+       id="text19">R8</text>
+    <text
+       class="reg"
+       x="55"
+       y="38"
+       id="text20">R9</text>
+    <text
+       class="reg"
+       x="55"
+       y="60"
+       id="text21">R10</text>
+    <text
+       class="reg"
+       x="55"
+       y="82"
+       id="text22">R11</text>
+    <text
+       class="reg"
+       x="55"
+       y="104"
+       id="text23">R12</text>
+  </g>
+  <rect
+     x="124.41602"
+     y="286.5"
+     width="110"
+     height="22"
+     fill="#fff59d"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect23" />
+  <text
+     class="reg"
+     x="179.41602"
+     y="301.5"
+     id="text24">R13 (SP)</text>
+  <rect
+     x="124.41602"
+     y="308.5"
+     width="110"
+     height="22"
+     fill="#c8e6c9"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect24" />
+  <text
+     class="reg"
+     x="179.41602"
+     y="323.5"
+     id="text25">R14 (LR)</text>
+  <rect
+     x="124.41602"
+     y="330.5"
+     width="110"
+     height="22"
+     fill="#c8e6c9"
+     stroke="#333333"
+     stroke-width="1"
+     id="rect25" />
+  <text
+     class="reg"
+     x="179.41602"
+     y="345.5"
+     id="text26">R15 (PC)</text>
+  <text
+     class="label"
+     x="-216.02383"
+     y="49.15712"
+     transform="rotate(-90)"
+     id="text27">General purpose registers</text>
+  <path
+     class="brace"
+     d="m 114.41602,2.5000005 c -6.66667,0 -10,3.333333 -10,9.9999995 v 151 c 0,6.66667 3.33333,10 10,10"
+     id="path27"
+     sodipodi:nodetypes="cssc" />
+  <text
+     class="label"
+     x="-111.04726"
+     y="90.39183"
+     id="text28"
+     transform="rotate(-90)">Low registers</text>
+  <path
+     class="brace"
+     d="m 114.41602,178.5 c -6.66667,0 -10,3.33333 -10,10 v 85 c 0,6.66667 3.33333,10 10,10"
+     id="path28"
+     sodipodi:nodetypes="cssc" />
+  <text
+     class="label"
+     x="-257.53577"
+     y="91.880356"
+     id="text29"
+     transform="rotate(-90)">High registers</text>
+  <text
+     class="label"
+     x="-0.58398438"
+     y="300.5"
+     id="text30">Stack Pointer</text>
+  <text
+     class="label"
+     x="-0.58398438"
+     y="322.5"
+     id="text31">Link Register</text>
+  <text
+     class="label"
+     x="-0.58398438"
+     y="344.5"
+     id="text32">Program Counter</text>
+  <rect
+     x="324.3949"
+     y="0.4788785"
+     width="110.04224"
+     height="26.007959"
+     fill="#e53935"
+     stroke="#333333"
+     stroke-width="0.957757"
+     id="rect32" />
+  <text
+     class="reg"
+     x="378.89551"
+     y="18.5"
+     fill="#ffffff"
+     id="text33">PSR</text>
+  <rect
+     x="324.3949"
+     y="30.48806"
+     width="110.04224"
+     height="26.007959"
+     fill="#ff7043"
+     stroke="#333333"
+     stroke-width="0.957757"
+     id="rect33" />
+  <text
+     class="reg"
+     x="379.01294"
+     y="48.5"
+     fill="#ffffff"
+     id="text34">PRIMASK</text>
+  <rect
+     x="324.3949"
+     y="56.496017"
+     width="110.04224"
+     height="26.007959"
+     fill="#ff7043"
+     stroke="#333333"
+     stroke-width="0.957757"
+     id="rect34" />
+  <text
+     class="reg"
+     x="379.07642"
+     y="74.5"
+     fill="#ffffff"
+     id="text35">FAULTMASK</text>
+  <rect
+     x="324.3949"
+     y="82.503983"
+     width="110.04224"
+     height="26.007959"
+     fill="#ff7043"
+     stroke="#333333"
+     stroke-width="0.957757"
+     id="rect35" />
+  <text
+     class="reg"
+     x="379.86353"
+     y="100.5"
+     fill="#ffffff"
+     id="text36">BASEPRI</text>
+  <rect
+     x="324.3949"
+     y="112.51317"
+     width="110.04224"
+     height="26.007959"
+     fill="#e53935"
+     stroke="#333333"
+     stroke-width="0.957757"
+     id="rect36" />
+  <text
+     class="reg"
+     x="379.38428"
+     y="130.5"
+     fill="#ffffff"
+     id="text37">CONTROL</text>
+  <text
+     class="label"
+     x="464.41602"
+     y="18.5"
+     id="text38">Program Status Register</text>
+  <path
+     class="brace"
+     d="m 449.41602,28.5 q 10,0 10,10 v 60 q 0,10 -10,10"
+     id="path38" />
+  <text
+     class="label"
+     x="469.41602"
+     y="67.5"
+     id="text39">Exception mask register</text>
+  <text
+     class="small"
+     x="469.41602"
+     y="84.5"
+     id="text40">Not available in all Cortex-M cores</text>
+  <text
+     class="label"
+     x="469.43964"
+     y="131.25484"
+     id="text41">CONTROL register</text>
+  <text
+     class="label"
+     x="21.263847"
+     y="-661.49158"
+     transform="rotate(90)"
+     id="text42">Special registers</text>
+  <rect
+     x="324.44003"
+     y="280.52402"
+     width="109.95194"
+     height="23.975973"
+     fill="#ffe082"
+     stroke="#333333"
+     stroke-width="1.04805"
+     id="rect42" />
+  <rect
+     x="324.44003"
+     y="304.5"
+     width="109.95194"
+     height="23.975973"
+     fill="#ffe082"
+     stroke="#333333"
+     stroke-width="1.04805"
+     id="rect43" />
+  <text
+     class="reg"
+     x="379.20972"
+     y="297.5"
+     id="text43">PSP</text>
+  <text
+     class="reg"
+     x="379.70166"
+     y="321.5"
+     id="text44">MSP</text>
+  <text
+     class="label"
+     x="444.41602"
+     y="297.5"
+     id="text45">Process Stack Pointer</text>
+  <text
+     class="label"
+     x="444.41602"
+     y="321.5"
+     id="text46">Main Stack Pointer</text>
+  <path
+     d="m 234.58347,308.21705 89.6651,20.17217"
+     fill="none"
+     stroke="#555555"
+     stroke-width="1.3"
+     id="path46"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 234.41602,286.6155 90,-6.11807"
+     fill="none"
+     stroke="#555555"
+     stroke-width="1.3"
+     id="path47"
+     sodipodi:nodetypes="cc" />
+  <path
+     class="brace"
+     d="m 72.416016,2.5000005 c -6.66667,0 -10,3.333333 -10,9.9999995 v 261 c 0,6.66667 3.33333,10 10,10"
+     id="path48"
+     sodipodi:nodetypes="cssc" />
+  <path
+     class="brace"
+     d="m 636.29451,3.7168315 c 6.66667,0 10,3.333333 10,9.9999995 V 125.71683 c 0,6.66667 -3.33333,10 -10,10"
+     id="path49"
+     sodipodi:nodetypes="cssc" />
+</svg>

@@ -161,7 +161,7 @@
 
 \begin{frame}{Why This Chapter Matters}
     \leavevmode
-    In the last chapter, Experiment 6 measured reaction time. The program sat in a loop and kept checking the button. While it waited, the processor could not do anything else: no display update, no sensor reading, no communication. It also could not sleep. A battery-powered device built this way would drain its battery fast, even while waiting for an event that might not happen for minutes. This is called \alert{polling}, and it does not scale to real systems. This chapter shows a better way: let the hardware \alert{interrupt} the processor only when something actually happens. This is how real embedded systems are built.
+    Experiment 6 in the previous chapter measured reaction time. It sat in a loop and read a button. While it waited, the processor could do nothing else --- no display update, no sensor reading, no communication. Worse, it could not sleep. A battery-powered version would drain continuously while waiting for an event that might be minutes away. Polling does not scale. This chapter introduces a better mechanism: hardware that interrupts the processor when something actually happens. This is how every real embedded system is built. We will trace one concrete event --- a press of the PC13 button --- from the pin to the line of C code that responds to it. That single trace introduces every piece of the architecture along the way.
 \end{frame}
 
 \begin{frame}{Objectives}
@@ -853,12 +853,7 @@ while (1) {
     \end{block}
 
     \vspace{2mm}
-    {\small For each source, decide whether it should be polled or
-    interrupt-driven. Assign interrupt priorities to the ones you choose
-    to make interrupt-driven. Justify each decision using the latency
-    requirement and the cost of servicing it. Then find the pair of
-    sources most likely to interfere with each other, and say what
-    evidence would show you the problem had happened.}
+    {\small Decide for each one whether it should be polled or interrupt-driven, and assign interrupt priorities to the ones you choose to interrupt. Justify every decision in terms of latency requirement and service cost. Then identify which pair of sources is most likely to interfere with each other, and state what evidence would tell you the problem had happened.}
 \end{frame}
 
 \begin{frame}[plain]
