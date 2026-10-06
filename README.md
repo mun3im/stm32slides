@@ -2,12 +2,9 @@
 
 Beamer decks that follow *Introduction to ARM Cortex-M Microprocessors*
 chapter for chapter. One deck per chapter, `stm01.tex` … `stm14.tex` — named
-`stmNN` (not `chNN`) to stay distinct from the book's own `chapterN.tex` and
-from `../ARM Neo/`'s `chN-*.tex` decks.
+`stmNN`.
 
-- **Template** is the Flux beamer theme, style **`gray`** (charcoal headers,
-  green accent) — distinguishing these from `../ARM Neo/`, which follows the
-  coordinator's 13 modules in `red`.
+- **Template** is the Flux beamer theme.
 - **Scope** is *lecture companion*: the chapter's spine, not a reading
   substitute. 17–27 slides per chapter.
 - **Running hardware** matches the book: Nucleo-F446RE, LED on PA5, button on
@@ -20,7 +17,7 @@ pdflatex stm01.tex
 pdflatex stm01.tex    # twice, for \tableofcontents
 ```
 
-Prefix with `caffeinate -i` for long unattended runs.
+Prefix with `caffeinate -i` for long unattended runs on MacOS.
 
 ## Structure
 
