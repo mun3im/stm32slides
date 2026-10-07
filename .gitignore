@@ -333,3 +333,6 @@ TSWLatexianTemp*
 # macOS / project-specific
 .DS_Store
 __pycache__/
+
+# Agent instructions local to the book repo, never belongs here
+CLAUDE.md
