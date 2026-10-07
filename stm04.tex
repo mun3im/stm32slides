@@ -184,33 +184,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    This chapter joins the two halves of the book. You know C. You also know how the processor is organized, and how memory is addressed. What is missing is the connection between them: how a C variable becomes a register, how a C structure becomes a peripheral, and how one assignment statement becomes a voltage on a pin. This is the chapter where hardware first moves. Every peripheral in the rest of the book uses this same idea, just on different silicon.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Predict the assembly a compiler will generate for simple C statements and function calls.
-        \item Explain the role of each CMSIS component and identify which one is used for register-level programming.
-        \item Describe how a C structure is overlaid on a peripheral's register block so that members map to hardware offsets.
-        \item Justify the use of \texttt{volatile} by describing two specific optimizations it prevents.
-        \item Apply the set, clear, toggle, and test bit-manipulation idioms to any peripheral register.
-        \item Write a complete bare-metal C program that configures and drives a GPIO pin using CMSIS only.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize This chapter joins the two halves of the book. You know C. You know how the processor and memory are organized. Now we connect them: a C variable becomes a register, a C structure becomes a peripheral, and one assignment becomes a voltage on a pin. This is where hardware first moves.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Predict the assembly the compiler generates for simple C.
+            \item Explain the CMSIS components and which one does register-level work.
+            \item Show how a C structure overlays a peripheral's registers.
+            \item Justify \texttt{volatile} with two optimizations it prevents.
+            \item Apply the set, clear, toggle and test idioms.
+            \item Write a bare-metal CMSIS program that drives a GPIO pin.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -766,61 +762,38 @@ int main(void)
 \end{frame}
 
 \begin{frame}{Summary}
-    \begin{itemize}
-        \item C gives you assembly's hardware access with far less
-              bookkeeping, but \textbf{no protection}.
-        \item \textbf{CMSIS} maps a struct onto each peripheral's
-              registers, so \texttt{GPIOA->ODR} \emph{is}
-              \texttt{*(0x40020014)}.
-        \item \texttt{\_\_IO} is \texttt{volatile}: required on every
-              hardware pointer and every variable shared with an ISR.
-        \item \textbf{\texttt{|=} set, \texttt{\&= \textasciitilde} clear,
-              \texttt{\^{}=} toggle, \texttt{\&} test}: read--modify--write
-              preserves the bits you are not changing.
-        \item A multi-bit field needs \textbf{clear-then-set} with a mask.
-        \item \textbf{Enable the peripheral clock first}, or your writes
-              go nowhere.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 5 --- ARM Assembly Fundamentals}
-        You have written C that reaches hardware. Next, we read what
-        it compiles to.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        You must configure a peripheral you have never used before:
-        the STM32's independent watchdog. Use only its datasheet. Its
-        registers are \texttt{IWDG\_KR}, \texttt{IWDG\_PR},
-        \texttt{IWDG\_RLR}, and \texttt{IWDG\_SR}, at consecutive word
-        offsets from base address \texttt{0x40003000}.
-    \end{block}
-
-    \vspace{2mm}
-    {\small You do not need to write working code. Instead, produce:
-    the CMSIS-style \texttt{typedef struct} that overlays these four
-    registers, the \texttt{\#define} that casts the base address to
-    it, and this chapter's four-step checklist applied to this
-    peripheral. State which struct members must be \texttt{volatile},
-    and why. Then find the one checklist step you cannot complete
-    without more information from the datasheet.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 4}
-        \vfill
-    \end{center}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {C gives hardware access, no protection};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {CMSIS struct overlays the registers};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {\texttt{GPIOA->ODR} is \texttt{*(0x40020014)}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {\texttt{\_\_IO} means \texttt{volatile}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {Read--modify--write keeps other bits};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Multi-bit field: clear, then set};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Enable the peripheral clock first};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {One C assignment becomes\\a voltage on a pin};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item CMSIS, device header
+					\item Struct overlay
+					\item \texttt{volatile}, \texttt{\_\_IO}
+					\item Set, clear, toggle, test
+					\item Peripheral clock enable
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 5}\\[1mm]
+				\emph{ARM Assembly Fundamentals}\\[1mm]
+				We read what this C compiles to.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

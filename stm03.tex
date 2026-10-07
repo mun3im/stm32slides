@@ -138,36 +138,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Chapter 2 ended with a question. A 4\,GB address space, filled with registers, peripherals, and flags, is an architectural fact. But what does this actually mean for a C program?
-
-    \vspace{2mm}
-    A microcontroller has no instruction that means "turn on the LED." It only has instructions that read and write numbered locations. So controlling hardware becomes one simple question: \emph{which number do I write, and to which address?} This chapter builds the bridge between the C you already know and the addresses the processor actually uses. It is the shortest path from \texttt{int x;} to \texttt{GPIOA->ODR}. Everything in Parts III and IV depends on it.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Explain what an address is and how it differs from the value stored at that address.
-        \item Use the \texttt{\&} and \texttt{*} operators to obtain an address and to access the value it points to.
-        \item Express the size of a byte, halfword, and word on a 32-bit ARM processor, and compute the address of any element of an array.
-        \item Select the correct fixed-width type (\texttt{uint8\_t}, \texttt{uint16\_t}, \texttt{uint32\_t}) for a given range of data.
-        \item Explain the effect of \texttt{const} and \texttt{volatile} on how the compiler generates memory accesses.
-        \item Write a C pointer that reads and writes a specific hardware register given its physical address.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize A microcontroller has no instruction that means ``turn on the LED''. It only reads and writes numbered locations. So hardware control becomes one question: \emph{which number do I write, and to which address?} This chapter links the C you know to the addresses the processor uses. It is the shortest path from \texttt{int x;} to \texttt{GPIOA->ODR}.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Explain an address, and how it differs from its contents.
+            \item Use \texttt{\&} and \texttt{*}.
+            \item Give the size of a byte, halfword and word; compute an array element's address.
+            \item Choose the correct fixed-width type.
+            \item Explain what \texttt{const} and \texttt{volatile} do to generated code.
+            \item Write a pointer that reads and writes a hardware register.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -867,61 +860,37 @@ const uint8_t sine_table[256] = {
 \end{frame}
 
 \begin{frame}{Summary}
-    \begin{itemize}
-        \item Memory is a numbered array of bytes. Keep the \textbf{address}
-              separate from the \textbf{contents}.
-        \item \texttt{\&} takes an address, \texttt{*} follows one.
-              A \textbf{pointer} is a variable that holds an address ---
-              and \texttt{p[i]} \emph{is} \texttt{*(p + i)}.
-        \item Three data sizes: \textbf{byte}, \textbf{halfword}, \textbf{word}.
-              A word is 4 bytes --- which is why register offsets advance by 4.
-        \item A peripheral register is a circuit with an address --- so
-              \textbf{a pointer is how C touches hardware}.
-        \item Use \textbf{fixed-width types}. Every hardware pointer must be
-              \textbf{\texttt{volatile}}, since hardware can change it
-              without your code running.
-        \item Every dereference becomes one \textbf{\texttt{LDR}} or
-              \textbf{\texttt{STR}} instruction.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 4 --- Embedded C and CMSIS}
-        You now have the mechanism. Next, we use it to turn on a real
-        LED.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A colleague suggests storing a 200-sample sensor history as a
-        global \texttt{int16\_t} array, and passing it to a processing
-        function by value, so the function "cannot corrupt the
-        original."
-    \end{block}
-
-    \vspace{2mm}
-    {\small Work out how much SRAM this costs at each call, out of
-    the 128~KB the STM32F446RE provides. Explain what actually
-    happens at the instruction level. Then design the interface you
-    would use instead: for each parameter, say whether it should be a
-    pointer, a \texttt{const} pointer, or a plain value, and why. Say
-    which parts of the data must be declared \texttt{volatile} if an
-    interrupt also writes to the buffer.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 3}
-        \vfill
-    \end{center}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Memory is a numbered array of bytes};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Address is not the same as contents};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {\texttt{\&} takes an address, \texttt{*} follows it};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {A pointer variable holds an address};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {\texttt{p[i]} is \texttt{*(p + i)}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Fixed-width types, \texttt{volatile}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Each dereference is one LDR or STR};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {A pointer is how C\\touches hardware};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Address, byte, halfword, word
+					\item Pointer, \texttt{\&}, \texttt{*}
+					\item Fixed-width types
+					\item \texttt{const}, \texttt{volatile}
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 4}\\[1mm]
+				\emph{Embedded C and CMSIS}\\[1mm]
+				We use this mechanism to turn on a real LED.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

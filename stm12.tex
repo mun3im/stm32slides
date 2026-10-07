@@ -138,33 +138,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Until now, seeing what your program does has needed a debugger and a breakpoint. The \textbf{UART} (Universal Asynchronous Receiver/Transmitter) changes that. With a few lines of code, the microcontroller can print text to a terminal on your PC. This makes it the single most useful debugging tool in embedded development. It is also how the device talks to GPS modules, Bluetooth radios, and industrial instruments. From this chapter on, use it in every program you write.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Contrast parallel with serial and synchronous with asynchronous transmission.
-        \item Describe every field of a UART frame and state the purpose of the start and stop bits.
-        \item Calculate the \texttt{BRR} register value for any required baud rate.
-        \item Configure a USART peripheral and its alternate-function pins.
-        \item Transmit and receive characters by polling and by interrupt.
-        \item Use UART output as a diagnostic instrument in your own programs.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize So far, seeing what your program does has needed a debugger and a breakpoint. The \textbf{UART} changes that. In a few lines, the microcontroller prints text to a terminal on your PC. It is the most useful debugging tool in embedded work. It also links the device to GPS modules, radios and instruments. Use it in every program from now on.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Contrast parallel with serial, and synchronous with asynchronous.
+            \item Describe every field of a UART frame.
+            \item Calculate the \texttt{BRR} value for a baud rate.
+            \item Configure a USART and its pins.
+            \item Send and receive by polling and by interrupt.
+            \item Use UART output as a diagnostic instrument.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -799,51 +795,63 @@ void USART1_init(void)
     \end{columns}
 \end{frame}
 
-\begin{frame}{Summary}
-    \begin{itemize}
-        \item \textbf{Serial} sends one bit at a time --- fewer pins, longer
-              distance. \textbf{Parallel} is faster but short-range.
-        \item \textbf{UART is asynchronous}: no shared clock, so each byte is
-              framed with a \textbf{start bit}, data (\textbf{LSB first}),
-              optional parity, and a \textbf{stop bit}.
-        \item Both ends must agree on \textbf{baud, data bits, parity, stop} ---
-              ``9600 8N1''.
-        \item $\text{USARTDIV} = f_{\text{CK}} / (16 \times \text{baud})$, written
-              to \texttt{BRR}.
-        \item Transmit: wait \textbf{\texttt{TXE}}, write \texttt{DR}. Receive:
-              wait \textbf{\texttt{RXNE}}, read \texttt{DR}.
-        \item UART is your best \textbf{diagnostic instrument} --- but printing
-              takes real time, and can hide or create timing bugs.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 13 --- SPI and I\textsuperscript{2}C}
-        Adding a clock wire removes the speed ceiling.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        Design a diagnostic protocol for the sensor monitor, to be carried over UART at 115200 baud, so that a host can observe the device without disturbing its timing.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Specify the message format, what is reported and how often, and how the host distinguishes a measurement from an error report. Compute the total bandwidth your protocol consumes and confirm it fits within the CPU budget. Then state which single piece of diagnostic information would be most useful to a field technician, and why you chose it over the alternatives.}
-\end{frame}
-
-\begin{frame}[plain]
+\begin{frame}{Sending One Character at Five Levels}
     \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 12}
-        \vfill
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.65\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical    & PA2 toggles between 0~V and 3.3~V for 10 bit periods \\
+        Hardware    & Shift register clocked at 9600~Hz; start and stop bits framed \\
+        Register    & \texttt{USART2->DR} written; \texttt{TXE} clears, then sets again \\
+        C           & \texttt{uart\_write('A');} \\
+        Observable  & The letter A appears in the PC terminal \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
+
+    \vspace{3mm}
+    \begin{block}{UART, from this chapter on}
+        A peripheral you configure \alert{and} an instrument you reach for
+        in every program. Printing a register value is faster than setting
+        a breakpoint, and the system keeps running while you watch.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Serial: one bit at a time, fewer pins};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {UART is asynchronous: no shared clock};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {Frame: start bit, data LSB first, stop bit};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Both ends agree on baud and format (8N1)};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {$\text{BRR} = f_{\text{CK}}/(16\times\text{baud})$};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Send: wait \texttt{TXE}, write \texttt{DR}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Receive: wait \texttt{RXNE}, read \texttt{DR}};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {UART is your best\\diagnostic instrument};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Serial vs parallel
+					\item Start, stop, parity
+					\item Baud rate, \texttt{BRR}
+					\item \texttt{TXE}, \texttt{RXNE}
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 13}\\[1mm]
+				\emph{SPI and I\textsuperscript{2}C}\\[1mm]
+				A clock wire removes the speed limit.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

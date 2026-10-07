@@ -138,61 +138,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    You have built circuits from gates, flip-flops and counters. Each
-    circuit did exactly what its \alert{wiring} told it to do. To
-    change its behaviour, you had to change the wiring itself.
-
-    \vspace{3mm}
-    A microcontroller works differently. It is a digital circuit too,
-    but a \alert{program stored in memory} controls its behaviour.
-
-    \vspace{3mm}
-    \begin{block}{The same silicon can}
-        blink an LED \quad$\cdot$\quad measure a temperature \quad$\cdot$\quad
-        drive a motor
-
-        \vspace{1mm}
-        \ldots it only depends on the bits you load into it.
-    \end{block}
-
-    \vspace{3mm}
-    {\small This chapter explains how this is possible.}
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Define an embedded system and identify the constraints that
-              distinguish embedded design from general-purpose computing.
-        \item Distinguish a \alert{microprocessor} from a
-              \alert{microcontroller}, and state what each needs to form a
-              working system.
-        \item Identify the functional units of a CPU --- ALU, control unit,
-              decoder, registers --- and state the role of each.
-        \item Explain how the address, data and control buses connect the CPU to
-              memory and peripherals, and compute the addressable memory of a
-              given bus width.
-        \item Trace a short program through the fetch--decode--execute cycle,
-              stating the contents of each register at every step.
-        \item Locate the major blocks of an STM32 microcontroller on a system
-              block diagram.
-        \item Describe, in outline, how a single C statement becomes a voltage
-              change on a physical pin.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Your gate circuits did only what their \alert{wiring} told them. To change the behaviour, you had to rewire. A microcontroller is a digital circuit too, but a \alert{program stored in memory} controls it. The same silicon can blink an LED, measure a temperature, or drive a motor. It depends only on the bits you load.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Define an embedded system and its design constraints.
+            \item Distinguish a \alert{microprocessor} from a \alert{microcontroller}.
+            \item Name the CPU functional units and the role of each.
+            \item Explain the address, data and control buses, and compute addressable memory.
+            \item Trace a short program through fetch--decode--execute.
+            \item Describe how one C statement changes a voltage on a pin.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}{The One Question}
@@ -617,7 +585,14 @@
     \vspace{2mm}
     \begin{center}\texttt{z = x + y;}\end{center}
 
-    \vspace{2mm}
+    \vspace{1mm}
+    \begin{center}
+        {\small Assume the compiler places
+        \texttt{x} at \texttt{0x2000}, \texttt{y} at \texttt{0x2002},
+        and \texttt{z} at \texttt{0x2004}.}
+    \end{center}
+
+    \vspace{1mm}
     \begin{block}{We will use this one line to discover what a CPU actually does}
         One line of C becomes three machine instructions. Every
         register and operation from the last few slides gets a
@@ -647,13 +622,13 @@
         \begin{center}
         {\small
         \striped
-        \begin{tabular}{@{}l l@{}}
+        \begin{tabular}{@{}l l l@{}}
             \toprule
-            \textbf{Address} & \textbf{Value} \\
+            \textbf{Address} & \textbf{Variable} & \textbf{Value} \\
             \midrule
-            \texttt{0x2000} & \texttt{1} \\
-            \texttt{0x2002} & \texttt{2} \\
-            \texttt{0x2004} & \texttt{?} \\
+            \texttt{0x2000} & \texttt{x} & \texttt{1} \\
+            \texttt{0x2002} & \texttt{y} & \texttt{2} \\
+            \texttt{0x2004} & \texttt{z} & \texttt{?} \\
             \bottomrule
         \end{tabular}}
         \end{center}
@@ -884,54 +859,6 @@ GPIOA->ODR |= (1U << 5);
 				bench.}
 		\end{column}
 	\end{columns}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    {\small You now know enough architecture to reason about this
-    design before choosing a microcontroller.}
-
-    \vspace{1mm}
-    \begin{block}{The brief}
-        A portable \alert{water-quality logger} must:
-        \begin{itemize}
-            \item run for \textbf{one year} on a coin cell
-            \item record a measurement every \textbf{15 minutes}
-            \item survive being \textbf{dropped in a river}
-            \item cost under \textbf{\$40} in quantities of 500
-        \end{itemize}
-    \end{block}
-
-    \vspace{2mm}
-    \textbf{Do not choose a specific part number.} Instead:
-    \begin{enumerate}\itemsep0pt
-        \item Identify which \alert{SWaP-C} constraint binds hardest
-              here.
-        \item Explain what this one constraint forces to be true about
-              the \textbf{processor}, the \textbf{memory}, and the
-              \textbf{duty cycle}.
-        \item State one requirement you would go back and \alert{question
-              with the customer}, and explain why.
-    \end{enumerate}
-
-    \vspace{1mm}
-    {\scriptsize SWaP-C \(\to\) architecture \(\to\) memory \(\to\) duty cycle
-    \(\to\) processor requirements: the same chain this chapter just
-    built, now applied to a new system.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 1}
-        \vfill
-    \end{center}
 \end{frame}
 
 \end{document}

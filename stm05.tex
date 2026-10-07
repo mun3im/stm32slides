@@ -150,105 +150,174 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    You have just written C code that reaches a hardware register. That code compiles into instructions. Sooner or later, you must read those instructions. This happens when a debugger stops in a fault handler, when the compiler produces something you did not expect, when a timing loop must be exact, or when a startup file must run before any C code can execute. The next three chapters make the machine visible. Their goal is not to make you fluent in assembly. Instead, they let you look underneath any line of C code and see what the processor is really doing.
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Your C code reaches a hardware register, and that code compiles into instructions. Sooner or later you must read them: in a fault handler, in unexpected compiler output, in an exact timing loop, or in startup code. The next three chapters make the machine visible. The goal is not fluency, but the ability to see what the processor does under any line of C.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Read an assembly program: directives, labels, instructions.
+            \item Apply load--process--store to any memory variable.
+            \item Choose the right load or store for byte, halfword and word; explain sign and zero extension.
+            \item Trace a short sequence register by register.
+            \item Explain low versus high registers and code size.
+            \item Recover the C statement from a short disassembly.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Read a complete ARM assembly program and identify its directives, labels, and instructions.
-        \item Apply the load--process--store workflow to any operation on a memory variable.
-        \item Choose the correct load or store instruction for byte, halfword, and word data, and explain sign versus zero extension.
-        \item Trace a short instruction sequence register by register and predict its final state.
-        \item Distinguish low from high registers and explain why the choice affects code size.
-        \item Read a short disassembly and recover the C statement it came from.
-    \end{enumerate}}
-\end{frame}
-
 
 %===============================================================================
 \section{How Much Assembly You Need}
 %===============================================================================
 
-\begin{frame}{You Will Read More Than You Write}
-    \begin{columns}[T]
-    \begin{column}{.48\textwidth}
-        \textbf{When you must read assembly}
-        \begin{itemize}
-            \item A debugger halts in a \alert{fault handler}
-            \item The compiler produces something surprising
-            \item A timing loop must be exact
-            \item You are counting cycles in an ISR
-        \end{itemize}
-    \end{column}
-    \begin{column}{.48\textwidth}
-        \textbf{When you must write it}
-        \begin{itemize}
-            \item Startup code, before C can run
-            \item ISR entry and exit in special cases
-            \item Hand-tuned DSP inner loops
-        \end{itemize}
-        \vspace{2mm}
-        {\small In short: \alert{rarely}.}
-    \end{column}
-    \end{columns}
+\begin{frame}{Three Levels of Assembly Knowledge}
+    \leavevmode
+    {\small The Cortex-M4 has about \alert{seventy} instructions. This book
+    asks you to know them at three different depths. Most of what you meet
+    falls into the first two.}
+
+    \vspace{3mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.68\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{What belongs here} \\
+        \midrule
+        \textbf{Understand}
+        & \texttt{MOV}, \texttt{LDR}, \texttt{STR}, \texttt{ADD}, \texttt{SUB},
+          compare and branch, \texttt{PUSH}/\texttt{POP}. The core vocabulary
+          of the next three chapters. Read, predict, and write. \\
+        \textbf{Recognise}
+        & \texttt{MOVW}/\texttt{MOVT} pairs, addressing-mode forms, patterns a
+          compiler prefers. Know them when you see them. \\
+        \textbf{Know it exists}
+        & Saturating arithmetic, DSP/SIMD, coprocessor and floating-point,
+          rare Thumb-2 forms. Look them up in Appendix~C. \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
 
     \vspace{3mm}
     \begin{block}{The goal of these three chapters}
-        Not fluency, but \alert{literacy}. You need enough skill to read
-        a disassembly window and explain what the processor is doing,
-        and why.
+        Not fluency, but \alert{literacy}. You need enough skill to read a
+        disassembly window and explain what the processor is doing.
     \end{block}
 \end{frame}
 
 %===============================================================================
-\section{A First Program}
+\section{A First Assembly Program}
 %===============================================================================
 
-\begin{frame}[fragile]{The Shape of an Assembly Statement}
+\begin{frame}[fragile]{A Complete ARM Assembly Program}
+    \leavevmode
+    {\small Something smaller than the blinking LED: add two constants,
+    then stop. The \alert{shape} of an assembly file --- directives,
+    labels, instructions --- is visible before any register touches
+    hardware.}
+
+    \vspace{2mm}
     \begin{center}
-    \begin{tikzpicture}[x=10mm, y=10mm]
-        \node[blk,    minimum width=24mm] (lab) at (0,0)    {Label};
-        \node[cpublk, minimum width=24mm] (op)  at (2.7,0)  {Opcode};
-        \node[blk,    minimum width=30mm] (opd) at (5.6,0)  {Operands};
-        \node[memblk, minimum width=28mm] (com) at (8.8,0)  {Comment};
-        \node[lbl, anchor=north, align=center] at (0,-0.75)   {optional name\\for this address};
-        \node[lbl, anchor=north, align=center] at (2.7,-0.75) {command\\to the CPU};
-        \node[lbl, anchor=north, align=center] at (5.6,-0.75) {the data being\\manipulated};
-        \node[lbl, anchor=north, align=center] at (8.8,-0.75) {ignored by the\\assembler};
-    \end{tikzpicture}
+    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+; Define register aliases and constants
+VAL1    RN  R1               ; VAL1 is an alias for R1
+VAL2    RN  R2               ; VAL2 is an alias for R2
+SUM     RN  R3               ; SUM  is an alias for R3
+MY_CONST EQU 0x25            ; EQU names a constant
+
+        AREA MY_ASM_PROG, CODE, READONLY
+        ENTRY                ; program entry point
+__main
+        MOV  VAL1, #MY_CONST ; R1 = 0x25
+        MOV  VAL2, #0x34     ; R2 = 0x34
+        ADD  SUM, VAL1, VAL2 ; R3 = R1 + R2
+
+HERE    B    HERE            ; infinite loop to halt
+        END                  ; end of assembly file
+    \end{lstlisting}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Three Kinds of Line}
+    \begin{center}
+    \resizebox{.95\textwidth}{!}{%
+    \begin{tikzpicture}[x=6mm, y=8mm]
+        \def\colL{0}    \def\colM{2.8}  \def\colO{6.4}  \def\colC{12.2}
+        \def\colA{17.8} \def\ruleR{24.0}
+        \foreach \x/\name in {\colL/label, \colM/mnemonic, \colO/operands, \colC/comment}{
+            \node[lbl, anchor=south west, font=\sffamily\scriptsize\itshape] at (\x,3.2) {\name};
+        }
+        \node[lbl, anchor=south west, font=\sffamily\scriptsize\itshape] at (\colA,3.2) {kind of line};
+        \draw[draw=black!25] (-0.35,3.1) -- (\ruleR,3.1);
+        % Row 1: directive
+        \node[anchor=west, font=\small\ttfamily] at (\colL,2.5) {VAL1};
+        \node[anchor=west, font=\small\ttfamily] at (\colM,2.5) {RN};
+        \node[anchor=west, font=\small\ttfamily] at (\colO,2.5) {R1};
+        \node[anchor=west, font=\small\ttfamily, text=black!55] at (\colC,2.5) {; alias};
+        % Row 2: instruction
+        \node[anchor=west, font=\small\ttfamily] at (\colM,1.5) {MOV};
+        \node[anchor=west, font=\small\ttfamily] at (\colO,1.5) {R1, \#0x25};
+        \node[anchor=west, font=\small\ttfamily, text=black!55] at (\colC,1.5) {; R1 = 0x25};
+        % Row 3: labelled instruction
+        \node[anchor=west, font=\small\ttfamily] at (\colL,0.5) {HERE};
+        \node[anchor=west, font=\small\ttfamily] at (\colM,0.5) {B};
+        \node[anchor=west, font=\small\ttfamily] at (\colO,0.5) {HERE};
+        \node[anchor=west, font=\small\ttfamily, text=black!55] at (\colC,0.5) {; loop forever};
+        \node[lbl, anchor=west, text=accentline, align=left] at (\colA,2.5)
+            {\textbf{directive} --- assembler only};
+        \node[lbl, anchor=west, align=left] at (\colA,1.5)
+            {\textbf{instruction} --- becomes machine code};
+        \node[lbl, anchor=west, align=left] at (\colA,0.5)
+            {\textbf{instruction} --- with a label};
+        \draw[decorate, decoration={brace, amplitude=3pt}, draw=accentline]
+            (-0.35,0.15) -- (-0.35,2.9);
+        \node[lbl, anchor=south, text=accentline, align=center, rotate=90] at (-0.65,1.5)
+            {names an address};
+    \end{tikzpicture}}
     \end{center}
 
-    \vspace{4mm}
+    \vspace{2mm}
+    {\small
+    \begin{itemize}\itemsep1pt
+        \item \textbf{Instructions} (\texttt{MOV}, \texttt{ADD}, \texttt{B}) become machine code.
+        \item \textbf{Directives} (\texttt{RN}, \texttt{EQU}, \texttt{AREA}, \texttt{ENTRY}, \texttt{END}) are commands to the \alert{assembler}. They produce no instructions.
+        \item \textbf{Labels} (\texttt{\_\_main}, \texttt{HERE}) name an address.
+    \end{itemize}}
+
+    \vspace{1mm}
+    {\small \texttt{B HERE} at the end: a bare-metal program has no OS to
+    return to, so an infinite loop is the normal, correct way to stop.}
+\end{frame}
+
+\begin{frame}{Tracing the Three Instructions}
     \begin{center}
-    \begin{lstlisting}[style=armasm]
-HERE    ADD     R1, R1, R0    ; add R0 to R1
-    \end{lstlisting}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l l l@{}}
+        \toprule
+        \textbf{After executing} & \textbf{R1} & \textbf{R2} & \textbf{R3} \\
+        \midrule
+        \texttt{MOV R1, \#0x25}       & \texttt{0x25} & ---           & ---           \\
+        \texttt{MOV R2, \#0x34}       & \texttt{0x25} & \texttt{0x34} & ---           \\
+        \texttt{ADD R3, R1, R2}       & \texttt{0x25} & \texttt{0x34} & \texttt{0x59} \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
 
     \vspace{3mm}
-    {\small The \alert{first operand is the destination}. \texttt{ADD R1, R1, R0}
-    means ``R1 becomes R1 plus R0.'' Read it from right to left.}
-
-    \vspace{2mm}
-    {\small \textbf{Directives} (\texttt{AREA}, \texttt{DCD}, \texttt{EQU},
-    \texttt{ENTRY}, \texttt{END}) are commands to the \alert{assembler}.
-    They generate no machine code. \textbf{Instructions} are commands to
-    the \alert{processor}.}
+    \begin{block}{Reading the shape of a statement}
+        The first operand is the \alert{destination}. \texttt{ADD R3, R1, R2}
+        reads as ``R3 becomes R1 plus R2.'' Right to left.
+    \end{block}
 \end{frame}
 
 %===============================================================================
@@ -263,83 +332,695 @@ HERE    ADD     R1, R1, R0    ; add R0 to R1
 
     \vspace{2mm}
     {\small\centering Every operation on a memory variable follows the
-    same three steps. No instruction can add two memory locations
-    directly.\par}
+    same three steps. The processor cannot operate on memory directly ---
+    it only operates on registers.\par}
 \end{frame}
 
-\begin{frame}[fragile]{The Workflow, in Instructions}
+\begin{frame}[fragile]{One C Statement, Four Instructions}
+    \leavevmode
+    {\small Take \texttt{c = a + b}, with all three variables in memory and
+    \texttt{R1} already holding the base address of the block that contains
+    them:}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+	LDR   R0, [R1]        ; load a  (memory -> register)
+	LDR   R2, [R1, #4]    ; load b  (memory -> register)
+	ADD   R0, R0, R2      ; process (register + register)
+	STR   R0, [R1, #8]    ; store c (register -> memory)
+    \end{lstlisting}
+    \end{center}
+
+    \vspace{2mm}
+    {\small Four instructions for one assignment, and only one of them
+    is arithmetic.}
+\end{frame}
+
+\begin{frame}[plain]{Where the Value Is, at Each Step}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=9mm]
+        % Memory block
+        \node[lbl, anchor=south, font=\sffamily\small] at (0.75,3.55) {\textbf{Memory}};
+        \foreach \i/\nm/\val in {0/a/{7}, 1/b/{5}, 2/c/{?}}{
+            \pgfmathsetmacro{\y}{2.8-\i*0.85}
+            \draw[draw=accentline, fill=accentfill, thick] (0,\y) rectangle (1.5,\y+0.7);
+            \node[font=\scriptsize\ttfamily] at (0.75,\y+0.35) {\val};
+            \node[lbl, anchor=east, font=\scriptsize\ttfamily] at (-0.15,\y+0.35)
+                {\nm \;\; \texttt{[R1,\#\pgfmathparse{int(\i*4)}\pgfmathresult]}};
+        }
+        % Registers
+        \node[lbl, anchor=south, font=\sffamily\small] at (6.5,3.55) {\textbf{Registers}};
+        \foreach \i/\rn/\val in {0/R0/{7}, 1/R2/{5}, 2/R0/{12}}{
+            \pgfmathsetmacro{\y}{2.8-\i*0.85}
+            \draw[draw=blkline, fill=blkfill, thick] (5.75,\y) rectangle (7.25,\y+0.7);
+            \node[font=\scriptsize\ttfamily] at (6.5,\y+0.35) {\rn: \val};
+        }
+        \tikzset{movelbl/.style={lbl, fill=white, inner sep=2pt, font=\scriptsize\ttfamily}}
+        \draw[flow, draw=blkline] (1.5,3.15) -- (5.75,3.15) node[movelbl, midway] {LDR};
+        \draw[flow, draw=blkline] (1.5,2.30) -- (5.75,2.30) node[movelbl, midway] {LDR};
+        \draw[flow, draw=accentline] (5.75,1.45) -- (1.5,1.45) node[movelbl, midway, text=accentline] {STR};
+        \draw[flow, draw=accentline] (7.35,3.15) -- ++(0.75,0) |- (7.35,1.45);
+        \node[lbl, anchor=west, text=accentline, align=left] at (8.3,2.3)
+            {\texttt{ADD}\\{\scriptsize inside the CPU}};
+        \node[lbl, anchor=north, align=center] at (3.6,0.75)
+            {memory and registers are the only two places a value can be};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{block}{Where are \texttt{a}, \texttt{b}, \texttt{c} right now?}
+        After the first \texttt{LDR}, \texttt{a} exists in \emph{two} places
+        at once --- in memory and in R0. After the \texttt{ADD}, \texttt{c}
+        exists only inside the CPU. Lose power before the \texttt{STR} and
+        the result is gone.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{When the Operands Are Already in Registers}
+    \leavevmode
+    {\small The loads and stores are not the cost of the addition. They are
+    the cost of the operands \emph{living in memory}. The same arithmetic
+    on arguments already in registers:}
+
+    \vspace{2mm}
     \begin{columns}[T]
-    \begin{column}{.44\textwidth}
+    \begin{column}{.48\textwidth}
         \textbf{In C}
 
         \vspace{1mm}
-        {\ttfamily\normalsize counter = counter + 1;}
+        \begin{lstlisting}[style=myc]
+int f(int a, int b) {
+    return a + b;
+}
+        \end{lstlisting}
 
-        \vspace{4mm}
-        \textbf{What it must become}
-        {\small
-        \begin{enumerate}\itemsep1pt
-            \item \alert{Load} the value into a register
-            \item \alert{Process} it in the ALU
-            \item \alert{Store} it back
-        \end{enumerate}}
+        \vspace{2mm}
+        {\footnotesize Arguments arrive in \texttt{R0} and \texttt{R1} by
+        the AAPCS convention. Return value leaves in \texttt{R0}.}
     \end{column}
-    \begin{column}{.52\textwidth}
+    \begin{column}{.48\textwidth}
         \textbf{In assembly}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
-	LDR  R1, =counter   ; address of counter
-	LDR  R0, [R1]       ; load its value
-	ADD  R0, R0, #1     ; add one
-	STR  R0, [R1]       ; store it back
+        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	ADD   R0, R0, R1
+	BX    LR
         \end{lstlisting}
 
         \vspace{3mm}
-        {\small Notice the two different \texttt{LDR}s: \texttt{=counter}
-        loads the \alert{address}. \texttt{[R1]} loads the \alert{value}
-        at that address.}
+        {\small Same addition. \alert{Two instructions} instead of four.}
     \end{column}
     \end{columns}
 
     \vspace{3mm}
-    \begin{block}{Why one C statement becomes four instructions}
-        This is the load-store principle from Chapter 2. Here you see
-        its real cost. This is not inefficiency. It is what keeps the
-        clock fast and the timing predictable.
+    \begin{block}{Why the compiler works hard to keep values in registers}
+        A loop that reads a global each pass is slower than one that reads
+        it once into a local. Each memory access is an instruction the
+        arithmetic itself does not need.
     \end{block}
 \end{frame}
 
 %===============================================================================
-\section{Load and Store Instructions}
+\section{Memory Transfer Instructions}
 %===============================================================================
 
 \begin{frame}{The Load and Store Family}
-	\begin{center}
-		{\small
-			\striped
-			\begin{tabular}{@{}l l R{.50\textwidth}@{}}
-				\toprule
-				\textbf{Instruction} & \textbf{Size} & \textbf{Purpose} \\
-				\midrule
-				\texttt{LDR} / \texttt{STR}   & word     & Transfer 32 bits \\
-				\texttt{LDRB} / \texttt{STRB} & byte     & Transfer 8 bits \\
-				\texttt{LDRH} / \texttt{STRH} & halfword & Transfer 16 bits \\
-				\texttt{LDRSB}                & byte     & Load byte and sign-extend \\
-				\texttt{LDRSH}                & halfword & Load halfword and sign-extend \\
-				\bottomrule
-		\end{tabular}}
-	\end{center}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l R{.50\textwidth}@{}}
+        \toprule
+        \textbf{Instruction} & \textbf{Size} & \textbf{Purpose} \\
+        \midrule
+        \texttt{LDR} / \texttt{STR}   & word (32-bit)      & Transfer a full register \\
+        \texttt{LDRB} / \texttt{STRB} & byte (8-bit)       & Transfer one byte \\
+        \texttt{LDRH} / \texttt{STRH} & halfword (16-bit)  & Transfer two bytes \\
+        \midrule
+        \multicolumn{3}{l}{\emph{Less common: signed loads}} \\
+        \texttt{LDRSB}                & byte (8-bit)       & Load a signed byte and sign-extend \\
+        \texttt{LDRSH}                & halfword (16-bit)  & Load a signed halfword and sign-extend \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
 
-	\vspace{3mm}
-
-	\begin{block}{Naming convention}
-		No suffix means a 32-bit \alert{word}.
-		\texttt{B} means \alert{byte} (8 bits).
-		\texttt{H} means \alert{halfword} (16 bits).
-	\end{block}
+    \vspace{3mm}
+    \begin{block}{Naming convention}
+        No suffix means a 32-bit \alert{word}.
+        \texttt{B} means \alert{byte}.
+        \texttt{H} means \alert{halfword}.
+        \texttt{S} marks a \alert{signed} load. There is no signed \emph{store} --- a store just copies the low bits.
+    \end{block}
 \end{frame}
 
+\begin{frame}[fragile]{Word Transfers: \texttt{LDR} and \texttt{STR}}
+    \begin{center}
+    \includegraphics[width=.44\textwidth, keepaspectratio]{assets/inst-ldr.pdf}
+    \hspace{3mm}
+    \includegraphics[width=.44\textwidth, keepaspectratio]{assets/inst-str.pdf}
+    \end{center}
+
+    \vspace{1mm}
+    {\small \textbf{Left:} \texttt{LDR R1, [R0]} with \texttt{R0 = 0x40020014}
+    and memory bytes \texttt{EE FF C0 00}. Little-endian: the lowest-address
+    byte becomes the \alert{least-significant} byte, giving
+    \texttt{R1 = 0x00C0FFEE}.}
+
+    \vspace{1mm}
+    {\small \textbf{Right:} \texttt{STR R1, [R0]} with \texttt{R1 = 0x11223344}.
+    The least-significant byte (\texttt{0x44}) goes to the lowest memory
+    address. The same rule, in reverse.}
+\end{frame}
+
+\begin{frame}[fragile]{Byte and Halfword Loads: Zero Extension}
+    \leavevmode
+    {\small The destination register is always \alert{32 bits wide}. When
+    fewer bytes are loaded, the processor must decide what to put in the
+    unused upper bits. Ordinary byte and halfword loads fill them with
+    \alert{zeros}.}
+
+    \vspace{2mm}
+    \begin{center}
+    \includegraphics[width=.78\textwidth]{assets/bits-ldrb.pdf}
+
+    \vspace{3mm}
+    \includegraphics[width=.78\textwidth]{assets/bits-ldrh.pdf}
+    \end{center}
+
+    \vspace{1mm}
+    {\small \texttt{LDRB} fills the upper 24 bits with zero;
+    \texttt{LDRH} fills the upper 16 bits with zero.}
+\end{frame}
+
+\begin{frame}[fragile]{Byte and Halfword Stores}
+    \leavevmode
+    {\small The store side is symmetric and simpler. \texttt{STRB} writes
+    only the low 8 bits of the register; \texttt{STRH} writes only the low
+    16 bits. The upper bits are \alert{ignored}.}
+
+    \vspace{3mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	MOV  R0, #0x11223344
+	STRB R0, [R1]
+        \end{lstlisting}
+
+        \vspace{2mm}
+        {\small Stores only \texttt{0x44}. The upper 24 bits are ignored.}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	MOV  R0, #0x12345678
+	STRH R0, [R1]
+        \end{lstlisting}
+
+        \vspace{2mm}
+        {\small Stores only \texttt{0x5678}. The upper 16 bits are ignored.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Common Memory Access Instructions}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l l l@{}}
+        \toprule
+        \textbf{Instruction} & \textbf{Size} & \textbf{Extension} & \textbf{Operation} \\
+        \midrule
+        \texttt{LDR Rd, [Rn]}   & 32-bit word     & None        & $\text{Rd}=[\text{Rn}]$ \\
+        \texttt{STR Rt, [Rn]}   & 32-bit word     & None        & $[\text{Rn}]=\text{Rt}$ \\
+        \texttt{LDRB Rd, [Rn]}  & 8-bit byte      & Zero-extend & $\text{Rd}=\text{ZeroExtend}([\text{Rn}]_{\text{byte}})$ \\
+        \texttt{STRB Rt, [Rn]}  & 8-bit byte      & None        & $[\text{Rn}]_{\text{byte}}=\text{Rt}[7{:}0]$ \\
+        \texttt{LDRH Rd, [Rn]}  & 16-bit halfword & Zero-extend & $\text{Rd}=\text{ZeroExtend}([\text{Rn}]_{\text{half}})$ \\
+        \texttt{STRH Rt, [Rn]}  & 16-bit halfword & None        & $[\text{Rn}]_{\text{half}}=\text{Rt}[15{:}0]$ \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+\end{frame}
+
+%===============================================================================
+\section{Optional: Signed Loads}
+%===============================================================================
+
+\begin{frame}{Signed Loads: \texttt{LDRSB} and \texttt{LDRSH}}
+    \leavevmode
+    {\small Many embedded programs never need these. Peripheral registers,
+    status bits, and addresses are naturally unsigned.}
+
+    \vspace{2mm}
+    {\small ARM still provides them. Instead of filling the upper bits with
+    zeros, a \alert{signed} load copies the source's \alert{sign bit} into
+    the upper bits. This is called \emph{sign extension}.}
+
+    \vspace{3mm}
+    \begin{center}
+    \includegraphics[width=.78\textwidth]{assets/bits-ldrsb.pdf}
+
+    \vspace{3mm}
+    \includegraphics[width=.78\textwidth]{assets/bits-ldrsh.pdf}
+    \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{The Same Bits, Different Numbers}
+    \leavevmode
+    {\small Suppose memory contains the byte \texttt{0x8C}. Its binary form
+    is \texttt{10001100}. Bit 7 is 1, so this byte represents the signed
+    value \alert{$-116$}.}
+
+    \vspace{3mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l R{.42\textwidth}@{}}
+        \toprule
+        \textbf{Instruction} & \textbf{R0 after} & \textbf{Meaning} \\
+        \midrule
+        \texttt{LDRB  R0, [R1]} & \texttt{0x0000008C} & decimal 140 \\
+        \texttt{LDRSB R0, [R1]} & \texttt{0xFFFFFF8C} & decimal $-116$ \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    {\small The \alert{same eight memory bits} can mean different numbers,
+    depending on which load you use.}
+
+    \vspace{2mm}
+    {\small If the sign bit is zero, both instructions give the same
+    result. Loading \texttt{0x4F} yields \texttt{0x0000004F} either way.}
+
+    \vspace{3mm}
+    \begin{block}{C connection}
+        A C compiler picks \texttt{LDRB} for \texttt{uint8\_t} and
+        \texttt{LDRSB} for \texttt{int8\_t}. The C type decides which
+        instruction appears.
+    \end{block}
+\end{frame}
+
+%===============================================================================
+\section{The Core Register Set in Practice}
+%===============================================================================
+
+\begin{frame}[plain]{Low and High Registers}
+    \begin{columns}[c]
+    \begin{column}{.46\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=8mm, y=6.6mm]
+        \foreach \i in {0,...,7}{
+            \pgfmathsetmacro{\y}{-\i*0.62}
+            \draw[draw=blkline, fill=blkfill, thick] (0,\y) rectangle (1.35,\y+0.55);
+            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {R\i};
+        }
+        \foreach \i in {8,...,12}{
+            \pgfmathsetmacro{\y}{-(\i)*0.62}
+            \draw[draw=memline, fill=memfill, thick] (0,\y) rectangle (1.35,\y+0.55);
+            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {R\i};
+        }
+        \foreach \i/\nm in {13/{R13 SP}, 14/{R14 LR}, 15/{R15 PC}}{
+            \pgfmathsetmacro{\y}{-\i*0.62}
+            \draw[draw=accentline, fill=accentfill, thick] (0,\y) rectangle (1.35,\y+0.55);
+            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {\nm};
+        }
+        \draw[decorate, decoration={brace, amplitude=4pt}, draw=blkline]
+            (1.5,0.55) -- (1.5,-4.34);
+        \node[lbl, anchor=west, align=left, font=\scriptsize] at (1.85,-1.9)
+            {\textbf{Low registers}\\{\scriptsize reachable by 16-bit Thumb}\\{\scriptsize encodings --- smaller code}};
+        \draw[decorate, decoration={brace, amplitude=4pt}, draw=memline]
+            (1.5,-4.5) -- (1.5,-7.44);
+        \node[lbl, anchor=west, align=left, font=\scriptsize] at (1.85,-6.0)
+            {\textbf{High registers}\\{\scriptsize need 32-bit encodings}\\{\scriptsize for most operations}};
+        \draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+            (1.5,-7.6) -- (1.5,-9.24);
+        \node[lbl, anchor=west, align=left, font=\scriptsize, text=accentline] at (1.85,-8.4)
+            {\textbf{Special purpose}\\{\scriptsize never use as scratch}};
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.5\textwidth}
+        {\small Preferring \texttt{R0}--\texttt{R7} is not just a style
+        choice. It changes the \alert{size} of the compiled program.}
+
+        \vspace{3mm}
+        \begin{block}{Seen in a disassembly}
+            {\small \texttt{ADD R0, R1, R2} --- 16-bit Thumb\\
+            \texttt{ADD R8, R9, R10} --- 32-bit Thumb-2}
+
+            \vspace{1mm}
+            {\small Same operation, but \alert{double} the Flash footprint.}
+        \end{block}
+
+        \vspace{3mm}
+        {\small Writing to \texttt{R15} causes an immediate branch ---
+        occasionally useful, usually a bug.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Special Registers You Will See}
+    \leavevmode
+    {\small Three registers mean more than ``a place to put a number.''
+    A disassembly window shows them by name.}
+
+    \vspace{2mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l R{.5\textwidth}@{}}
+        \toprule
+        \textbf{Register} & \textbf{Shown as} & \textbf{Role} \\
+        \midrule
+        R13 & \texttt{SP} & Stack pointer --- address of the last item pushed \\
+        R14 & \texttt{LR} & Link register --- \texttt{BL} writes the return address here \\
+        R15 & \texttt{PC} & Program counter --- writing it is a branch \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{2mm}
+    {\small The N/Z/C/V flags live in the \textbf{APSR}, part of the
+    combined \texttt{xPSR}. Often shown as \texttt{PSR}. Chapter~7 returns
+    to those flags.}
+
+    \vspace{2mm}
+    \begin{block}{Prologue and epilogue}
+        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	PUSH {LR}    ; prologue: save the return address
+	...          ; the function body
+	POP  {PC}    ; epilogue: return by loading PC directly
+        \end{lstlisting}
+
+        {\footnotesize \texttt{POP \{PC\}} \emph{is} the return. Recognising
+        this pair on sight is one of the most useful disassembly skills.}
+    \end{block}
+\end{frame}
+
+\begin{frame}{A Preview: Register Usage Conventions}
+    \leavevmode
+    {\small Two disassembly listings for the same C source almost never
+    disagree about \emph{which} registers carry arguments and results.
+    That is not an accident --- it is the \alert{AAPCS}.}
+
+    \vspace{2mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.6\textwidth}@{}}
+        \toprule
+        \textbf{Registers} & \textbf{Role} \\
+        \midrule
+        \texttt{R0}--\texttt{R3}  & First four arguments in; \texttt{R0} carries the return value out \\
+        \texttt{R4}--\texttt{R11} & \emph{Callee-saved} --- a function may use them, but must restore them \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{2mm}
+    {\small This is why \texttt{f(a,b)} from a few slides back could add
+    \texttt{R0} and \texttt{R1} with no register setup --- the arguments
+    were already there.}
+
+    \vspace{2mm}
+    {\small Chapter~7 builds the full convention. Appendix~C tabulates it.}
+\end{frame}
+
+%===============================================================================
+\section{Constants: \texttt{MOV}, \texttt{MVN}, and Building an Address}
+%===============================================================================
+
+\begin{frame}[fragile]{\texttt{MOV} and \texttt{MVN}}
+    \leavevmode
+    {\small Two instructions that never touch memory.}
+
+    \vspace{2mm}
+    {\small \textbf{\texttt{MOV Rd, Operand2}} copies its second operand
+    into \texttt{Rd} --- an encodable constant, or another register.
+    \textbf{\texttt{MVN}} does the same but inverts every bit on the way.}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	MOV R0, R1       ; R0 = R1
+	MOV R0, #25      ; R0 = 25
+	MVN R0, #0       ; R0 = 0xFFFFFFFF
+	MVN R0, R1       ; R0 = ~R1  (one's complement)
+    \end{lstlisting}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{block}{The encoding limit}
+        \texttt{MOV} accepts only a restricted 12-bit encoding --- an 8-bit
+        value plus a rotation. So \texttt{MOV R0, \#0xFF000000} is
+        encodable; \texttt{MOV R0, \#0x12345678} is \alert{not}. Every
+        peripheral address falls in the second category.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Loading a Large Constant: \texttt{LDR Rd, =value}}
+    \leavevmode
+    {\small The form you write by hand. It is not a real instruction ---
+    it is a \alert{pseudo-instruction}.}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{lstlisting}[style=armasm, basicstyle=\large\ttfamily]
+	LDR R0, =0x40020014
+    \end{lstlisting}
+    \end{center}
+
+    \vspace{3mm}
+    {\small You say \emph{what} value you want. The assembler decides
+    \emph{how} to build it:}
+
+    \vspace{1mm}
+    {\small
+    \begin{itemize}\itemsep1pt
+        \item A single \texttt{MOV}, if the value happens to be encodable.
+        \item Otherwise, a \alert{literal pool}: a small block of data
+              placed in the code section, read with a PC-relative load.
+    \end{itemize}}
+
+    \vspace{3mm}
+    \begin{block}{Programmer vs assembler}
+        Write \texttt{LDR Rd, =value} and let the assembler decide. Read
+        the other forms and know what they mean.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Building a 32-Bit Constant with \texttt{MOVW}/\texttt{MOVT}}
+    \leavevmode
+    {\small One common way a Thumb-2 compiler builds a 32-bit constant:
+    one halfword at a time. \texttt{MOVW} writes the low 16 bits and
+    clears the high half. \texttt{MOVT} writes the high 16 bits, leaving
+    the low half alone.}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+; build 0x40020014 (GPIOA->ODR), one halfword at a time
+	MOVW R0, #0x0014   ; R0 = 0x00000014, high half cleared
+	MOVT R0, #0x4002   ; R0 = 0x40020014, high half set, low half kept
+    \end{lstlisting}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{center}
+        \large\texttt{R0 = 0x40020014}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{block}{A pair to recognise, not one to write}
+        {\small \texttt{MOVW}/\texttt{MOVT} is a \alert{common outcome},
+        not a rule. A compiler also picks a plain \texttt{MOV} for small
+        constants, a shift trick, or a literal pool --- depending on the
+        value, optimization level, and target.}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Reading It Back}
+    \leavevmode
+    \begin{center}
+    \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	MOVW R3, #0x0014
+	MOVT R3, #0x4002   ; "R3 is being given a 32-bit address"
+	LDR  R2, [R3]      ; "...and now something is read through it"
+    \end{lstlisting}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{The useful reading is always the same}
+        Three lines, \alert{one address being built, then used}. The exact
+        halves rarely matter. Seeing it as one operation, not three
+        unrelated ones, is the whole skill.
+    \end{block}
+
+    \vspace{3mm}
+    {\small \textbf{C connection:} a declaration as ordinary as
+    \texttt{uint32\_t x = 0x12345678;} can require two instructions.
+    Nothing in the C source hints at the split. It is a property of the
+    \alert{instruction encoding}.}
+\end{frame}
+
+\begin{frame}{A Look Ahead: The Barrel Shifter}
+    \leavevmode
+    {\small ARM can shift a register on its way \emph{into} an
+    instruction, at no extra cost --- for example
+    \texttt{ADD R0, R1, R2, LSL \#2}.}
+
+    \vspace{3mm}
+    {\small We return to this feature in Chapter~6, where it becomes
+    particularly useful for calculating addresses. It is mentioned here
+    only so that a shifted operand in later disassembly does not come as
+    a surprise.}
+\end{frame}
+
+%===============================================================================
+\section{Worked Example: Reading Your First Disassembly}
+%===============================================================================
+
+\begin{frame}[fragile]{Your First Disassembly}
+    \begin{columns}[T]
+    \begin{column}{.46\textwidth}
+        \textbf{The C}
+
+        \vspace{1mm}
+        \begin{lstlisting}[style=myc]
+int c;
+c = a + b;
+        \end{lstlisting}
+
+        \vspace{3mm}
+        \textbf{The listing}
+
+        \vspace{1mm}
+        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+	LDR  R3, [R7, #4]
+	LDR  R2, [R7, #8]
+	ADD  R3, R3, R2
+	STR  R3, [R7, #12]
+        \end{lstlisting}
+    \end{column}
+    \begin{column}{.5\textwidth}
+        \textbf{Reading it back}
+
+        \vspace{1mm}
+        {\small
+        \begin{enumerate}\itemsep1pt
+            \item \texttt{R7} is the \alert{frame pointer}, so these are
+                  \alert{local variables} at offsets 4, 8, 12.
+            \item Load two of them.
+            \item Add them.
+            \item Store the result in a third.
+        \end{enumerate}}
+
+        \vspace{3mm}
+        \begin{block}{Three things to notice}
+            {\small Same \alert{load--process--store} shape as every other
+            example. No \texttt{S} suffix --- nothing branches on the
+            result. Offsets from \texttt{R7} say \alert{stack locals}, not
+            globals.}
+        \end{block}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{One Operation, Viewed at Five Levels}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.65\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical hardware & Two register-file read ports feeding the ALU's 32-bit adder \\
+        Register          & Two locals loaded, added, one result stored \\
+        C                 & \texttt{c = a + b;} \\
+        Assembly          & \texttt{LDR R3, [R7, \#4]}; \texttt{LDR R2, [R7, \#8]}; \texttt{ADD R3, R3, R2}; \texttt{STR R3, [R7, \#12]} \\
+        Machine code      & Four Thumb-2 encodings stored in Flash \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{You can now}
+        read a short assembly program, follow a value through the
+        load--process--store cycle, and choose the correct load or store
+        for any data width.
+    \end{block}
+\end{frame}
+
+%===============================================================================
+\section{Summary}
+%===============================================================================
+
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Goal: literacy, not fluency};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Statement: label, opcode, operands, comment};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {Memory access is load--process--store};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {\texttt{LDR Rn, =label} loads an address};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {\texttt{LDR Rn, [Rm]} loads a value};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Size suffix B, H; zero or sign extend};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Low registers R0--R7 give short code};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {You can read a disassembly\\and name the C behind it};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Label, opcode, operand
+					\item LDR, STR and size suffixes
+					\item Zero and sign extension
+					\item Low and high registers
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 6}\\[1mm]
+				\emph{Memory, Arithmetic and Bit Manipulation}\\[1mm]
+				How ARM calculates addresses, and how it changes single bits.}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\section{Addendum}
+
+% \bw, \rh, \regx, \regy, \memx, \memy are shared across every bit-level
+% TikZ frame below. Must sit OUTSIDE any \begin{frame}[fragile], because
+% Beamer's .vrb save-and-reread tokenizes the TikZ later, by which time
+% a \def made inside an earlier fragile frame is no longer visible.
+\def\bw{1.0}
+\def\rh{0.62}
+\def\regx{0.7}
+\def\regy{4.3}
+\def\memx{5.2}
+\def\memy{3.0}
+
+% stm05_todo.tex -- unreviewed slide material dropped during the
+% 2026-10-07 sync of stm05.tex to chapter 5.
+%
+% These frames carry teaching material that the book does not currently
+% cover. Each is a candidate for promotion to chapter 5 at the next book
+% edition. Treat them as raw material, not finished slides.
+%
+% NOT part of the stmNN.tex deck or the stm32primer.tex book -- this file
+% is never \include'd or \input anywhere. It is a staging ground only.
+%
+% After promoting (or rejecting) a frame, delete it from this file.
+%
+% Rule: see CLAUDE.md section "The book is the superset" --- dropped
+% slide material is parked here, never deleted.
+
+%%------------------------------------------------------------------
+% Load Group of Instructions
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}{Load Group of Instructions}
 	\begin{itemize}
 		\item An LDR-type instruction fetches data from memory and puts
@@ -360,201 +1041,148 @@ HERE    ADD     R1, R1, R0    ; add R0 to R1
 	\end{itemize}
 \end{frame}
 
-
+%%------------------------------------------------------------------
+% LDR: Loading a Word from Memory (Little-Endian)
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{LDR: Loading a Word from Memory (Little-Endian)}
-\begin{verbatim}
-	LDR  R0, [R1]    ; load word
-\end{verbatim}
+	\begin{verbatim}
+		LDR  R0, [R1]    ; load word
+	\end{verbatim}
 
 	\centering
-\resizebox{0.92\textwidth}{!}{%
-\begin{tikzpicture}[x=10mm, y=8mm]
+	\resizebox{0.92\textwidth}{!}{%
+		\begin{tikzpicture}[x=10mm, y=8mm]
 
-	\def\bw{1.0}    % width of one byte box
-	\def\rh{0.62}   % row height (matches the stack-frame diagram)
+			\def\bw{1.0}    % width of one byte box
+			\def\rh{0.62}   % row height (matches the stack-frame diagram)
 
-	% --- Register R1: four contiguous byte boxes ---
-	\def\regx{0.7}
-	\def\regy{4.3}
-	\foreach \i/\val in {0/{0x00},1/{0xC0},2/{0xFF},3/{0xEE}}{
-		\pgfmathsetmacro{\x}{\regx+\i*\bw}
-		\draw[draw=blkline, fill=blkfill, thick]
-		(\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-		\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			% --- Register R1: four contiguous byte boxes ---
+			\def\regx{0.7}
+			\def\regy{4.3}
+			\foreach \i/\val in {0/{0x00},1/{0xC0},2/{0xFF},3/{0xEE}}{
+				\pgfmathsetmacro{\x}{\regx+\i*\bw}
+				\draw[draw=blkline, fill=blkfill, thick]
+				(\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			}
+			\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
+
+			% --- Memory: four stacked byte boxes, addresses increasing downward ---
+			\def\memx{5.2}
+			\def\memy{3.0}
+			\foreach \i/\val/\addr in {%
+				0/{0xEE}/{0x40020014},
+				1/{0xFF}/{0x40020015},
+				2/{0xC0}/{0x40020016},
+				3/{0x00}/{0x40020017}}{
+				\pgfmathsetmacro{\y}{\memy-\i*\rh}
+				\draw[draw=accentline, fill=accentfill, thick]
+				(\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
+				\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+			}
+			\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
+
+			% --- Arrows: bytes flow up from memory into the register (LDR) ---
+			\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
+			\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
+			\draw[flow, draw=accentline] (\memx,{\memy-2*\rh-\rh/2}) -| ({\regx+1*\bw+\bw/2},{\regy-\rh});
+			\draw[flow, draw=accentline] (\memx,{\memy-3*\rh-\rh/2}) -| ({\regx+0*\bw+\bw/2},{\regy-\rh});
+
+			% --- Address axis, to the right of the address column ---
+			\def\axisx{8.9}
+			\draw[-{Stealth[length=2.2mm]}, draw=black!45]
+			({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-4*\rh-0.05});
+			\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
+			at ({\axisx-0.15},{\memy-2*\rh}) {increasing address};
+
+			% --- Brace naming the whole word ---
+			\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+			({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-4*\rh});
+			\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
+			at ({\axisx+0.85},{\memy-2*\rh}) {4 bytes\\1 word\\loaded by\\\texttt{LDR}};
+
+		\end{tikzpicture}%\
 	}
-	\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
-
-	% --- Memory: four stacked byte boxes, addresses increasing downward ---
-	\def\memx{5.2}
-	\def\memy{3.0}
-	\foreach \i/\val/\addr in {%
-		0/{0xEE}/{0x40020014},
-		1/{0xFF}/{0x40020015},
-		2/{0xC0}/{0x40020016},
-		3/{0x00}/{0x40020017}}{
-		\pgfmathsetmacro{\y}{\memy-\i*\rh}
-		\draw[draw=accentline, fill=accentfill, thick]
-		(\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-		\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
-		\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
-	}
-	\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
-
-	% --- Arrows: bytes flow up from memory into the register (LDR) ---
-	\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
-	\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
-	\draw[flow, draw=accentline] (\memx,{\memy-2*\rh-\rh/2}) -| ({\regx+1*\bw+\bw/2},{\regy-\rh});
-	\draw[flow, draw=accentline] (\memx,{\memy-3*\rh-\rh/2}) -| ({\regx+0*\bw+\bw/2},{\regy-\rh});
-
-	% --- Address axis, to the right of the address column ---
-	\def\axisx{8.9}
-	\draw[-{Stealth[length=2.2mm]}, draw=black!45]
-	({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-4*\rh-0.05});
-	\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
-	at ({\axisx-0.15},{\memy-2*\rh}) {increasing address};
-
-	% --- Brace naming the whole word ---
-	\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-	({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-4*\rh});
-	\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
-	at ({\axisx+0.85},{\memy-2*\rh}) {4 bytes\\1 word\\loaded by\\\texttt{LDR}};
-
-\end{tikzpicture}%\
-}
 	\begin{itemize}
-	\item Assume R0 = 0x40020014, and the \alert{memory word} at 0x40020014 holds 0x00C0FFEE.
-	\item After \texttt{LDR R1, [R0]} runs, the destination register R1 holds 0x00C0FFEE.
-\end{itemize}
+		\item Assume R0 = 0x40020014, and the \alert{memory word} at 0x40020014 holds 0x00C0FFEE.
+		\item After \texttt{LDR R1, [R0]} runs, the destination register R1 holds 0x00C0FFEE.
+	\end{itemize}
 
 \end{frame}
 
-\begin{frame}[fragile]{Choosing the Correct Data Width}
-	\begin{center}
-	\begin{lstlisting}[style=armasm]
-		LDR   R0, [R1]    ; load 32 bits
-		LDRH  R0, [R1]    ; load 16 bits (H = halfword)
-		LDRB  R0, [R1]    ; load 8 bits (B = byte)
-		LDRSH R0, [R1]    ; load 16 bits (SH = signed halfword)
-		LDRSB R0, [R1]    ; load 8 bits (SB = signed byte)
-	\end{lstlisting}
-	\end{center}
-
-	\vspace{3mm}
-
-	\begin{block}{A register is always 32 bits wide}
-		When fewer than 32 bits are loaded, the processor must decide
-		what fills the unused upper bits. This gives two important ideas:
-		\alert{zero extension} and \alert{sign extension}.
-	\end{block}
-\end{frame}
-
-\begin{frame}[plain]{Zero Extension}{\texttt{LDRB} and \texttt{LDRH}}
-	\begin{center}
-		\includegraphics[width=.8\textwidth]{assets/bits-ldrb.pdf}
-
-		\vspace{4mm}
-
-		\includegraphics[width=.8\textwidth]{assets/bits-ldrh.pdf}
-	\end{center}
-
-	\vspace{3mm}
-
-	{\small\centering
-		The loaded value is treated as \textbf{unsigned}. Every unused
-		upper bit is set to zero.\par}
-\end{frame}
-
-\begin{frame}[plain]{Sign Extension}{\texttt{LDRSB} and \texttt{LDRSH}}
-	\begin{center}
-		\includegraphics[width=.8\textwidth]{assets/bits-ldrsb.pdf}
-
-		\vspace{4mm}
-
-		\includegraphics[width=.8\textwidth]{assets/bits-ldrsh.pdf}
-	\end{center}
-
-	\vspace{3mm}
-
-	{\small\centering
-		The sign bit is copied into all higher bits. This keeps the
-		loaded value's signed meaning the same, even after it becomes
-		32 bits wide.\par}
-\end{frame}
-
-% \bw, \rh shared by every frame
-\def\bw{1.0}
-\def\rh{0.62}
-\def\regx{0.7}
-\def\regy{4.3}
-\def\memx{5.2}
-\def\memy{3.0}
-
-
+%%------------------------------------------------------------------
+% LDRH Instruction
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{LDRH Instruction}
-\begin{verbatim}
-	LDRH  R0, [R1]    ; load halfword
-\end{verbatim}
-\resizebox{0.92\textwidth}{!}{%
-	\begin{tikzpicture}[x=10mm, y=8mm]
+	\begin{verbatim}
+		LDRH  R0, [R1]    ; load halfword
+	\end{verbatim}
+	\resizebox{0.92\textwidth}{!}{%
+		\begin{tikzpicture}[x=10mm, y=8mm]
 
-		% --- Register R1: byte3..byte0 left to right; only byte1,byte0 loaded ---
-		\foreach \p/\val/\loaded in {0/{0x00}/0, 1/{0x00}/0, 2/{0xFF}/1, 3/{0xEE}/1}{
-			\pgfmathsetmacro{\x}{\regx+\p*\bw}
-			\ifnum\loaded=1
-			\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\else
-			\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\fi
-			\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
-		}
-		\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
+			% --- Register R1: byte3..byte0 left to right; only byte1,byte0 loaded ---
+			\foreach \p/\val/\loaded in {0/{0x00}/0, 1/{0x00}/0, 2/{0xFF}/1, 3/{0xEE}/1}{
+				\pgfmathsetmacro{\x}{\regx+\p*\bw}
+				\ifnum\loaded=1
+				\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\else
+				\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			}
+			\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
 
-		% under-brace: zero-extended upper half
-		\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
-		({\regx},{\regy-\rh-0.1}) -- ({\regx+2*\bw},{\regy-\rh-0.1});
-		\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
-		at ({\regx+\bw},{\regy-\rh-0.7}) {bits 31:16 = 0\\(zero-extended)};
+			% under-brace: zero-extended upper half
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
+			({\regx},{\regy-\rh-0.1}) -- ({\regx+2*\bw},{\regy-\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
+			at ({\regx+\bw},{\regy-\rh-0.7}) {bits 31:16 = 0\\(zero-extended)};
 
-		% --- Memory: 2 bytes, low address on top (LSB) ---
+			% --- Memory: 2 bytes, low address on top (LSB) ---
 			\foreach \i/\val/\addr/\written in {%
-	0/{0xEE}/{0x40020014}/1,
-	1/{0xFF}/{0x40020015}/1,
-	2/{0xC0}/{0x40020016}/0,
-	3/{0x00}/{0x40020017}/0}{
-	\pgfmathsetmacro{\y}{\memy-\i*\rh}
-	\ifnum\written=1
-	\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\else
-	\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\fi
-	\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
-	\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+				0/{0xEE}/{0x40020014}/1,
+				1/{0xFF}/{0x40020015}/1,
+				2/{0xC0}/{0x40020016}/0,
+				3/{0x00}/{0x40020017}/0}{
+				\pgfmathsetmacro{\y}{\memy-\i*\rh}
+				\ifnum\written=1
+				\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\else
+				\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
+				\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+			}
+			\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
+
+			% --- Arrows: 2 bytes flow up into byte1,byte0 ---
+			\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
+			\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
+
+			% --- Address axis + brace ---
+			\def\axisx{9.1}
+			\draw[-{Stealth[length=2.2mm]}, draw=black!45]
+			({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-2*\rh-0.05});
+			\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
+			at ({\axisx-0.15},{\memy-1*\rh}) {increasing address};
+			\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+			({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-2*\rh});
+			\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
+			at ({\axisx+0.85},{\memy-1*\rh}) {2 bytes\\loaded by\\\texttt{LDRH}};
+
+			% under-brace: unchanged memory bytes
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
+			({\memx-.1},{\memy-2*\rh}) -- ({\memx-.1},{\memy-4*\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
+			at ({\memx-\bw/2-.4},{\memy-2*\rh-0.7}) {not\\copied};
+
+		\end{tikzpicture}%
 	}
-	\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
-
-		% --- Arrows: 2 bytes flow up into byte1,byte0 ---
-		\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
-		\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
-
-		% --- Address axis + brace ---
-		\def\axisx{9.1}
-		\draw[-{Stealth[length=2.2mm]}, draw=black!45]
-		({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-2*\rh-0.05});
-		\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
-		at ({\axisx-0.15},{\memy-1*\rh}) {increasing address};
-		\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-		({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-2*\rh});
-		\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
-		at ({\axisx+0.85},{\memy-1*\rh}) {2 bytes\\loaded by\\\texttt{LDRH}};
-
-					% under-brace: unchanged memory bytes
-		\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
-		({\memx-.1},{\memy-2*\rh}) -- ({\memx-.1},{\memy-4*\rh-0.1});
-		\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
-		at ({\memx-\bw/2-.4},{\memy-2*\rh-0.7}) {not\\copied};
-
-	\end{tikzpicture}%
-}
 	\vspace{4mm}
 
 	\begin{itemize}
@@ -563,68 +1191,73 @@ HERE    ADD     R1, R1, R0    ; add R0 to R1
 	\end{itemize}
 \end{frame}
 
+%%------------------------------------------------------------------
+% LDRB Instruction
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{LDRB Instruction}
-\resizebox{0.92\textwidth}{!}{%
-	\begin{tikzpicture}[x=10mm, y=8mm]
+	\resizebox{0.92\textwidth}{!}{%
+		\begin{tikzpicture}[x=10mm, y=8mm]
 
-		% --- Register R1: only byte0 loaded ---
-		\foreach \p/\val/\loaded in {0/{0x00}/0, 1/{0x00}/0, 2/{0x00}/0, 3/{0xEE}/1}{
-			\pgfmathsetmacro{\x}{\regx+\p*\bw}
-			\ifnum\loaded=1
-			\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\else
-			\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\fi
-			\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
-		}
-		\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
+			% --- Register R1: only byte0 loaded ---
+			\foreach \p/\val/\loaded in {0/{0x00}/0, 1/{0x00}/0, 2/{0x00}/0, 3/{0xEE}/1}{
+				\pgfmathsetmacro{\x}{\regx+\p*\bw}
+				\ifnum\loaded=1
+				\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\else
+				\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			}
+			\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
 
-		% under-brace: zero-extended upper 3 bytes
-		\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
-		({\regx},{\regy-\rh-0.1}) -- ({\regx+3*\bw},{\regy-\rh-0.1});
-		\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
-		at ({\regx+1.5*\bw},{\regy-\rh-0.7}) {bits 31:8 = 0\\(zero-extended)};
+			% under-brace: zero-extended upper 3 bytes
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
+			({\regx},{\regy-\rh-0.1}) -- ({\regx+3*\bw},{\regy-\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
+			at ({\regx+1.5*\bw},{\regy-\rh-0.7}) {bits 31:8 = 0\\(zero-extended)};
 
-		% --- Memory: 1 byte ---
+			% --- Memory: 1 byte ---
 			% --- Memory: only the low byte overwritten, others keep their old value ---
-\foreach \i/\val/\addr/\written in {%
-	0/{0xEE}/{0x40020014}/1,
-	1/{0xFF}/{0x40020015}/0,
-	2/{0xC0}/{0x40020016}/0,
-	3/{0x00}/{0x40020017}/0}{
-	\pgfmathsetmacro{\y}{\memy-\i*\rh}
-	\ifnum\written=1
-	\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\else
-	\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\fi
-	\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
-	\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
-}
-\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
+			\foreach \i/\val/\addr/\written in {%
+				0/{0xEE}/{0x40020014}/1,
+				1/{0xFF}/{0x40020015}/0,
+				2/{0xC0}/{0x40020016}/0,
+				3/{0x00}/{0x40020017}/0}{
+				\pgfmathsetmacro{\y}{\memy-\i*\rh}
+				\ifnum\written=1
+				\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\else
+				\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
+				\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+			}
+			\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
 
-		% --- Arrow: 1 byte flows up into byte0 ---
-		\draw[flow, draw=accentline] (\memx,{\memy-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
+			% --- Arrow: 1 byte flows up into byte0 ---
+			\draw[flow, draw=accentline] (\memx,{\memy-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
 
-		% --- Address axis + brace ---
-		\def\axisx{9.1}
-		\draw[-{Stealth[length=2.2mm]}, draw=black!45]
-		({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-\rh-0.05});
-		\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
-		at ({\axisx-0.15},{\memy-0.5*\rh}) {addr.};
-		\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-		({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-\rh});
-		\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
-		at ({\axisx+0.85},{\memy-0.5*\rh}) {1 byte\\loaded by\\\texttt{LDRB}};
+			% --- Address axis + brace ---
+			\def\axisx{9.1}
+			\draw[-{Stealth[length=2.2mm]}, draw=black!45]
+			({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-\rh-0.05});
+			\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
+			at ({\axisx-0.15},{\memy-0.5*\rh}) {addr.};
+			\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+			({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-\rh});
+			\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
+			at ({\axisx+0.85},{\memy-0.5*\rh}) {1 byte\\loaded by\\\texttt{LDRB}};
 
 			% under-brace: unchanged memory bytes
-\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
-({\memx-0.1},{\memy-1*\rh}) -- ({\memx-0.1},{\memy-4*\rh});
-\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
-at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
+			({\memx-0.1},{\memy-1*\rh}) -- ({\memx-0.1},{\memy-4*\rh});
+			\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
+			at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 
-	\end{tikzpicture}%
-}
+		\end{tikzpicture}%
+	}
 	\vspace{4mm}
 
 	\begin{itemize}
@@ -633,101 +1266,76 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 	\end{itemize}
 \end{frame}
 
-\section{Loading Signed Numbers}
-
-\begin{frame}{The Same Bits Can Mean Different Numbers}
-	\begin{itemize}
-		\item Most microprocessor work uses unsigned numbers.
-		\item Sometimes, signed numbers are necessary
-	\end{itemize}
-	\begin{center}
-		{
-			\striped
-			\begin{tabular}{@{}l l l@{}}
-				\toprule
-				\textbf{Byte in memory} & \textbf{\texttt{LDRB}} & \textbf{\texttt{LDRSB}} \\
-				\midrule
-				\texttt{0x7F} & \texttt{0x0000007F} = 127  & \texttt{0x0000007F} = 127 \\
-				\texttt{0xFF} & \texttt{0x000000FF} = 255  & \texttt{0xFFFFFFFF} = -1 \\
-				\texttt{0x80} & \texttt{0x00000080} = 128  & \texttt{0xFFFFFF80} = -128 \\
-				\bottomrule
-		\end{tabular}}
-	\end{center}
-
-	\vspace{3mm}
-
-	\begin{block}{The instruction states your \textbf{intent}}
-		Memory only stores bits. Choosing \texttt{LDRB} or \texttt{LDRSB}
-		tells the processor whether those bits mean an unsigned value or
-		a signed one.
-	\end{block}
-\end{frame}
-
+%%------------------------------------------------------------------
+% LDRSH Instruction
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{LDRSH Instruction}
 	\begin{verbatim}
-	LDRSH R0, [R1]    ; load signed halfword
-\end{verbatim}
-\resizebox{0.92\textwidth}{!}{%
-	\begin{tikzpicture}[x=10mm, y=8mm]
+		LDRSH R0, [R1]    ; load signed halfword
+	\end{verbatim}
+	\resizebox{0.92\textwidth}{!}{%
+		\begin{tikzpicture}[x=10mm, y=8mm]
 
-		% --- Register R1: byte1,byte0 loaded; byte3,byte2 replicate the sign bit ---
-		\foreach \p/\val/\loaded in {0/{0xFF}/0, 1/{0xFF}/0, 2/{0xFF}/1, 3/{0xEE}/1}{
-			\pgfmathsetmacro{\x}{\regx+\p*\bw}
-			\ifnum\loaded=1
-			\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\else
-			\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\fi
-			\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
-		}
-		\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
+			% --- Register R1: byte1,byte0 loaded; byte3,byte2 replicate the sign bit ---
+			\foreach \p/\val/\loaded in {0/{0xFF}/0, 1/{0xFF}/0, 2/{0xFF}/1, 3/{0xEE}/1}{
+				\pgfmathsetmacro{\x}{\regx+\p*\bw}
+				\ifnum\loaded=1
+				\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\else
+				\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			}
+			\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
 
-		% under-brace: sign-extended upper half
-		\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
-		({\regx},{\regy-\rh-0.1}) -- ({\regx+2*\bw},{\regy-\rh-0.1});
-		\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
-		at ({\regx+\bw},{\regy-\rh-0.7}) {bits 31:16 = bit 15\\(sign-extended)};
+			% under-brace: sign-extended upper half
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
+			({\regx},{\regy-\rh-0.1}) -- ({\regx+2*\bw},{\regy-\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
+			at ({\regx+\bw},{\regy-\rh-0.7}) {bits 31:16 = bit 15\\(sign-extended)};
 
-		% --- Memory: 2 bytes, same halfword 0xFF80 as LDRH (bit 15 = 1) ---
+			% --- Memory: 2 bytes, same halfword 0xFF80 as LDRH (bit 15 = 1) ---
 			\foreach \i/\val/\addr/\written in {%
-	0/{0xEE}/{0x40020014}/1,
-	1/{0xFF}/{0x40020015}/1,
-	2/{0xC0}/{0x40020016}/0,
-	3/{0x00}/{0x40020017}/0}{
-	\pgfmathsetmacro{\y}{\memy-\i*\rh}
-	\ifnum\written=1
-	\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\else
-	\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\fi
-	\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
-	\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
-}
-\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
+				0/{0xEE}/{0x40020014}/1,
+				1/{0xFF}/{0x40020015}/1,
+				2/{0xC0}/{0x40020016}/0,
+				3/{0x00}/{0x40020017}/0}{
+				\pgfmathsetmacro{\y}{\memy-\i*\rh}
+				\ifnum\written=1
+				\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\else
+				\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
+				\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+			}
+			\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
 
-		% --- Arrows: 2 bytes flow up into byte1,byte0 ---
-		\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
-		\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
+			% --- Arrows: 2 bytes flow up into byte1,byte0 ---
+			\draw[flow, draw=accentline] (\memx,{\memy-0*\rh-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
+			\draw[flow, draw=accentline] (\memx,{\memy-1*\rh-\rh/2}) -| ({\regx+2*\bw+\bw/2},{\regy-\rh});
 
-		% --- Address axis + brace ---
-		\def\axisx{9.1}
-		\draw[-{Stealth[length=2.2mm]}, draw=black!45]
-		({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-2*\rh-0.05});
-		\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
-		at ({\axisx-0.15},{\memy-1*\rh}) {increasing address};
-		\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-		({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-2*\rh});
-		\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
-		at ({\axisx+0.85},{\memy-1*\rh}) {2 bytes\\loaded by\\\texttt{LDRSH}};
+			% --- Address axis + brace ---
+			\def\axisx{9.1}
+			\draw[-{Stealth[length=2.2mm]}, draw=black!45]
+			({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-2*\rh-0.05});
+			\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
+			at ({\axisx-0.15},{\memy-1*\rh}) {increasing address};
+			\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+			({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-2*\rh});
+			\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
+			at ({\axisx+0.85},{\memy-1*\rh}) {2 bytes\\loaded by\\\texttt{LDRSH}};
 
 			% under-brace: unchanged memory bytes
-\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
-({\memx-.1},{\memy-2*\rh}) -- ({\memx-.1},{\memy-4*\rh-0.1});
-\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
-at ({\memx-\bw/2-.4},{\memy-2*\rh-0.7}) {not\\copied};
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
+			({\memx-.1},{\memy-2*\rh}) -- ({\memx-.1},{\memy-4*\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
+			at ({\memx-\bw/2-.4},{\memy-2*\rh-0.7}) {not\\copied};
 
-	\end{tikzpicture}%
-}
+		\end{tikzpicture}%
+	}
 	\vspace{4mm}
 
 	\begin{itemize}
@@ -736,71 +1344,76 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.7}) {not\\copied};
 	\end{itemize}
 \end{frame}
 
+%%------------------------------------------------------------------
+% LDRSB Instruction
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{LDRSB Instruction}
 	\begin{verbatim}
 		LDRSB R0, [R1]    ; load signed byte
 	\end{verbatim}
-\resizebox{0.92\textwidth}{!}{%
-	\begin{tikzpicture}[x=10mm, y=8mm]
+	\resizebox{0.92\textwidth}{!}{%
+		\begin{tikzpicture}[x=10mm, y=8mm]
 
-		% --- Register R1: only byte0 loaded; byte3,byte2,byte1 replicate the sign bit ---
-		\foreach \p/\val/\loaded in {0/{0xFF}/0, 1/{0xFF}/0, 2/{0xFF}/0, 3/{0xEE}/1}{
-			\pgfmathsetmacro{\x}{\regx+\p*\bw}
-			\ifnum\loaded=1
-			\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\else
-			\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
-			\fi
-			\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
-		}
-		\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
+			% --- Register R1: only byte0 loaded; byte3,byte2,byte1 replicate the sign bit ---
+			\foreach \p/\val/\loaded in {0/{0xFF}/0, 1/{0xFF}/0, 2/{0xFF}/0, 3/{0xEE}/1}{
+				\pgfmathsetmacro{\x}{\regx+\p*\bw}
+				\ifnum\loaded=1
+				\draw[loadedbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\else
+				\draw[extbox] (\x,\regy) rectangle ({\x+\bw},{\regy-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\x+\bw/2},{\regy-\rh/2}) {\val};
+			}
+			\node[lbl, anchor=east, font=\sffamily\small] at ({\regx-0.3},{\regy-\rh/2}) {R1};
 
-		% under-brace: sign-extended upper 3 bytes
-		\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
-		({\regx},{\regy-\rh-0.1}) -- ({\regx+3*\bw},{\regy-\rh-0.1});
-		\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
-		at ({\regx+1.5*\bw},{\regy-\rh-0.7}) {bits 31:8 = bit 7\\(sign-extended)};
+			% under-brace: sign-extended upper 3 bytes
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=blkline]
+			({\regx},{\regy-\rh-0.1}) -- ({\regx+3*\bw},{\regy-\rh-0.1});
+			\node[lbl, font=\sffamily\scriptsize, text=blkline, align=center]
+			at ({\regx+1.5*\bw},{\regy-\rh-0.7}) {bits 31:8 = bit 7\\(sign-extended)};
 
-		% --- Memory: 1 byte, same source byte 0x80 as LDRB (bit 7 = 1) ---
-\foreach \i/\val/\addr/\written in {%
-	0/{0xEE}/{0x40020014}/1,
-	1/{0xFF}/{0x40020015}/0,
-	2/{0xC0}/{0x40020016}/0,
-	3/{0x00}/{0x40020017}/0}{
-	\pgfmathsetmacro{\y}{\memy-\i*\rh}
-	\ifnum\written=1
-	\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\else
-	\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
-	\fi
-	\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
-	\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
-}
-\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
+			% --- Memory: 1 byte, same source byte 0x80 as LDRB (bit 7 = 1) ---
+			\foreach \i/\val/\addr/\written in {%
+				0/{0xEE}/{0x40020014}/1,
+				1/{0xFF}/{0x40020015}/0,
+				2/{0xC0}/{0x40020016}/0,
+				3/{0x00}/{0x40020017}/0}{
+				\pgfmathsetmacro{\y}{\memy-\i*\rh}
+				\ifnum\written=1
+				\draw[memwrite] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\else
+				\draw[memkeep] (\memx,\y) rectangle ({\memx+\bw},{\y-\rh});
+				\fi
+				\node[font=\ttfamily\small] at ({\memx+\bw/2},{\y-\rh/2}) {\val};
+				\node[lbl, anchor=west, font=\sffamily\scriptsize] at ({\memx+\bw+0.3},{\y-\rh/2}) {\addr};
+			}
+			\node[lbl, anchor=south, font=\sffamily\small] at ({\memx+\bw/2},{\memy+0.15}) {Memory};
 
-		% --- Arrow: 1 byte flows up into byte0 ---
-		\draw[flow, draw=accentline] (\memx,{\memy-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
+			% --- Arrow: 1 byte flows up into byte0 ---
+			\draw[flow, draw=accentline] (\memx,{\memy-\rh/2}) -| ({\regx+3*\bw+\bw/2},{\regy-\rh});
 
-		% --- Address axis + brace ---
-		\def\axisx{9.1}
-		\draw[-{Stealth[length=2.2mm]}, draw=black!45]
-		({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-\rh-0.05});
-		\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
-		at ({\axisx-0.15},{\memy-0.5*\rh}) {addr.};
-		\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-		({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-\rh});
-		\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
-		at ({\axisx+0.85},{\memy-0.5*\rh}) {1 byte\\loaded by\\\texttt{LDRSB}};
+			% --- Address axis + brace ---
+			\def\axisx{9.1}
+			\draw[-{Stealth[length=2.2mm]}, draw=black!45]
+			({\axisx},{\memy+0.05}) -- ({\axisx},{\memy-\rh-0.05});
+			\node[lbl, anchor=south, rotate=90, font=\sffamily\scriptsize]
+			at ({\axisx-0.15},{\memy-0.5*\rh}) {addr.};
+			\draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
+			({\axisx+0.6},{\memy}) -- ({\axisx+0.6},{\memy-\rh});
+			\node[lbl, anchor=west, align=left, font=\sffamily\scriptsize, text=accentline]
+			at ({\axisx+0.85},{\memy-0.5*\rh}) {1 byte\\loaded by\\\texttt{LDRSB}};
 
 			% under-brace: unchanged memory bytes
-\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
-({\memx-0.1},{\memy-1*\rh}) -- ({\memx-0.1},{\memy-4*\rh});
-\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
-at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
+			\draw[decorate, decoration={brace, amplitude=4pt, mirror}, draw=accentline]
+			({\memx-0.1},{\memy-1*\rh}) -- ({\memx-0.1},{\memy-4*\rh});
+			\node[lbl, font=\sffamily\scriptsize, text=accentline, align=center]
+			at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 
 
-	\end{tikzpicture}%
-}
+		\end{tikzpicture}%
+	}
 	\vspace{4mm}
 
 	\begin{itemize}
@@ -809,14 +1422,14 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 	\end{itemize}
 \end{frame}
 
-\section{Store Instructions}
-
-% ==================================================================
-% STR — store a full word
-% ==================================================================
+%%------------------------------------------------------------------
+% STR: Storing a Word to Memory
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{STR: Storing a Word to Memory}
 	\begin{verbatim}
-	STR   R0, [R1]    ; store 32-bit word
+		STR   R0, [R1]    ; store 32-bit word
 	\end{verbatim}
 	\centering
 	{\small\itshape Before: R1 = 0x11223344, \quad [0x40020014] = 0x00C0FFEE\par}
@@ -866,10 +1479,11 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 	}
 \end{frame}
 
-
-% ==================================================================
-% STRH — store the low halfword only
-% ==================================================================
+%%------------------------------------------------------------------
+% STRH: Storing a Halfword to Memory
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{STRH: Storing a Halfword to Memory}
 	\begin{verbatim}
 		STRH R0, [R1]
@@ -939,19 +1553,20 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 		\end{tikzpicture}%
 	}
 	\begin{itemize}
-	\item Assume R0 = 0x40020014, R1 = 0x11223344.
-	\item After \texttt{STRH R1, [R0]} runs, the \alert{memory halfword} at 0x40020014 holds 0x4433.
-\end{itemize}
+		\item Assume R0 = 0x40020014, R1 = 0x11223344.
+		\item After \texttt{STRH R1, [R0]} runs, the \alert{memory halfword} at 0x40020014 holds 0x4433.
+	\end{itemize}
 \end{frame}
 
-
-% ==================================================================
-% STRB — store a single byte
-% ==================================================================
+%%------------------------------------------------------------------
+% STRB: Storing a Byte to Memory
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{STRB: Storing a Byte to Memory}
 	\begin{verbatim}
-	STRB R0, [R1]
-\end{verbatim}
+		STRB R0, [R1]
+	\end{verbatim}
 	\centering
 	{\small\itshape Before: R1 = 0x11223344, \quad [0x40020014] = 0x00C0FFEE\par}
 	\vspace{2mm}
@@ -1016,21 +1631,25 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 		\end{tikzpicture}%
 	}
 	\begin{itemize}
-	\item After \texttt{STRB R1, [R0]} runs, the \alert{memory byte} at 0x40020014 holds 0x44.
+		\item After \texttt{STRB R1, [R0]} runs, the \alert{memory byte} at 0x40020014 holds 0x44.
 	\end{itemize}
 \end{frame}
 
-
+%%------------------------------------------------------------------
+% Memory Copy Example
+%% Reason dropped: bit-level register/memory visualization not in
+%% chapter 5 (the book uses PDF-included figures bits-ldrb.pdf etc.).
+%%------------------------------------------------------------------
 \begin{frame}[fragile]{Memory Copy Example}
 
-\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
-	LDR R0, =0x2000
-	LDR R1, =0x2004
-	LDR R2, [R0]
-	STR R2, [R1]
-\end{lstlisting}
+	\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+		LDR R0, =0x2000
+		LDR R1, =0x2004
+		LDR R2, [R0]
+		STR R2, [R1]
+	\end{lstlisting}
 
-\vspace{10mm}
+	\vspace{10mm}
 
 
 	\begin{columns}[T]
@@ -1046,8 +1665,8 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 					\def\rh{0.75}
 					\def\regx{0.4}
 					\def\memx{4}
-\def\rh{0.75} \def\rowsep{0.20} % desired gap
-\def\rowA{6.0} \def\rowB{\rowA-\rh-\rowsep} \def\rowC{\rowB-\rh-\rowsep}
+					\def\rh{0.75} \def\rowsep{0.20} % desired gap
+					\def\rowA{6.0} \def\rowB{\rowA-\rh-\rowsep} \def\rowC{\rowB-\rh-\rowsep}
 
 					\node[lbl, font=\sffamily\small\bfseries] at ({\regx+\rw/2},{\rowA+0.35}) {Registers};
 					\node[lbl, font=\sffamily\small\bfseries] at ({\memx+\rw/2},{\rowA+0.35}) {Memory};
@@ -1083,12 +1702,12 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 				\begin{tikzpicture}[x=10mm, y=8mm]
 					\path[use as bounding box] (-0.4,1.6) rectangle (7.4,6.9);
 
-\def\rw{2.4}
-\def\rh{0.75}
-\def\regx{0.4}
-\def\memx{4}
-\def\rh{0.75} \def\rowsep{0.20} % desired gap
-\def\rowA{6.0} \def\rowB{\rowA-\rh-\rowsep} \def\rowC{\rowB-\rh-\rowsep}
+					\def\rw{2.4}
+					\def\rh{0.75}
+					\def\regx{0.4}
+					\def\memx{4}
+					\def\rh{0.75} \def\rowsep{0.20} % desired gap
+					\def\rowA{6.0} \def\rowB{\rowA-\rh-\rowsep} \def\rowC{\rowB-\rh-\rowsep}
 
 					\node[lbl, font=\sffamily\small\bfseries] at ({\regx+\rw/2},{\rowA+0.35}) {Registers};
 					\node[lbl, font=\sffamily\small\bfseries] at ({\memx+\rw/2},{\rowA+0.35}) {Memory};
@@ -1125,393 +1744,16 @@ at ({\memx-\bw/2-.4},{\memy-2*\rh-0.35}) {not\\copied};
 
 	\end{columns}
 
-\vspace{1mm}
+	\vspace{1mm}
 	{\scriptsize\color{black!55} dashed arrow = address used for addressing\par}
 
-%	\begin{itemize}
-%		\item \texttt{R0} and \texttt{R1} start out holding pointers to memory. We could have used \texttt{MOVW}/\texttt{MOVT} instead.
-%		\item Square brackets always mean \alert{memory access}.
-%	\end{itemize}
+	%	\begin{itemize}
+		%		\item \texttt{R0} and \texttt{R1} start out holding pointers to memory. We could have used \texttt{MOVW}/\texttt{MOVT} instead.
+		%		\item Square brackets always mean \alert{memory access}.
+		%	\end{itemize}
 
 \end{frame}
 
 
-%===============================================================================
-\section{Registers in Practice}
-%===============================================================================
-
-\begin{frame}[plain]{Low and High Registers}
-    \begin{columns}[c]
-    \begin{column}{.46\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=8mm, y=6.6mm]
-        % Low registers R0-R7
-        \foreach \i in {0,...,7}{
-            \pgfmathsetmacro{\y}{-\i*0.62}
-            \draw[draw=blkline, fill=blkfill, thick] (0,\y) rectangle (1.35,\y+0.55);
-            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {R\i};
-        }
-        % High registers R8-R12
-        \foreach \i in {8,...,12}{
-            \pgfmathsetmacro{\y}{-(\i)*0.62}
-            \draw[draw=memline, fill=memfill, thick] (0,\y) rectangle (1.35,\y+0.55);
-            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {R\i};
-        }
-        % Special registers
-        \foreach \i/\nm in {13/{R13 SP}, 14/{R14 LR}, 15/{R15 PC}}{
-            \pgfmathsetmacro{\y}{-\i*0.62}
-            \draw[draw=accentline, fill=accentfill, thick] (0,\y) rectangle (1.35,\y+0.55);
-            \node[font=\scriptsize\ttfamily] at (0.675,\y+0.275) {\nm};
-        }
-        % Group braces and labels
-        \draw[decorate, decoration={brace, amplitude=4pt}, draw=blkline]
-            (1.5,0.55) -- (1.5,-4.34);
-        \node[lbl, anchor=west, align=left, font=\scriptsize] at (1.85,-1.9)
-            {\textbf{Low registers}\\{\scriptsize reachable by 16-bit Thumb}\\{\scriptsize encodings --- smaller code}};
-        \draw[decorate, decoration={brace, amplitude=4pt}, draw=memline]
-            (1.5,-4.5) -- (1.5,-7.44);
-        \node[lbl, anchor=west, align=left, font=\scriptsize] at (1.85,-6.0)
-            {\textbf{High registers}\\{\scriptsize need 32-bit encodings}\\{\scriptsize for most operations}};
-        \draw[decorate, decoration={brace, amplitude=4pt}, draw=accentline]
-            (1.5,-7.6) -- (1.5,-9.24);
-        \node[lbl, anchor=west, align=left, font=\scriptsize, text=accentline] at (1.85,-8.4)
-            {\textbf{Special purpose}\\{\scriptsize never use as scratch}};
-        \end{tikzpicture}
-        \end{center}
-    \end{column}
-    \begin{column}{.5\textwidth}
-        {\small Preferring \texttt{R0}--\texttt{R7} is not just a style
-        choice. It changes the size of the compiled program.}
-
-        \vspace{3mm}
-        \begin{block}{Seen in a disassembly}
-            {\small \texttt{ADD R0, R1, R2} --- 16-bit Thumb\\
-            \texttt{ADD R8, R9, R10} --- 32-bit Thumb-2}
-
-            \vspace{1mm}
-            {\small Same operation, but \alert{double} the flash footprint.}
-        \end{block}
-
-        \vspace{3mm}
-        {\small \texttt{R13}/\texttt{R14}/\texttt{R15} keep their special
-        meanings. Never use them as scratch storage.}
-    \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Special Registers You Will See}
-    \leavevmode
-    {\small Three registers mean more than just ``a place to put a
-    number.'' A disassembly window shows all three by name:}
-
-    \vspace{2mm}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l l R{.5\textwidth}@{}}
-        \toprule
-        \textbf{Register} & \textbf{Shown as} & \textbf{Role} \\
-        \midrule
-        R13 & \texttt{SP} & Stack pointer --- address of the last item pushed \\
-        R14 & \texttt{LR} & Link register --- \texttt{BL} writes the return address here \\
-        R15 & \texttt{PC} & Program counter --- writing it is a branch \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
-
-    \vspace{2mm}
-    {\small The N/Z/C/V flags live in the \textbf{APSR}, part of the
-    combined \texttt{xPSR}. This is often shown simply as \texttt{PSR}.
-    Chapter 7 returns to these flags, once condition codes give them
-    a use.}
-
-    \vspace{2mm}
-    \begin{block}{Prologue and epilogue}{Mark start and end of a function}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
-	PUSH {LR}    ; save the return address
-	...          ; the function body
-	POP  {PC}    ; return by loading PC directly
-        \end{lstlisting}
-    \end{block}
-\end{frame}
-
-\begin{frame}{A Preview: Register Usage Conventions}
-    \leavevmode
-    {\small Two disassembly listings for the same C source always agree
-    on \emph{which} registers carry arguments and results. This rule
-    is called the \alert{AAPCS}.}
-
-    \vspace{2mm}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l R{.6\textwidth}@{}}
-        \toprule
-        \textbf{Registers} & \textbf{Role} \\
-        \midrule
-        \texttt{R0}--\texttt{R3} & First four arguments in; \texttt{R0} carries the return value out \\
-        \texttt{R4}--\texttt{R11} & \emph{Callee-saved} --- a function may use them, but must restore them \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
-
-    \vspace{2mm}
-    {\small This is why \texttt{scale()}, traced next, reads and writes
-    \texttt{R0} with no register setup at all. The argument is already
-    there.}
-
-    \vspace{2mm}
-    {\small Chapter 7 explains the full convention. Appendix B lists the
-    complete standard.}
-\end{frame}
-
-%===============================================================================
-\section{Constants and Addresses}
-%===============================================================================
-
-\begin{frame}[fragile]{\texttt{MOV} and \texttt{MVN}: Register-to-Register Data Movement}
-	\leavevmode
-
-	\begin{itemize}
-		\item \texttt{MOV} copies a value into a register.
-		\item The source can be another register or an encodable immediate.
-		\item \texttt{MVN} performs the same operation after inverting every bit.
-	\end{itemize}
-
-	\vspace{2mm}
-
-	\begin{center}
-	\begin{lstlisting}[style=armasm]
-	MOV R0, R1    ; copy R1 into R0
-	MOV R0, #25   ; load decimal 25
-	MVN R0, #0    ; R0 = 0xFFFFFFFF
-	MVN R0, R1    ; R0 = ~R1
-	\end{lstlisting}
-	\end{center}
-
-	\vspace{2mm}
-
-	\begin{block}{What they cannot do}
-	Neither instruction touches memory. Also, a single \texttt{MOV}
-	cannot hold every possible 32-bit constant. So how do we load a
-	large constant?
-	\end{block}
-\end{frame}
-
-\begin{frame}[fragile]{Loading a Large Constant: \texttt{LDR Rd, =value}}
-	\leavevmode
-	\begin{center}
-	\begin{lstlisting}[style=armasm, basicstyle=\large\ttfamily]
-	LDR R0, =0x40020014
-	\end{lstlisting}
-	\end{center}
-	\vspace{3mm}
-	\begin{itemize}
-		\item We often need constants that do not fit in a single \texttt{MOV} instruction.
-		\item To avoid worrying about how it is encoded, we usually write \texttt{LDR Rd, =value}.
-		\item This is an \alert{assembler pseudo-instruction}. It means:
-	\end{itemize}
-	\vspace{1mm}
-	\begin{center} \textit{``Place this constant into the register.''} \end{center}
-	\vspace{2mm}
-	\begin{block}{Programmer versus assembler}
-		You say \emph{what} value you want. The assembler decides
-		\emph{how} to build it.
-	\end{block}
-\end{frame}
-
-\begin{frame}[fragile]{How the Assembler Can Implement It}
-	\leavevmode
-	\begin{columns}[T]
-	\begin{column}{.48\textwidth}
-		\textbf{Option 1: Literal pool}
-
-		\vspace{1mm}
-		\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
-	LDR R0, [PC, #offset]
-		\end{lstlisting}
-
-		\vspace{5mm}
-		The constant sits in memory. The processor loads it using a PC-relative address.
-	\end{column}
-	\begin{column}{.48\textwidth}
-		\textbf{Option 2: Build it directly}
-
-		\vspace{1mm}
-		\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
-	MOVW R0, #0x0014
-	MOVT R0, #0x4002
-		\end{lstlisting}
-
-		\vspace{5mm}
-		The constant is built inside the register. No extra memory access is needed.
-	\end{column}
-	\end{columns}
-
-	\vspace{3mm}
-	\begin{block}{Key idea}
-		\texttt{LDR Rd, =value} does not map to one specific machine
-		instruction. It is just a request: put this constant into a
-		register, however that is best done.
-	\end{block}
-\end{frame}
-
-\begin{frame}[fragile]{Constructing a 32-Bit Constant with \texttt{MOVW}/\texttt{MOVT}}
-	\leavevmode
-
-	\begin{center}
-	\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
-	MOVW R0, #0x0014   ; lower 16 bits
-	MOVT R0, #0x4002   ; upper 16 bits
-	\end{lstlisting}
-	\end{center}
-
-	\vspace{2mm}
-
-	\begin{center}
-		\large
-		\texttt{R0 = 0x40020014}
-	\end{center}
-
-	\vspace{2mm}
-
-\begin{block}{Why two instructions?}
-A Thumb-2 instruction cannot hold just any 32-bit constant.\\ \texttt{MOVW} writes the lower half of the register. \texttt{MOVT} writes the upper half.
-		\[
-		\underbrace{\texttt{0x4002}}_{\text{upper 16 bits}}
-		\quad
-		\underbrace{\texttt{0x0014}}_{\text{lower 16 bits}}
-		\]
-	\end{block}
-\end{frame}
-
-\begin{frame}[fragile]{Reading Compiler Output}
-	\leavevmode
-	\begin{center}
-	\begin{lstlisting}[style=armasm]
-MOVW R3, #0x0014
-MOVT R3, #0x4002
-LDR  R2, [R3]
-	\end{lstlisting}
-	\end{center}
-
-	\vspace{3mm}
-	\begin{block}{How to read this sequence}
-		Think of the first two instructions as one operation:
-		\begin{center} \textit{``Build the address 0x40020014 in R3.''} \end{center}
-		Once the address is in a register, the load can reach the
-		memory-mapped peripheral register there.
-	\end{block}
-	\vspace{1mm}
-	{\small In embedded programs, seeing a \texttt{MOVW}/\texttt{MOVT} pair usually means one address, or one large constant, is being built.}
-\end{frame}
-
-\begin{frame}{A Look Ahead: The Barrel Shifter}
-    \leavevmode
-    {\small ARM can shift a register on its way \emph{into} an
-    instruction, at no extra cost --- for example \texttt{ADD R0, R1,
-    R2, LSL \#2}. We will return to this feature in Chapter 6, where it
-    becomes particularly useful for calculating addresses.}
-\end{frame}
-
-%===============================================================================
-\section{Reading a Disassembly}
-%===============================================================================
-
-\begin{frame}[fragile]{Your First Disassembly}
-    \begin{columns}[T]
-    \begin{column}{.46\textwidth}
-        \textbf{The listing}
-
-        \vspace{1mm}
-        \begin{lstlisting}[style=armasm]
-	LDR  R3, [R7, #4]
-	LDR  R2, [R7, #8]
-	ADD  R3, R3, R2
-	STR  R3, [R7, #12]
-        \end{lstlisting}
-    \end{column}
-    \begin{column}{.5\textwidth}
-        \textbf{Reading it back}
-        {\small
-        \begin{enumerate}\itemsep1pt
-            \item \texttt{R7} is the \alert{frame pointer}, so these are
-                  \alert{local variables} at offsets 4, 8, and 12
-            \item Load two of them
-            \item Add them
-            \item Store the result in a third
-        \end{enumerate}}
-
-        \vspace{2mm}
-        \textbf{The C was}
-
-        \vspace{1mm}
-
-        \begin{lstlisting}[style=myc]
-	c = a + b;
-	\end{lstlisting}
-
-    %    {\ttfamily\normalsize c = a + b;}
-    \end{column}
-    \end{columns}
-
-    \vspace{3mm}
-    \begin{block}{Three things to notice}
-        The whole statement follows \alert{load--process--store}. No
-        \texttt{S} suffix appears, because nothing branches on the
-        result. The offsets from \texttt{R7} tell you these are locals
-        on the \alert{stack}, not global variables.
-    \end{block}
-\end{frame}
-
-\begin{frame}{Summary}
-    \begin{itemize}
-        \item The goal is \textbf{literacy}, not fluency: enough to read a
-              disassembly window and say what the processor is doing.
-        \item A statement has four fields: \textbf{label}, \textbf{opcode},
-              \textbf{operands}, \textbf{comment}. The first operand is the
-              \textbf{destination}.
-        \item Every operation on a memory variable follows
-              \textbf{load--process--store}.
-        \item \texttt{LDR Rn, =label} loads an \textbf{address}.
-              \texttt{LDR Rn, [Rm]} loads a \textbf{value}.
-        \item The suffix names the size: none $=$ \textbf{word}, \texttt{B} $=$
-              \textbf{byte}, \texttt{H} $=$ \textbf{halfword}.
-              \texttt{LDRB}/\texttt{LDRH} \textbf{zero-extend};
-              \texttt{LDRSB}/\texttt{LDRSH} \textbf{sign-extend}.
-        \item \textbf{Low registers} \texttt{R0}--\texttt{R7} are reachable by
-              16-bit instructions, so compilers prefer them.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 6 --- Memory, Arithmetic and Bit Manipulation}
-        Next: how ARM calculates addresses efficiently, and the
-        instructions that change individual bits.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A colleague's driver reads a 12-bit ADC result with \texttt{LDR} (a full word), then masks off the top 20 bits in C. Another engineer suggests using \texttt{LDRH} instead, since the ADC data register is only 16 bits wide.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Compare the two approaches instruction by instruction: how many instructions does each need, and does either risk reading memory that does not belong to the ADC register? Then consider a signed sensor reading stored as a 16-bit two's-complement value. Explain which load instruction is required, and what goes wrong if the wrong one is used. State the general rule you would give a junior engineer for choosing between \texttt{LDR}, \texttt{LDRH}, and \texttt{LDRSH}.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 5}
-        \vfill
-    \end{center}
-\end{frame}
 
 \end{document}

@@ -138,33 +138,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Temperature, light, sound, force, and position are all continuous quantities. A processor can only work with numbers. The analog-to-digital converter is the instrument that crosses that gap. Using it well is an engineering problem, not just a programming one. You must decide how fast to sample, how much resolution you need, and how much of the answer you can actually trust.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Explain sampling, quantization, and resolution, and apply the Nyquist criterion to choose a sampling rate.
-        \item Calculate the quantization step size and convert between digital codes and physical voltages.
-        \item Configure a GPIO pin for analog input and initialize the ADC peripheral.
-        \item Acquire a reading by polling and by interrupt, and justify the choice between them.
-        \item Select an appropriate sampling time for a given source impedance.
-        \item Scale a raw ADC reading into engineering units for a real sensor.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Temperature, light, sound and force are continuous. A processor works only with numbers. The ADC crosses that gap. Using it well is an engineering problem: how fast to sample, how much resolution you need, and how much of the answer you can trust.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Explain sampling, quantization and resolution; apply Nyquist.
+            \item Calculate the step size and convert codes to volts.
+            \item Configure a pin for analog input and set up the ADC.
+            \item Read by polling and by interrupt.
+            \item Choose the sampling time for a source impedance.
+            \item Scale a raw reading into engineering units.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -363,52 +359,102 @@ uint16_t ADC_Read(void)
     \alert{cannot} do in hardware.}
 \end{frame}
 
-\begin{frame}{Summary}
-    \begin{itemize}
-        \item An ADC approximates twice: \textbf{sampling} in time,
-              \textbf{quantization} in value.
-        \item \textbf{Nyquist}: sample above twice the highest frequency, or
-              aliasing corrupts the result \textbf{irrecoverably}.
-        \item 12-bit means \textbf{0--4095}; one step is
-              $3.3/4095 \approx 0.8$\,mV.
-              $V_{\text{in}} = (\text{count}/4095) \times V_{\text{ref}}$.
-        \item Configure: \textbf{clocks}, \texttt{MODER} $=$ \texttt{11}
-              (\textbf{analog}), \textbf{sampling time}, \textbf{sequence},
-              then \texttt{ADON}.
-        \item Read: \texttt{SWSTART} $\rightarrow$ wait \texttt{EOC} $\rightarrow$
-              read \texttt{DR}. Prefer the \textbf{interrupt} in real designs.
-        \item \textbf{Sampling time} must suit the source impedance, or readings
-              come out low.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 12 --- UART Communication}
-        You can read the world. Next: telling someone about it.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
+\begin{frame}{Resolution Is Not Accuracy}
     \leavevmode
-    \begin{block}{The brief}
-        A thermocouple amplifier outputs 0--3.3~V for a range of 0--400~\textdegree C. The temperature must be reported to $\pm$1~\textdegree C, updated once per second, in an electrically noisy factory.
-    \end{block}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{block}{Resolution}
+            {\small The smallest change the ADC can \alert{tell apart}.}
 
-    \vspace{2mm}
-    {\small Design the acquisition chain: required ADC resolution, sampling rate, sampling time given a 10~k$\Omega$ source impedance, and whether averaging is needed --- and if so, how many samples. Justify each number. Then state what limits the accuracy you can actually claim, and explain why a 12-bit converter does not by itself guarantee 12 bits of trustworthy measurement.}
+            \vspace{1mm}
+            {\small 12-bit: $3.3/4096 \approx 0.8$~mV.}
+        \end{block}
+
+        \vspace{2mm}
+        {\small A property of the \alert{bit count}. It never gets
+        better than this.}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{block}{Accuracy}
+            {\small How close the reading is to the \alert{true} voltage.}
+
+            \vspace{1mm}
+            {\small Set by reference tolerance, offset, gain error,
+            noise, source impedance, sampling time.}
+        \end{block}
+
+        \vspace{2mm}
+        {\small Can be far worse than resolution. 12-bit numbers do
+        not guarantee 12-bit answers.}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    \begin{block}{Averaging}
+        $N$ independent samples reduce random noise by $\sqrt{N}$.
+        Trades conversion rate for a quieter number.
+    \end{block}
 \end{frame}
 
-\begin{frame}[plain]
+\begin{frame}{An Analog Measurement at Five Levels}
     \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 11}
-        \vfill
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.65\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical    & 1.599~V on the PA0 pad from the potentiometer wiper \\
+        Hardware    & Sample-and-hold capacitor; 12-cycle SAR comparison \\
+        Register    & \texttt{ADC1->DR} contains \texttt{0x7C0} \\
+        C           & \texttt{voltage = raw * 3.3f / 4095.0f;} \\
+        Engineering & 1.599~V, or 159.9~\textdegree{}C from an LM35 \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
+
+    \vspace{3mm}
+    \begin{block}{What the ADC gives you}
+        A continuous quantity sensed through a chain that starts at a
+        physical voltage and ends in engineering units. With a hardware
+        timer driving conversions, the interval is set by the peripheral,
+        not by the main loop.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Real signals are continuous};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Sampling approximates in time};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {Quantization approximates in value};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Nyquist: sample above $2f_{\max}$};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {12 bits give 0--4095; 0.8\,mV per step};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Configure: clock, analog mode, ADON};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {\texttt{SWSTART}, wait \texttt{EOC}, read \texttt{DR}};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {The CPU can now\\read the physical world};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Sampling, quantization
+					\item Nyquist, aliasing
+					\item Resolution, step size
+					\item Sampling time, impedance
+					\item \texttt{EOC}, \texttt{DR}
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 12}\\[1mm]
+				\emph{UART Communication}\\[1mm]
+				We can read the world. Next, we report it.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

@@ -145,34 +145,30 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Every program so far has used \texttt{delay\_ms()} --- a loop that counts down while doing nothing. This approach has three problems. Its timing can change with compiler optimization or clock frequency. It uses the CPU the whole time it waits. And it cannot give an accurate time base for measuring events. A hardware timer solves all three problems. It separates \textbf{timekeeping from program execution}. Once configured, it counts on its own, independent of the processor. By itself, it can \textbf{schedule} an event at a precise time, \textbf{measure} when an external event happens, or \textbf{generate} a precisely timed output --- such as the PWM signal used to dim an LED or drive a motor. This chapter covers those three uses, in that order.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Explain how a prescaler and auto-reload register determine a timer's period.
-        \item Calculate the prescaler and reload values required for a specified timing interval.
-        \item Configure a general-purpose timer to generate periodic update interrupts.
-        \item Use SysTick to maintain a millisecond system time base.
-        \item Select the correct alternate-function number to route a pin to a timer channel.
-        \item Calculate PWM frequency and duty cycle, and configure a timer output-compare channel to generate them.
-        \item Apply PWM to control LED brightness and motor speed.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize \texttt{delay\_ms()} has three problems. Its timing changes with the optimizer and the clock. It uses the CPU while it waits. It gives no accurate time base. A hardware timer solves all three. It counts on its own, so it can \textbf{schedule} an event, \textbf{measure} an event, or \textbf{generate} a timed output such as PWM.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Explain how prescaler and reload set a timer's period.
+            \item Calculate prescaler and reload values.
+            \item Generate periodic update interrupts.
+            \item Keep a millisecond time base with SysTick.
+            \item Choose the alternate function that routes a pin to a timer channel.
+            \item Calculate PWM frequency and duty cycle.
+            \item Apply PWM to LED brightness and motor speed.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -564,78 +560,89 @@ TIM2->CR1   |= (1U << 0);        // start
 \includegraphics[width=0.92\textwidth]{assets/led_control_pwm.jpg}
 \end{frame}
 
-\begin{frame}{Summary}
-    \begin{itemize}
-        \item A software delay is wrong three ways: it depends on the
-              \textbf{optimiser} and \textbf{clock}, it burns the \textbf{whole
-              CPU}, and interrupts \textbf{stretch} it.
-        \item A timer is a \textbf{hardware counter}:
-              $f = f_{\text{CK}} / ((\text{PSC}{+}1)(\text{ARR}{+}1))$.
-        \item Choose \textbf{PSC} for a convenient tick, then \textbf{ARR} is the
-              number of ticks.
-        \item \textbf{SysTick} is in the core, identical on every Cortex-M, and is
-              what a portable \texttt{millis()} is built on.
-        \item An \textbf{alternate function} needs \texttt{MODER} $=$ \texttt{10}
-              \emph{and} the right number in \texttt{AFR} --- four bits per pin.
-        \item \textbf{PWM}: \texttt{ARR} sets the frequency, \texttt{CCR} sets the
-              duty cycle. A digital pin produces an analog effect.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 11 --- ADC and Analog Interfacing}
-        You can produce an analog effect. Next: measuring a real one.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A system must perform three periodic tasks: read a sensor every 10~ms, update a display every 100~ms, and write a log entry every 1~s.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Design the timing structure using a single hardware time base. Specify the timer's \texttt{PSC} and \texttt{ARR} values for a 16~MHz clock, and show how one interrupt can schedule all three tasks without drift. Then work out what happens if the log write takes 40~ms, identify which requirement breaks first, and give two different ways to fix it --- one that changes the schedule and one that changes the architecture.}
-
-    \vspace{2mm}
-    {\small \textbf{Extension --- a listening device.} Now add a fourth activity to the same processor: sampling a microphone at 16~kHz for keyword spotting, as in audio timing. On paper, decide whether the system above can still meet all its deadlines. Produce a cycle budget at 16~MHz showing what fraction of the processor the sampling ISR alone uses. Decide which of the four activities may be delayed and which may not, and justify the ranking in terms of what breaks when each one slips. State where the audio buffer lives and how the main loop knows a window is ready without racing the ISR. Finally, identify the one activity in the original three that is now unsafe to leave as written, and say what you would change about it, without adding a second processor.}
-\end{frame}
-
-\begin{frame}[fragile]{Design-Challenge Skeleton: One Time Base, Three Tasks}
-	\begin{lstlisting}[style=myc]
-		static periodic_task_t sensor_task  = { .last_ms=0, .period_ms=10   };
-		static periodic_task_t display_task = { .last_ms=0, .period_ms=100 };
-		static periodic_task_t log_task     = { .last_ms=0, .period_ms=1000};
-
-		void read_sensor(void)    { /* ... */ }
-		void update_display(void) { /* ... */ }
-		void write_log(void)      { /* ... */ }
-
-		void scheduler_loop(void)
-		{
-			for (;;) {
-				if (task_due(&sensor_task))  read_sensor();
-				if (task_due(&display_task)) update_display();
-				if (task_due(&log_task))     write_log();
-			}
-		}
-	\end{lstlisting}
-	{\small One SysTick-driven \texttt{millis()} schedules the sensor
-		(10\,ms), display (100\,ms) and log (1\,s) tasks from a single
-		interrupt source, without drift.}
-\end{frame}
-
-\begin{frame}[plain]
+\begin{frame}{One PWM Output, Three Applications}
     \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 10}
-        \vfill
+    \begin{tikzpicture}[x=10mm, y=10mm]
+        \node[blk, minimum width=24mm] (timer) at (0,2.4) {Timer};
+        \node[cpublk, minimum width=24mm] (pwm) at (0,1.0) {PWM};
+        \node[blk, minimum width=24mm] (led)   at (-3.8,-1.0) {LED brightness};
+        \node[blk, minimum width=24mm] (motor) at ( 0.0,-1.0) {DC motor speed};
+        \node[blk, minimum width=24mm] (servo) at ( 3.8,-1.0) {Servo position};
+        \draw[flow] (timer) -- (pwm);
+        \coordinate (fan) at ($(pwm.south)+(0,-0.6)$);
+        \draw[busline] (pwm.south) -- (fan);
+        \draw[busline] (led.north |- fan) -- (servo.north |- fan);
+        \foreach \p in {led,motor,servo}{\draw[flow] (\p.north |- fan) -- (\p.north);}
+        \node[lbl, below=4mm of led,   align=center] {the eye integrates\\the pulses};
+        \node[lbl, below=4mm of motor, align=center] {winding inductance\\smooths the current};
+        \node[lbl, below=4mm of servo, align=center] {pulse \emph{width} is\\the command};
+    \end{tikzpicture}
     \end{center}
+
+    \vspace{2mm}
+    {\small LED and motor rely on \alert{physical averaging}. A servo is
+    different: its control electronics measure the \alert{pulse width}
+    and use it to set a position.}
+\end{frame}
+
+\begin{frame}{PWM Output at Five Levels}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.65\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical hardware & Counter, comparator and output flip-flop driving the pad \\
+        Register          & \texttt{TIM2\_CCR1} compared against \texttt{TIM2\_CNT} \\
+        C                 & \texttt{TIM2->CCR1 = 500;} \\
+        Assembly          & \texttt{MOV R0, \#500} / \texttt{STR R0, [R1, \#0x34]} \\
+        Observable        & A 1~kHz square wave at 50\% duty on pin PA5 \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{So far}
+        \texttt{ARR} determines the PWM \alert{period}. \texttt{CCRx}
+        determines how long the output stays \alert{high}. The same two
+        registers used earlier to schedule an interrupt now generate a
+        waveform instead.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Software delay depends on optimizer and clock};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {A timer is a hardware counter};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {$f = f_{\text{CK}}/((\text{PSC}{+}1)(\text{ARR}{+}1))$};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {SysTick gives a portable millisecond base};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {Alternate function: \texttt{MODER}=10 plus \texttt{AFR}};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {PWM: ARR sets frequency, CCR sets duty};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Duty cycle sets average output};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {A digital pin gives\\an analog effect};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Prescaler (PSC), reload (ARR)
+					\item SysTick
+					\item Alternate function, \texttt{AFR}
+					\item PWM, duty cycle, \texttt{CCR}
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 11}\\[1mm]
+				\emph{ADC and Analog Interfacing}\\[1mm]
+				We made an analog effect. Next, we measure a real one.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

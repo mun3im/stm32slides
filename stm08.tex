@@ -138,34 +138,30 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Chapter~4 already blinked an LED in C. Chapters~5--7 then opened up what that program became underneath --- the load, the mask, the store, the branch. This chapter closes the loop: the same \texttt{MODER}/\texttt{ODR} pattern you have now seen at both levels becomes the foundation for every peripheral in the rest of this book. A GPIO pin is the simplest bridge between software and the physical world, so it is where that pattern is easiest to see start to finish.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Describe the parts inside a GPIO pin: the Schmitt trigger, the output driver, and the pull resistors.
-        \item Choose between push-pull and open-drain outputs for a given external circuit.
-        \item Configure any pin's mode, output type, speed, and pull resistors using the GPIO registers.
-        \item Explain why a peripheral clock must be enabled before its registers respond.
-        \item Use \texttt{BSRR} for atomic pin changes, and explain why it beats a read-modify-write on \texttt{ODR}.
-        \item Read a switch input reliably, including software debouncing.
-        \item Drive a multi-segment display from a lookup table instead of per-segment logic.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Chapter~4 blinked an LED in C. Chapters~5--7 showed what that program became: load, mask, store, branch. This chapter closes the loop. The same \texttt{MODER}/\texttt{ODR} pattern is the base of every peripheral in this book. A GPIO pin is the simplest bridge between software and the physical world.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Describe the parts of a GPIO pin.
+            \item Choose push-pull or open-drain for a circuit.
+            \item Configure mode, type, speed and pulls.
+            \item Explain why the peripheral clock comes first.
+            \item Use \texttt{BSRR} for atomic pin changes.
+            \item Read a switch reliably, with debouncing.
+            \item Drive a display from a lookup table.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -527,7 +523,40 @@ int main(void) {
 \end{frame}
 
 
-\begin{frame}[fragile]{Experiment 5: Measuring Reaction Time}
+\begin{frame}[fragile]{Experiment 5: Four-Bit Binary Counter}
+    \leavevmode
+    {\small Four LEDs on \texttt{PB0}--\texttt{PB3} display a counter.
+    Directly connects this chapter to your digital-electronics course.}
+
+    \vspace{2mm}
+\begin{lstlisting}[style=myc, basicstyle=\ttfamily\scriptsize]
+#include "stm32f4xx.h"
+void delay_ms(uint32_t ms) { for (uint32_t i=0; i<ms*4000; i++) __NOP(); }
+
+int main(void) {
+    RCC->AHB1ENR |= (1U << 1);        // enable GPIOB clock
+    GPIOB->MODER &= ~(0xFFU);         // clear PB0..PB3 (two bits each)
+    GPIOB->MODER |=  (0x55U);         // PB0..PB3 as outputs
+
+    uint8_t count = 0;
+    while (1) {
+        GPIOB->ODR = (GPIOB->ODR & ~0xFU) | (count & 0xFU);
+        count++;
+        delay_ms(300);
+    }
+}
+\end{lstlisting}
+
+    \vspace{2mm}
+    \begin{block}{Why the mask-and-write}
+        \texttt{GPIOB->ODR} controls all 16 pins. The expression
+        \texttt{(ODR \& \textasciitilde 0xF) | (count \& 0xF)} clears
+        the low nibble and writes the new value there, leaving the
+        other 12 pins untouched.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Experiment 6: Measuring Reaction Time}
 	\begin{lstlisting}[style=myc, basicstyle=\ttfamily\scriptsize]
 #include "stm32f4xx.h"
 void delay_ms(uint32_t ms) { for (uint32_t i=0;i<ms*4000;i++) __NOP(); }
@@ -562,39 +591,7 @@ int main(void) {
 			exact.}}
 \end{frame}
 
-\begin{frame}[fragile]{Experiment 6: Knight Rider LED Chaser}
-\begin{lstlisting}[style=myc, basicstyle=\ttfamily\footnotesize]
-#include "stm32f4xx.h"
-void delay_ms(uint32_t ms) { for (uint32_t i=0;i<ms*4000;i++) __NOP(); }
 
-int main(void) {
-    RCC->AHB1ENR |= (1U << 1);      // enable GPIOB clock
-    GPIOB->MODER &= ~(0xFFFFU);     // clear PB0..PB7
-    GPIOB->MODER |=  (0x5555U);     // PB0..PB7 as outputs (01 each)
-
-    int pos = 0, dir = 1;
-    while (1) {
-        GPIOB->BSRR = (0xFFU << 16);   // all eight LEDs off
-        GPIOB->BSRR = (1U << pos);     // light only the current one
-
-        if (pos == 7 || pos == 0) dir = -dir;  // bounce at the ends
-        pos += dir;
-
-        delay_ms(80);
-    }
-}
-\end{lstlisting}
-
-    \vspace{2mm}
-    \begin{block}{One lit bit, walking back and forth}
-        Only one output pin is ever high at a time; everything else is
-        cleared first with a single \alert{atomic} \texttt{BSRR} write,
-        then the new bit is set with a second write. \texttt{pos} does
-        the work a hardware shift register would do in an all-analogue
-        version of this circuit --- flipping \texttt{dir} at each end
-        turns a shift into a \alert{bounce}.
-    \end{block}
-\end{frame}
 
 
 
@@ -674,53 +671,86 @@ int main(void) {
 \end{frame}
 
 \begin{frame}{Summary}
-    \begin{itemize}
-        \item A GPIO \textbf{port} has 16 pins. Each register controls
-              all of them, so change only the bits for your pin.
-        \item \texttt{MODER} selects \textbf{input / output / alternate /
-              analog}. It uses 2 bits per pin, so pin $n$ sits at $2n$.
-        \item \textbf{Push-pull} can drive both high and low.
-              \textbf{Open-drain} can only pull low, which is what lets
-              devices share a wire.
-        \item \texttt{ODR} drives a pin, \texttt{IDR} reads one, and
-              \texttt{BSRR} sets or resets a pin \textbf{atomically}.
-        \item A button is usually \textbf{active-low} with a pull-up,
-              and needs \textbf{debouncing}, since contacts bounce for
-              a few milliseconds.
-        \item Always \textbf{enable the port's clock} first, or writes
-              go nowhere.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 9 --- Interrupts and Event-Driven Programming}
-        Polling a button wastes the whole processor. Next, we let the
-        hardware tell us instead.
-    \end{block}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {A port has 16 pins; one register serves all};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Enable the port clock first};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {\texttt{MODER}: 2 bits per pin selects the mode};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Push-pull or open-drain output};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {\texttt{ODR} drives, \texttt{IDR} reads};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {\texttt{BSRR} sets or resets atomically};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Active-low button needs a pull-up and debounce};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {Writing a register\\changes a real voltage};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Port, pin, \texttt{MODER}
+					\item Push-pull, open-drain
+					\item \texttt{ODR}, \texttt{IDR}, \texttt{BSRR}
+					\item Pull-up, debouncing
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 9}\\[1mm]
+				\emph{Interrupts and Event-Driven Programming}\\[1mm]
+				Polling a button wastes the processor. Next, hardware tells us.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
+\section{Addendum}
 
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A control panel needs eight indicator LEDs, four momentary buttons, and one output driving a 24~V relay coil through an external transistor.
-    \end{block}
+% stm08_todo.tex -- unreviewed slide material dropped during the
+% 2026-10-07 sync of stm08.tex to chapter 8.
+%
+% See CLAUDE.md section "The book is the superset" for the parking rule.
+% NOT part of any build.
+%
+% Reason dropped: this experiment is not in chapter 8. Chapter 8 numbers
+% its Experiment 5 as "A Four-Bit Binary Counter". Knight Rider is a
+% popular variant of the same idea -- promote to the book at the next
+% edition, or discard.
 
-    \vspace{2mm}
-    {\small Produce the complete pin-level design for the STM32F446RE: which port and pins, which \texttt{MODER} setting for each, push-pull or open-drain for each output, and which pull resistors for each input. Justify the relay output's configuration in particular. Then state how many register writes your design needs to initialize the whole panel, and whether any of them can be combined.}
+\begin{frame}[fragile]{Experiment 6: Knight Rider LED Chaser}
+	\begin{lstlisting}[style=myc, basicstyle=\ttfamily\footnotesize]
+		#include "stm32f4xx.h"
+		void delay_ms(uint32_t ms) { for (uint32_t i=0;i<ms*4000;i++) __NOP(); }
+
+		int main(void) {
+			RCC->AHB1ENR |= (1U << 1);      // enable GPIOB clock
+			GPIOB->MODER &= ~(0xFFFFU);     // clear PB0..PB7
+			GPIOB->MODER |=  (0x5555U);     // PB0..PB7 as outputs (01 each)
+
+			int pos = 0, dir = 1;
+			while (1) {
+				GPIOB->BSRR = (0xFFU << 16);   // all eight LEDs off
+				GPIOB->BSRR = (1U << pos);     // light only the current one
+
+				if (pos == 7 || pos == 0) dir = -dir;  // bounce at the ends
+				pos += dir;
+
+				delay_ms(80);
+			}
+		}
+	\end{lstlisting}
+
+	\vspace{2mm}
+	\begin{block}{One lit bit, walking back and forth}
+		Only one output pin is ever high at a time; everything else is
+		cleared first with a single \alert{atomic} \texttt{BSRR} write,
+		then the new bit is set with a second write. \texttt{pos} does
+		the work a hardware shift register would do in an all-analogue
+		version of this circuit --- flipping \texttt{dir} at each end
+		turns a shift into a \alert{bounce}.
+	\end{block}
 \end{frame}
 
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 8}
-        \vfill
-    \end{center}
-\end{frame}
 
 \end{document}
 

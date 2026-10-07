@@ -124,33 +124,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}[fragile]{Why This Chapter Matters}
-    \leavevmode
-    Every peripheral you configured in C was controlled by setting and clearing individual bits inside a 32-bit register. You did this without disturbing the neighbouring bits that control other pins. That operation --- load, modify specific bits, store back --- is the single most common pattern in embedded firmware. This chapter builds it from the instruction level up. After this chapter, when you write \verb+GPIOA->MODER |= (1U << 10)+, you will know exactly which instructions the processor executes and why each one is necessary.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Choose the correct arithmetic instruction. Explain why a 32-bit constant may need more than one instruction.
-        \item Write a read-modify-write sequence that changes a bit field without harming the neighbouring bits.
-        \item Predict the result of a shift instruction. Tell logical shifts apart from arithmetic shifts.
-        \item Use the flexible second operand, including barrel-shifter forms, to combine a shift with an arithmetic operation.
-        \item Apply offset addressing, pre-indexed, and post-indexed forms to reach a structure member. State which registers each mode changes.
-        \item Use a scaled register offset to reach an array element. Trace a complete array-processing program.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Every peripheral is controlled by setting and clearing single bits inside a 32-bit register, without disturbing neighbouring bits. Load, modify, store back: this is the most common pattern in embedded firmware. This chapter builds it from instructions. You will then know exactly what \verb+GPIOA->MODER |= (1U << 10)+ executes, and why.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Choose the right arithmetic instruction; explain why a 32-bit constant may need two.
+            \item Write a read-modify-write that spares neighbouring bits.
+            \item Predict shift results; tell logical from arithmetic shifts.
+            \item Use the flexible second operand and barrel shifter.
+            \item Use offset, pre-indexed and post-indexed addressing.
+            \item Use a scaled register offset to reach an array element.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 %===============================================================================
@@ -417,6 +413,32 @@ GPIOA->MODER |=
         emits \texttt{LDR}/\texttt{STR} automatically around every
         \texttt{->MODER} reference. Only the middle two rows have a direct
         C spelling.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Read-Modify-Write at Five Levels}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.65\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical hardware & Two configuration flip-flops selecting the PA5 output driver \\
+        Register          & \texttt{GPIOA\_MODER} bits 11:10 \\
+        C                 & \texttt{MODER \&= \textasciitilde(3U << 10); MODER |= (1U << 10);} \\
+        Assembly          & \texttt{LDR} / \texttt{BIC} / \texttt{ORR} / \texttt{STR} \\
+        Machine code      & Four Thumb-2 encodings \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{One operation, five simultaneous descriptions}
+        Read downward: a flip-flop is a bit, a bit is in a register, a
+        register has a name in C, a name becomes four instructions, four
+        instructions become bytes in Flash. Read upward: the C statement
+        reaches a flip-flop.
     \end{block}
 \end{frame}
 
@@ -1113,53 +1135,38 @@ loop
 \end{frame}
 
 \begin{frame}{Summary}
-    \begin{itemize}
-        \item \texttt{AND} masks, \texttt{ORR} sets, \texttt{EOR} toggles,
-              \texttt{BIC} clears. \textbf{Read--modify--write} is how
-              every bit field is changed without disturbing its
-              neighbours.
-        \item \texttt{LSL}/\texttt{LSR}/\texttt{ASR}/\texttt{ROR} shift on
-              their own; the \textbf{flexible second operand} folds a
-              shift into almost any instruction, at no extra cost.
-        \item \textbf{Offset} leaves the base alone; \textbf{pre-indexed}
-              \texttt{[Rn, \#n]!} updates it and reads the new address;
-              \textbf{post-indexed} \texttt{[Rn], \#n} reads the old and always
-              updates.
-        \item A \textbf{scaled register offset} computes
-              \texttt{base $+$ index $\times$ size} in hardware, using
-              the same \textbf{barrel shifter} --- but only when the
-              offset is itself data, as in array indexing.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 7 --- Control Flow, Functions and the Stack}
-        You can now move and change data. Next, we decide what to do
-        with it.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A colleague argues that the Cortex-M4 has a single-cycle hardware multiplier. Because of this, they say, the barrel shifter is a historical curiosity, and the compiler should simply emit \texttt{MUL} everywhere.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Evaluate the claim. Identify what a barrel-shifted operand gives you that \texttt{MUL} does not. Consider instruction count, register pressure, and the fact that the shift happens on the path into the ALU rather than as a separate step. Then find three constants for which multiplication is cheaper with shifts than with \texttt{MUL}, and one for which \texttt{MUL} is clearly better. State what you would measure to settle the argument on real hardware.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 6}
-        \vfill
-    \end{center}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {AND masks, ORR sets, EOR toggles, BIC clears};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Read--modify--write spares other bits};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {LSL, LSR, ASR, ROR shift data};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Barrel shifter folds a shift into an operand};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {Offset leaves the base register alone};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Pre- and post-indexed update the base};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Scaled offset: base + index $\times$ size};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {Any bit field changes without\\harming its neighbours};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item AND, ORR, EOR, BIC
+					\item Shifts and rotate
+					\item Flexible second operand
+					\item Pre- and post-indexed
+					\item Scaled register offset
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 7}\\[1mm]
+				\emph{Control Flow, Functions and the Stack}\\[1mm]
+				We can move data. Next, we decide what to do with it.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

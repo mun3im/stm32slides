@@ -151,35 +151,63 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Experiment 6 in the previous chapter measured reaction time. It sat in a loop and read a button. While it waited, the processor could do nothing else --- no display update, no sensor reading, no communication. Worse, it could not sleep. A battery-powered version would drain continuously while waiting for an event that might be minutes away. Polling does not scale. This chapter introduces a better mechanism: hardware that interrupts the processor when something actually happens. This is how every real embedded system is built. We will trace one concrete event --- a press of the PC13 button --- from the pin to the line of C code that responds to it. That single trace introduces every piece of the architecture along the way.
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize A program that polls a button can do nothing else. It cannot update a display, read a sensor or sleep. On a battery, it drains power while it waits. Polling does not scale. Instead, hardware can interrupt the processor when something happens. We trace one event, the PC13 button press, from the pin to the line of C that answers it.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Contrast polling and interrupts, and justify each.
+            \item Explain the vector table and NVIC dispatch.
+            \item Describe the path from pin change to ISR.
+            \item Configure EXTI and SYSCFG.
+            \item Write an ISR that clears its flag and shares data safely.
+            \item Use priorities and masking to control preemption.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}{Objectives}
+
+%===============================================================================
+\section{Four Words That Are Not Synonyms}
+%===============================================================================
+\begin{frame}{Four Words That Are Not Synonyms}
     \leavevmode
-    {\small After completing this chapter, you should be able to:}
+    {\small Students often use these words interchangeably. They name
+    different links in a causal chain.}
 
     \vspace{2mm}
+    \begin{center}
     {\small
-    \begin{enumerate}\itemsep2pt
-        \item Contrast the polling and interrupt models and justify the choice of each.
-        \item Explain the role of the vector table and how the NVIC dispatches an interrupt.
-        \item Describe the sequence of events from an external pin change to the execution of an ISR.
-        \item Configure the EXTI controller and SYSCFG to route a GPIO pin to an interrupt line.
-        \item Write an ISR that correctly clears its pending flag and shares data with the main program.
-        \item Use interrupt priorities and masking registers to control preemption.
-    \end{enumerate}}
-\end{frame}
+    \striped
+    \begin{tabular}{@{}l R{.68\textwidth}@{}}
+        \toprule
+        \textbf{Term} & \textbf{Meaning} \\
+        \midrule
+        \textbf{Event}             & Something happened, such as a button edge on PC13. \\
+        \textbf{Interrupt request} & Hardware asks the processor to respond. EXTI raises it and holds it in a pending flag. \\
+        \textbf{Exception}         & The Cortex-M mechanism that transfers execution: the NVIC accepts the request, the processor consults the vector table. \\
+        \textbf{ISR (handler)}     & The C function that runs, for example \texttt{EXTI15\_10\_IRQHandler()}. \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
 
+    \vspace{3mm}
+    \begin{block}{In one line}
+        An \alert{event} causes an \alert{interrupt request}, which the
+        NVIC turns into an \alert{exception}, which runs an \alert{ISR}.
+        The rest of this chapter fills in each link.
+    \end{block}
+\end{frame}
 
 %===============================================================================
 \section{Polling and Interrupts}
@@ -816,54 +844,38 @@ while (1) {
 \end{frame}
 
 \begin{frame}{Summary}
-    \begin{itemize}
-        \item \textbf{Polling} wastes the processor and ties response
-              time to the loop. \textbf{Interrupts} give a fast, bounded
-              response and let the CPU sleep.
-        \item On an interrupt, the processor \textbf{automatically}
-              pushes eight registers, then restores them on return.
-        \item The \textbf{vector table} holds every handler's address,
-              and the initial \texttt{SP} in its first word.
-        \item A pin reaches the core through \textbf{SYSCFG}
-              $\rightarrow$ \textbf{EXTI} $\rightarrow$ \textbf{NVIC}.
-              All \texttt{Px}$n$ pins share \texttt{EXTI}$n$, so only
-              one may be selected.
-        \item In the handler: match the \textbf{name}, \textbf{clear the
-              pending flag}, and mark shared variables
-              \textbf{\texttt{volatile}}.
-        \item \textbf{Keep handlers short.} Set a flag; let
-              \texttt{main()} do the real work.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 10 --- Timers, Timing and PWM}
-        \texttt{delay\_ms()} is wrong in three ways. Next, we learn to do
-        timing properly.
-    \end{block}
-\end{frame}
-
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A system has four event sources: a 1~kHz sensor-ready signal, an emergency-stop button, a 50~Hz zero-crossing detector, and a rotary encoder producing up to 2000 edges per second.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Decide for each one whether it should be polled or interrupt-driven, and assign interrupt priorities to the ones you choose to interrupt. Justify every decision in terms of latency requirement and service cost. Then identify which pair of sources is most likely to interfere with each other, and state what evidence would tell you the problem had happened.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 9}
-        \vfill
-    \end{center}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Polling wastes the CPU and delays response};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Pin change enters SYSCFG, then EXTI};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {NVIC prioritizes and dispatches};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Vector table gives the handler address};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {Hardware pushes eight registers};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {ISR clears the pending flag};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Shared variables are \texttt{volatile}};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {Handler sets a flag;\\\texttt{main()} does the work};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Polling vs interrupt
+					\item Vector table, NVIC
+					\item SYSCFG, EXTI
+					\item ISR, pending flag
+					\item Priority, preemption
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 10}\\[1mm]
+				\emph{Timers, Timing and PWM}\\[1mm]
+				\texttt{delay\_ms()} is wrong in three ways. We time things properly.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}

@@ -129,35 +129,29 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \begin{document}
 \titlepage
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    The previous chapter introduced a generic processor. To write real programs, we need to know one specific processor in detail: how many registers it has, what they are called, which ones have a special meaning, and how it stores the result of a comparison.
-
-    This detailed view is called the \emph{programmer's model}. It is the part of the hardware that software can actually see. Everything you write, in assembly or in C, works by using the small set of registers this chapter describes.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Distinguish instruction set architecture, microarchitecture, and platform architecture, and give one meaning of ``32-bit'' under each layer.
-        \item State the defining characteristics of a RISC load-store architecture and contrast them with CISC.
-        \item Explain how a pipeline raises throughput, and why a short pipeline suits an embedded processor.
-        \item Select the appropriate ARM Cortex profile (A, R, or M) for a given application.
-        \item Name the Cortex-M4 core registers R0--R15 and state the special role of SP, LR, and PC.
-        \item Interpret the N, Z, C, and V flags of the APSR after an arithmetic operation.
-        \item Describe the layout of the Cortex-M 4\,GB memory map and identify which region holds code, variables, and peripherals.
-        \item Explain little-endian byte ordering and distinguish the AHB and APB buses by the peripherals each one serves.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize To write real programs, we must know one processor in detail: its registers, their special roles, and how it stores the result of a comparison. This is the \emph{programmer's model}. It is the part of the hardware that software can see. Everything you write, in C or assembly, uses these registers.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Separate ISA, microarchitecture and platform; give one meaning of ``32-bit'' for each.
+            \item State what makes ARM a RISC load-store design.
+            \item Explain how a pipeline raises throughput.
+            \item Choose a Cortex profile (A, R or M) for an application.
+            \item Name R0--R15 and the roles of SP, LR and PC.
+            \item Read the N, Z, C, V flags.
+            \item Describe the 4\,GB memory map, little-endian order, and AHB versus APB.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 %===============================================================================
@@ -964,15 +958,15 @@
 \end{frame}
 
 \begin{frame}[fragile]{Connecting Registers to C}
-    Three lines you could have written in your first programming course:
+    The same three lines from Chapter~1, now with the Cortex-M4 register set:
 
     \vspace{2mm}
     \begin{center}
     \begin{minipage}{.4\textwidth}
 \begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
-int a = 10;
-int b = 20;
-int c = a + b;
+int x = 1;        // at 0x2000
+int y = 2;        // at 0x2002
+int z = x + y;    // at 0x2004
 \end{lstlisting}
     \end{minipage}
     \end{center}
@@ -1225,43 +1219,39 @@ int c = a + b;
 	{\small\centering Both conventions store the \alert{same four bytes}. They only differ in which end sits at the lowest address. The Cortex-M4 is \alert{little-endian}, like x86, so raw memory dumps look the same on the target and on a typical PC.\par}
 \end{frame}
 
-\begin{frame}{Summary: Can You Now Explain\ldots}
-	{\small
-	\begin{enumerate}\itemsep3pt
-		\item What does ``32-bit'' mean at each of the three architectural layers --- ISA, microarchitecture, platform?
-		\item Why is ARM described as a \textbf{load-store RISC} architecture, and what does that force every C statement like \texttt{x = x + 1;} to cost?
-		\item Why does Cortex-M use a \textbf{short pipeline} and no cache, rather than chasing peak throughput?
-		\item What are \textbf{SP}, \textbf{LR} and \textbf{PC} used for, and which bits of \texttt{xPSR} does every \texttt{if} and loop rest on?
-		\item How does a C statement reach a \textbf{peripheral register}, given that the \textbf{4\,GB memory map is fixed by ARM}?
-	\end{enumerate}}
-	\vspace{2mm}
-	\begin{block}{Next: Chapter 3 --- Memory, Addressing and Pointers}
-		If a peripheral is just an address, then a pointer is how C reaches it.
-	\end{block}
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {ISA, microarchitecture, platform};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Load-store RISC: ALU uses registers only};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {Short pipeline: one instruction per cycle};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {R0--R12, SP, LR, PC};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {APSR flags N, Z, C, V decide branches};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Fixed 4\,GB memory map};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Peripherals sit at fixed addresses};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {A peripheral register is just\\an address in the map};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item ISA vs microarchitecture
+					\item Load-store, pipeline
+					\item Core registers, APSR
+					\item Memory map, endianness
+					\item AHB and APB buses
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 3}\\[1mm]
+				\emph{Memory, Addressing and Pointers}\\[1mm]
+				If a peripheral is an address, a pointer is how C reaches it.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    {\small\emph{We now use this chapter's performance model to make a processor-selection decision.}}
-
-    \vspace{2mm}
-    \begin{block}{The brief}
-        You are choosing a processor for a motor controller. It must run a control loop 20\,000 times per second. Each pass through the loop needs about 180 instructions.
-    \end{block}
-    \vspace{2mm}
-    {\small Using the CPU-time equation, find the minimum clock frequency needed if the processor averages 1.3 cycles per instruction. Then calculate what fraction of the CPU that loop uses at 16\,MHz, at 48\,MHz, and at 180\,MHz. Decide which of the three frequencies you would choose, and explain the safety margin you leave. Finally, state what you would need to measure to check whether the 1.3 CPI assumption is realistic.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 2}
-        \vfill
-    \end{center}
-\end{frame}
 \end{document}

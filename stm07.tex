@@ -138,34 +138,30 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Every \texttt{if}, every \texttt{while}, and every function call you write in C becomes the same thing on the processor: a comparison that sets flags, and a branch that tests them. Understanding this mechanism explains things that seem mysterious. Why can an unsigned comparison give a different answer than a signed one, on the exact same bits? Why can a recursive function crash a microcontroller? Why does a function that forgets one instruction never return? This chapter also prepares you for interrupts. An interrupt is a function call that the hardware makes on its own.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Explain the effect of the \texttt{S} suffix on the APSR flags, and use condition codes for conditional execution.
-        \item Use \texttt{CMP}, \texttt{TST}, and the condition-code suffixes to branch on a computed condition.
-        \item Tell signed and unsigned comparison suffixes apart, and choose the correct one for a given kind of data.
-        \item Translate C \texttt{if}/\texttt{else} statements and loops into equivalent assembly.
-        \item Explain how a full descending stack works, and trace SP through \texttt{PUSH} and \texttt{POP}.
-        \item Call and return from subroutines using \texttt{BL} and \texttt{BX LR}, and explain why nested calls must preserve LR.
-        \item State the AAPCS rules for argument passing, return values, and which registers a function must preserve.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Every \texttt{if}, \texttt{while} and function call becomes the same two things: a comparison that sets flags, and a branch that tests them. This explains why a signed and an unsigned comparison can differ on the same bits, and why a recursive function can crash a microcontroller. It also prepares you for interrupts, which are function calls made by hardware.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Explain the \texttt{S} suffix and condition codes.
+            \item Branch on a condition with \texttt{CMP}, \texttt{TST} and suffixes.
+            \item Choose signed or unsigned condition codes correctly.
+            \item Translate C \texttt{if}/\texttt{else} and loops to assembly.
+            \item Trace SP through \texttt{PUSH} and \texttt{POP} on a full descending stack.
+            \item Call with \texttt{BL}, return with \texttt{BX LR}, and explain why nested calls save LR.
+            \item State the AAPCS rules.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -1555,71 +1551,65 @@ foo  PUSH {R4, R5}    ; save registers this function will use
 \begin{block}{Why this matters} The caller can continue using \texttt{R4} and \texttt{R5} after \texttt{foo} returns, knowing their values are unchanged. No special agreement is needed at each call site. \end{block}
 \end{frame}
 
-
-\begin{frame}{Summary}
-    \leavevmode
-    {\small The whole chapter is one causal chain:}
-
-    \vspace{2mm}
+\begin{frame}{A Function Call Viewed at Five Levels}
     \begin{center}
     {\small
-    C condition $\rightarrow$ \texttt{CMP}/\texttt{S} suffix
-    $\rightarrow$ APSR flags $\rightarrow$ conditional branch
-    $\rightarrow$ \texttt{if}/loop
-    \\[1mm]
-    \texttt{BL} $\rightarrow$ \texttt{LR} $\rightarrow$ nested call
-    overwrites \texttt{LR} $\rightarrow$ \texttt{PUSH}/\texttt{POP}
-    $\rightarrow$ stack
-    \\[1mm]
-    stack $\rightarrow$ \textbf{AAPCS} $\rightarrow$ functions can
-    safely call each other}
+    \striped
+    \begin{tabular}{@{}l R{.68\textwidth}@{}}
+        \toprule
+        \textbf{Level} & \textbf{Representation} \\
+        \midrule
+        Physical hardware   & SP drives the address bus; SRAM cells hold the saved LR \\
+        Register            & \texttt{R0}, \texttt{R1} carry the arguments; \texttt{LR} holds the return address \\
+        C                   & \texttt{sum = AddNumbers(5, 10);} \\
+        Assembly (call)     & \texttt{MOV R0, \#5} / \texttt{MOV R1, \#10} / \texttt{BL AddNumbers} \\
+        Assembly (callee)   & \texttt{PUSH \{LR\}} \ldots \texttt{POP \{PC\}} \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
 
     \vspace{3mm}
-    \begin{itemize}\itemsep1pt
-        \item \textbf{Signed} codes (\texttt{GE}, \texttt{LT}) for signed
-              data; \textbf{unsigned} codes (\texttt{HS}, \texttt{LO}) for
-              unsigned data. Every branch tests the \emph{opposite} of the
-              C condition.
-        \item \textbf{Counting down with \texttt{SUBS}} is cheaper than
-              counting up with \texttt{CMP} --- one instruction, two jobs.
-        \item A \textbf{non-leaf} subroutine must save \texttt{LR} on the
-              \textbf{full descending} stack before its own \texttt{BL}
-              can overwrite it. A \textbf{leaf} subroutine does not.
-        \item The \textbf{AAPCS} fixes how arguments are passed and which
-              registers a function must preserve.
-    \end{itemize}
-
-    \vspace{2mm}
-    \begin{block}{Next: Chapter 8 --- General Purpose Input Output}
-        The book stops being theory here. Next, a physical pin actually
-        changes voltage.
+    \begin{block}{One call, five simultaneous descriptions}
+        Chapters 1--7 have all built this table. The C statement reaches
+        a hardware SRAM cell, through registers, instructions, and bytes.
     \end{block}
 \end{frame}
 
 
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A safety interlock must poll four sensors and respond within 500~\textmu s of any one of them going out of range, on a 16~MHz processor.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Design the control flow before writing code: decide whether the four checks should be a sequence of \texttt{if} statements, a loop over an array, or a table of function pointers, and justify the choice in terms of the instructions each becomes. Work out the worst-case instruction budget available. Then state which of the three designs you could check by reading its disassembly, and what you would look for.}
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {C condition becomes \texttt{CMP} or an S suffix};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {The instruction sets APSR flags};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {A conditional branch tests the flags};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {\texttt{BL} saves the return address in LR};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {A nested call would overwrite LR};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {\texttt{PUSH}/\texttt{POP} save LR on the stack};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {AAPCS fixes arguments and saved registers};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {Functions can safely\\call each other};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item APSR flags, condition codes
+					\item Signed vs unsigned suffixes
+					\item \texttt{BL}, \texttt{BX LR}
+					\item Full descending stack
+					\item AAPCS
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Next: Chapter 8}\\[1mm]
+				\emph{General Purpose Input Output}\\[1mm]
+				The book stops being theory. A physical pin changes voltage.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 7}
-        \vfill
-    \end{center}
-\end{frame}
 
 \end{document}

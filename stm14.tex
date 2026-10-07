@@ -138,33 +138,29 @@
 
 \titlepage
 
-\begin{frame}{Table of Contents}
-    \tableofcontents
-\end{frame}
-
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \leavevmode
-    Every earlier chapter looked at one peripheral by itself. Real systems do not work that way. A real system samples on a schedule. It responds to buttons. It drives indicators. It reports to a host. It does all of this at once, on one processor, with no operating system. The hard part is not the peripherals, and it is not the code. The hard part is deciding, before any code exists, which peripherals the job needs and whether the timing can work at all. Then you must \emph{prove} the result meets the requirement, not just that it seems to work. This chapter does all three steps, in the order an engineer actually works.
-\end{frame}
-
-\begin{frame}{Objectives}
-    \leavevmode
-    {\small After completing this chapter, you should be able to:}
-
-    \vspace{2mm}
-    {\small
-    \begin{enumerate}\itemsep2pt
-        \item Turn a written requirement into a functional decomposition and a peripheral selection.
-        \item Choose between polling, timed polling, and interrupt-driven structures for a given activity.
-        \item Structure a bare-metal program using a non-blocking cooperative main loop.
-        \item Identify and protect shared data between interrupt and main contexts.
-        \item Produce a timing budget before implementation and verify it by measurement afterwards.
-        \item Apply a systematic bottom-up procedure to diagnose a multi-peripheral system.
-    \end{enumerate}}
+    \begin{columns}[T]
+    \begin{column}{.47\textwidth}
+        {\normalsize Earlier chapters used one peripheral at a time. A real system samples on a schedule, answers buttons, drives indicators and reports to a host, all at once, on one processor, with no operating system. The hard part is deciding \emph{before} coding which peripherals the job needs and whether the timing can work. Then you must \emph{prove} the result meets the requirement.}
+    \end{column}
+    \begin{column}{.51\textwidth}
+        \begin{block}{After this chapter, you can:}
+        {\small
+        \begin{enumerate}\itemsep2pt
+            \item Turn a requirement into a decomposition and a peripheral choice.
+            \item Choose polling, timed polling or interrupts per activity.
+            \item Structure a cooperative, non-blocking main loop.
+            \item Protect data shared between ISR and main.
+            \item Write a timing budget, then verify it by measurement.
+            \item Diagnose a multi-peripheral system bottom-up.
+        \end{enumerate}}
+        \end{block}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 
@@ -220,6 +216,47 @@
         for a button, a timed poll for a display refresh, and the main loop for
         everything with no deadline at all.
     \end{block}
+\end{frame}
+
+%===============================================================================
+\section{The Running Example: A Sensor Monitor}
+%===============================================================================
+
+\begin{frame}{The Project}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm]
+        \node[cpublk, minimum width=36mm] (mcu) at (0,2) {STM32 Cortex-M4};
+        \node[blk, minimum width=18mm] (adc)   at (-5.2,0) {ADC};
+        \node[blk, minimum width=18mm] (tim)   at (-2.6,0) {TIM2};
+        \node[blk, minimum width=18mm] (gpio)  at ( 0.0,0) {GPIO};
+        \node[blk, minimum width=18mm] (usart) at ( 2.6,0) {USART1};
+        \node[blk, minimum width=18mm] (exti)  at ( 5.2,0) {EXTI};
+        \coordinate (bus) at ($(mcu.south)+(0,-0.6)$);
+        \draw[busline] (mcu.south) -- (bus);
+        \draw[busline] (adc.north |- bus) -- (exti.north |- bus);
+        \foreach \p in {adc,tim,gpio,usart,exti}{\draw[flow] (\p.north |- bus) -- (\p.north);}
+        \node[lbl, below=4mm of adc,   align=center] {potentiometer\\or sensor};
+        \node[lbl, below=4mm of tim,   align=center, text=accentline] {1~kHz tick\\{\scriptsize (internal)}};
+        \node[lbl, below=4mm of gpio,  align=center] {4 LED\\bar};
+        \node[lbl, below=4mm of usart, align=center] {PC terminal\\9600 8N1};
+        \node[lbl, below=4mm of exti,  align=center] {button\\PC13};
+        \foreach \p in {adc,gpio,usart,exti}{\draw[flow] (\p.south) -- ++(0,-0.5);}
+        \draw[flow, draw=accentline, dashed] (tim.south) -- ++(0,-0.5);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    {\small \textbf{Five peripherals, one processor, no OS.}}
+
+    \vspace{2mm}
+    {\footnotesize
+    \begin{enumerate}\itemsep1pt
+        \item Sample the ADC at exactly \alert{10~Hz}.
+        \item Display the level as a 4-LED bar.
+        \item Transmit each reading over UART as text.
+        \item Button press toggles report between \alert{raw counts} and \alert{millivolts}.
+        \item Never miss a sample. Never block.
+    \end{enumerate}}
 \end{frame}
 
 %===============================================================================
@@ -480,28 +517,38 @@ while (1) {
     \end{block}
 \end{frame}
 
-%===============================================================================
-\section{Design Challenge}
-%===============================================================================
-
-\begin{frame}{Design Challenge}{To be worked on paper, before any code}
-    \leavevmode
-    \begin{block}{The brief}
-        A greenhouse controller must do the following: read a temperature sensor every 2~s; read a soil-moisture sensor every 30~s; drive a ventilation fan through a PWM output whose duty cycle follows temperature; open a water valve (a single digital output) for 5~s whenever moisture drops below a threshold; accept a manual override button at any time; and report all readings to a host once per minute.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Do not write any code. Produce the design: the functional decomposition, the peripheral assigned to each activity, the event structure chosen for each (with reasons), a pin allocation checked for collisions on the STM32F446RE, a timing budget, and the initialization order. Then write the verification plan that goes with it: what measurement proves each timing requirement, with what instrument, and what the pass/fail criterion is. Identify the one activity whose timing is hardest to guarantee, and the single measurement you would take first.}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{center}
-        \vfill
-        {\usebeamerfont{title}\color{primary}\Huge Questions?}
-        \vfill
-        {\small\color{Gray} \emph{Introduction to ARM Cortex-M Microprocessors} --- Chapter 14}
-        \vfill
-    \end{center}
+\begin{frame}{Summary}
+	\begin{columns}[c]
+		\begin{column}{.62\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=7.8mm]
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n0) at (0,0.00) {Written requirement};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n1) at (0,-1.05) {Functional decomposition};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n2) at (0,-2.10) {Peripheral and pin selection};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n3) at (0,-3.15) {Polling, timed polling or interrupts};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n4) at (0,-4.20) {Timing budget before any code};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n5) at (0,-5.25) {Cooperative loop; protect shared data};
+					\node[blk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize] (n6) at (0,-6.30) {Measure and compare with the budget};
+					\node[cpublk, minimum width=56mm, minimum height=5.0mm, inner sep=1.2pt, font=\scriptsize, align=center] (n7) at (0,-7.65) {Predict first,\\then measure};
+					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.34\textwidth}
+			{\scriptsize
+				\textbf{Terminology covered}\\[1mm]
+				\begin{itemize}
+					\item Functional decomposition
+					\item Timing budget
+					\item Cooperative main loop
+					\item Shared data protection
+					\item Debugging checklist
+				\end{itemize}
+				\vspace{3mm}
+				\textbf{Last chapter}\\[1mm]
+				Use this method in every design you build.}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \end{document}
