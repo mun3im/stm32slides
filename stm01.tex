@@ -143,7 +143,7 @@
 %===============================================================================
 
 \begin{frame}{Why This Chapter Matters}
-    \begin{columns}[T]
+    \begin{columns}[c]
     \begin{column}{.47\textwidth}
         {\normalsize Your gate circuits did only what their \alert{wiring} told them. To change the behaviour, you had to rewire. A microcontroller is a digital circuit too, but a \alert{program stored in memory} controls it. The same silicon can blink an LED, measure a temperature, or drive a motor. It depends only on the bits you load.}
     \end{column}
@@ -234,13 +234,132 @@
 \section{Embedded Systems}
 %===============================================================================
 
+\begin{frame}{What Is a Computer?}
+    \leavevmode
+    {\small Every stored-program computer, since the earliest ones,
+    has had the same four components.}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{tikzpicture}[x=9mm, y=8mm]
+        \node[cpublk, minimum width=28mm, minimum height=16mm] (cpu) at (0,0) {\small Central\\Processing\\Unit};
+        \node[blk,    minimum width=20mm, minimum height=9mm]  (in)  at (-5.6,0)  {\small Input\\Device};
+        \node[blk,    minimum width=20mm, minimum height=9mm]  (out) at (5.6,0)   {\small Output\\Device};
+        \node[memblk, minimum width=20mm, minimum height=9mm]  (mem) at (0,-2.8)  {\small Memory};
+
+        \draw[flow] (in)  -- (cpu.west);
+        \draw[flow] (cpu.east) -- (out);
+        \draw[flow] ([xshift=-4mm]cpu.south) -- ([xshift=-4mm]mem.north);
+        \draw[flow] ([xshift=4mm]mem.north)  -- ([xshift=4mm]cpu.south);
+
+        \node[lbl, anchor=south] at (-2.8,0.25) {data in};
+        \node[lbl, anchor=south] at (2.8,0.25)  {results out};
+        \node[lbl, anchor=east]  at (-0.55,-1.5) {read};
+        \node[lbl, anchor=west]  at (0.55,-1.5)  {write};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{block}{Computer}
+        A complete system that \alert{processes}, \alert{stores}, and
+        \alert{moves} data, and exerts \alert{control}, all under the
+        guidance of a program. It has a processor, memory, and
+        input/output (I/O) peripherals.
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Four Basic Functions of a Computer}
+        \begin{center}
+	% Radial mind map, not a ranked list: the four functions carry no
+	% fixed priority over one another, so they branch outward from the
+	% CPU at four different angles instead of stacking top to bottom.
+	\begin{tikzpicture}[x=1mm,y=1mm]
+		% Top level
+		\node[cpublk, minimum width=17mm, minimum height=12mm] (cpu) at (0,20) {\small CPU};
+		% Second level
+		\node[blk, minimum width=22mm, minimum height=8mm, align=center] (stor) at (-45,0) {\scriptsize Data\\[-1pt]Storage}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (ctrl) at (-15,0) {\scriptsize Control}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (proc) at (15,0) {\scriptsize Data\\[-1pt]Processing}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (move) at (45,0) {\scriptsize Data\\[-1pt]Movement};
+		% Connections
+		\draw[flow] (cpu) -- (stor); \draw[flow] (cpu) -- (ctrl); \draw[flow] (cpu) -- (proc); \draw[flow] (cpu) -- (move);
+	\end{tikzpicture}
+\vspace{3mm}
+        {\small
+	\begin{itemize}\itemsep3pt
+		\item \textbf{Data Processing} --- arithmetic and logical
+		operations on data
+		\item \textbf{Data Storage} --- keeping program and data
+		in memory, short- or long-term
+		\item \textbf{Data Movement} --- transferring data
+		between CPU, memory, and I/O
+		\item \textbf{Control} --- sequencing and timing every
+		other operation correctly
+\end{itemize}}
+\end{center}
+%    \begin{columns}[c]
+%    \begin{column}{.46\textwidth}
+%    \end{column}
+%    \begin{column}{.46\textwidth}
+%    \end{column}
+%    \end{columns}
+\end{frame}
+
+\begin{frame}{Classifying Computers by Numbers}
+    \begin{columns}[c]
+    \begin{column}{.42\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=6mm]
+            % Box WIDTH and HEIGHT both scale with how many of each kind
+            % exist --- the opposite of physical size. A server is
+            % physically the largest machine here, but there are the
+            % fewest of them. Embedded's box height is roughly double
+            % Server's, to exaggerate the count difference.
+            \node[cpublk, minimum width=16mm, minimum height=6mm]  (srv) at (0,5.2)  {\scriptsize Server};
+            \node[blk,    minimum width=27mm, minimum height=8mm]  (per) at (0,2.9)  {\scriptsize Personal computer};
+            \node[blk,    minimum width=38mm, minimum height=10mm] (mob) at (0,0.3)  {\scriptsize Mobile device};
+            \node[memblk, minimum width=50mm, minimum height=12mm] (emb) at (0,-2.7) {\scriptsize Embedded system};
+
+            \draw[flow] (srv) -- (per);
+            \draw[flow] (per) -- (mob);
+            \draw[flow] (mob) -- (emb);
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.54\textwidth}
+        {\footnotesize
+        \begin{itemize}\itemsep2pt
+            \item \textbf{Server} --- fewest units; shared by
+                  thousands of users at once
+            \item \textbf{Personal computer} --- one per desk
+            \item \textbf{Mobile device} --- one or more per person
+            \item \textbf{Embedded system} --- dozens per person,
+                  hidden inside everyday products
+        \end{itemize}}
+
+        \vspace{3mm}
+        \begin{block}{Box size is the count, not the physical size}
+            {\footnotesize A server is physically the \alert{largest}
+            machine here, but there are the \alert{fewest} of them.
+            An embedded system is tiny, but outnumbers every other
+            kind \alert{combined}.}
+        \end{block}
+    \end{column}
+    \end{columns}
+\end{frame}
+
 \begin{frame}{What Makes a System Embedded}
+    \leavevmode
+    {\small Every machine on the last slide is still just a computer:
+    processor, memory, I/O. The difference is \alert{what the
+    processor is for}. A general-purpose computer is built to run
+    whatever the user installs next. An embedded system is built into
+    a product to perform one job.}
+
+    \vspace{2mm}
     \begin{columns}[T]
     \begin{column}{.48\textwidth}
         \textbf{General-purpose computer}
         \begin{itemize}
             \item Runs many different applications
-            \item The user can program it
+            \item End-user installs new software freely
             \item \alert{Faster is always better}
             \item Sold on speed, compatibility, price
         \end{itemize}
@@ -249,7 +368,7 @@
         \textbf{Embedded system}
         \begin{itemize}
             \item Runs a few functions, fixed at design time
-            \item The user cannot program it
+            \item Firmware is written once, by the designer
             \item Must meet a \alert{fixed deadline}; extra speed may not help
             \item Sold on power, cost, size, \alert{predictability}
         \end{itemize}
@@ -325,130 +444,185 @@
 \end{frame}
 
 %===============================================================================
-\section{Meet the Board}
+\section{Inside the Computer}
 %===============================================================================
-\begin{frame}{From Requirements to Hardware}
-	\begin{columns}[c]
-		\begin{column}{.48\textwidth}
-			\begin{center}
-\begin{tikzpicture}[x=10mm, y=8.8mm]
-	\node[blk, minimum width=42mm, minimum height=7.5mm] (req)  at (0,4.5) {Embedded system};
-	\node[blk, minimum width=42mm, minimum height=7.5mm] (need) at (0,3.0) {Needs computation \(+\)\\memory \(+\) I/O};
-	\node[blk, minimum width=42mm, minimum height=7.5mm] (q)    at (0,1.5) {What hardware\\provides these?};
-	\node[cpublk, minimum width=42mm, minimum height=7.5mm] (ans) at (0,0.0) {Microprocessor, or\\microcontroller};
-	\foreach \a/\b in {req/need, need/q, q/ans}{\draw[flow] (\a) -- (\b);}
-\end{tikzpicture}
-			\end{center}
-		\end{column}
-		\begin{column}{.48\textwidth}
-			An embedded system is a \emph{requirement}. Something must
-			satisfy that requirement.
-			\vspace{3mm}
-			\begin{block}{The question this raises}
-				\centering\alert{What kind of computer belongs inside an embedded system?}
-			\end{block}
-			\vspace{2mm}
-			{\small We will answer this question using one real board,
-			so every idea in this chapter has a physical home.}
-		\end{column}
-	\end{columns}
+
+\begin{frame}{Microprocessor and Microcontroller}
+	\leavevmode
+	{\small SWaP-C is a design constraint. Integrating the processor,
+		memory, and peripherals onto \alert{one chip} is how that
+		constraint gets met in practice: fewer parts, smaller board,
+		lower cost per unit. This single-chip design is called a
+		\textbf{microcontroller}.}
+
+	\vspace{2mm}
+	\begin{center}
+		{\small
+			\striped
+			\begin{tabular}{@{}l l l@{}}
+				\toprule
+				\textbf{Feature} & \textbf{Microprocessor ($\mu$P)} & \textbf{Microcontroller ($\mu$C)} \\
+				\midrule
+				Integration  & Processor chip only & Processor, RAM, ROM, I/O on one die \\
+				Flexibility  & Memory and peripherals scale & Resources fixed inside the chip \\
+				Complexity   & Many components, complex PCB & Few components, simple board \\
+				Power, cost  & Higher & Optimised for low power and unit cost \\
+				Performance  & High clock, heavy computation & Lower clock, control and I/O \\
+				\bottomrule
+		\end{tabular}}
+	\end{center}
+
+	\vspace{3mm}
+	\begin{block}{A microprocessor needs help; a microcontroller comes ready}
+		A microprocessor generally has no RAM, no ROM, and no way to
+		reach the outside world on-chip; those parts must be wired
+		around it before it can do anything. A microcontroller puts
+		all of this together on one chip. \alert{The Nucleo's chip is
+			a microcontroller}: everything on the earlier board slide
+		sits inside one package.
+	\end{block}
+
 \end{frame}
-\begin{frame}{Meet the Board: STM32 Nucleo-F446RE}
+
+
+\begin{frame}{The First Microprocessor}
     \begin{columns}[c]
     \begin{column}{.42\textwidth}
         \begin{center}
-        \includegraphics[width=\textwidth, height=.6\textheight, keepaspectratio]%
-            {assets/nucleo-board.jpg}
+        \includegraphics[width=.5\textwidth]{assets/intel_4004.png}
         \end{center}
     \end{column}
     \begin{column}{.54\textwidth}
-        \textbf{STM32 Nucleo-F446RE}
-        {\small
+        {\small The first commercially produced microprocessor was
+        the \textbf{Intel 4004} (1971) --- a complete 4-bit CPU on
+        one chip. Every processor in this book descends from that
+        idea, scaled up over five decades.}
+
+        \vspace{3mm}
+        {\scriptsize\color{Gray!80} Image: Wikimedia Commons.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Memory: ROM and RAM}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \textbf{ROM --- non-volatile}
         \begin{itemize}\itemsep1pt
-            \item \textbf{ST-LINK} debugger --- the upper third of the
-                  board, past the perforation. One USB cable handles
-                  power, programming, debugging, and a virtual COM port.
-            \item \textbf{USER button} (B1) on \alert{\texttt{PC13}}
-            \item \textbf{User LED} (LD2) on \alert{\texttt{PA5}}
-        \end{itemize}}
+            \item Contents survive with \alert{no power}
+            \item Holds the program: fixed at manufacture, or
+                  ``burned'' with a programmer
+            \item \textbf{Flash} is the dominant type: NAND or NOR
+            \item STM32 devices use \alert{NOR flash} for code
+        \end{itemize}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \textbf{RAM --- volatile}
+        \begin{itemize}\itemsep1pt
+            \item Contents \alert{lost} without power
+            \item Holds temporary data: variables, the stack
+            \item \textbf{SRAM}: fast, every embedded system has it
+            \item \textbf{DRAM}: cheaper, needs refresh; only larger
+                  systems bother
+        \end{itemize}
+    \end{column}
+    \end{columns}
 
-        \vspace{2mm}
-        {\small The inner headers follow the Arduino shield layout.
-        The outer \textbf{morpho} headers bring out every remaining
-        pin.}
+    \vspace{3mm}
+    \begin{block}{On the Nucleo-F446RE}
+        \textbf{512\,KB Flash} holds your program. \textbf{128\,KB
+        SRAM} holds your variables and stack. Chapter~3 returns to
+        this split in detail.
+    \end{block}
+\end{frame}
 
-        \vspace{2mm}
-        {\small \alert{Every blink program in this book drives
-        \texttt{PA5}.} Everything we discuss from here on will
-        eventually explain this board.}
+\begin{frame}{Machine Code and Assembly Language}
+    \leavevmode
+    {\small Step 1 of fetch--decode--execute reads a ``machine code
+    instruction.'' What is that, really?}
+
+    \vspace{2mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{block}{Machine language}
+            {\small The lowest level. A bit pattern, such as
+            \texttt{0001 1011}, that the Decoder is built to
+            interpret. This is the \alert{only} language the CPU
+            itself understands.}
+        \end{block}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{block}{Assembly language}
+            {\small A human-readable \alert{mnemonic} per
+            instruction --- \texttt{MOV}, \texttt{ADD}, \texttt{MUL}
+            --- translated to machine code by an \textbf{assembler}.
+            One line in, one instruction out.}
+        \end{block}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    {\small A \textbf{cross assembler} runs on one computer (your PC)
+    and generates machine code for a different one (the Cortex-M4)
+    --- the normal situation in embedded development.}
+
+    \vspace{2mm}
+    {\small Chapter 5 returns to assembly language in depth, once the
+    Cortex-M4's own registers and instructions are in place.}
+\end{frame}
+
+\begin{frame}{Zooming In: From System to Operation}
+    \begin{columns}[c]
+    \begin{column}{.48\textwidth}
+        {\small The next few slides introduce several names
+        together: buses, registers, ALU, decoder. Each one belongs
+        to one of \alert{two jobs}: \textbf{moving} data from place
+        to place, or \textbf{processing} it once it arrives.}
+
+        \vspace{3mm}
+        {\small Think of this as one picture, \alert{zoomed in one
+        level at a time} --- top to bottom in the chain on the
+        right.}
+
+        \vspace{4mm}
+        \begin{block}{Level 1: the whole microcontroller}
+            {\small CPU, RAM, Flash, GPIO, UART, ADC --- all on one
+            chip, connected by buses.}
+        \end{block}
+
+        \vspace{3mm}
+        {\small \alert{Buses move data}; the CPU's internal parts
+        \alert{process} it. Buses let the CPU \emph{reach} the rest
+        of the chip. Registers are what the CPU is \emph{made of}.}
+    \end{column}
+    \begin{column}{.46\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=6.6mm]
+            \node[blk,    minimum width=34mm, minimum height=8mm] (sys) at (0,4) {system};
+            \node[cpublk, minimum width=34mm, minimum height=8mm] (cpu) at (0,2) {CPU};
+            \node[blk,    minimum width=34mm, minimum height=8mm] (reg) at (0,0) {register};
+            \node[blk,    minimum width=34mm, minimum height=8mm] (ins) at (0,-2) {instruction};
+            \node[blk,    minimum width=34mm, minimum height=8mm] (op)  at (0,-4) {operation};
+
+            \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (sys.south) -- (cpu.north);
+            \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (cpu.south) -- (reg.north);
+            \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (reg.south) -- (ins.north);
+            \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (ins.south) -- (op.north);
+
+            \node[lbl, anchor=west, align=left] at (1.9,4)  {\scriptsize the whole chip};
+            \node[lbl, anchor=west, align=left] at (1.9,2)  {\scriptsize the processor};
+            \node[lbl, anchor=west, align=left] at (1.9,0)  {\scriptsize what the CPU is made of};
+            \node[lbl, anchor=west, align=left] at (1.9,-2) {\scriptsize what a register holds};
+            \node[lbl, anchor=west, align=left] at (1.9,-4) {\scriptsize what an instruction does};
+        \end{tikzpicture}
+        \end{center}
     \end{column}
     \end{columns}
 \end{frame}
 
 %===============================================================================
-\section{Inside the Computer}
+\section{Buses and Memory-Mapped I/O}
 %===============================================================================
-
-\begin{frame}{Microprocessor and Microcontroller}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l l l@{}}
-        \toprule
-        \textbf{Feature} & \textbf{Microprocessor ($\mu$P)} & \textbf{Microcontroller ($\mu$C)} \\
-        \midrule
-        Integration  & Processor chip only & Processor, RAM, ROM, I/O on one die \\
-        Flexibility  & Memory and peripherals scale & Resources fixed inside the chip \\
-        Complexity   & Many components, complex PCB & Few components, simple board \\
-        Power, cost  & Higher & Optimised for low power and unit cost \\
-        Performance  & High clock, heavy computation & Lower clock, control and I/O \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
-
-    \vspace{3mm}
-    \begin{block}{A microprocessor alone is useless}
-        It has no RAM, no ROM, and no way to reach the outside world.
-        All of this must be wired around it before it can do
-        anything. A microcontroller puts exactly this all together on
-        one chip. \alert{The Nucleo's chip is a microcontroller}:
-        everything on the previous slide sits inside one package.
-    \end{block}
-\end{frame}
-
-\begin{frame}{Zooming In: From System to Operation}
-    \leavevmode
-    The next few slides introduce many names at once: buses,
-    registers, ALU, decoder. Do not think of this as a list to
-    memorise. Instead, think of it as one picture, \alert{zoomed in
-    one level at a time}:
-
-    \vspace{2mm}
-    \begin{center}
-    \begin{tikzpicture}[x=15mm, y=11mm]
-        \node[blk,    minimum width=20mm] (sys) at (0,0)   {system};
-        \node[cpublk, minimum width=20mm] (cpu) at (1.7,0) {CPU};
-        \node[blk,    minimum width=20mm] (reg) at (3.4,0) {register};
-        \node[blk,    minimum width=20mm] (ins) at (3.4,-1.1) {instruction};
-        \node[blk,    minimum width=20mm] (op)  at (5.1,-1.1) {operation};
-        \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (sys.east) -- (cpu.west);
-        \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (cpu.east) -- (reg.west);
-        \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (reg.south) -- (ins.north);
-        \draw[-{Stealth[length=2mm]}, thick, draw=secondary] (ins.east) -- (op.west);
-    \end{tikzpicture}
-    \end{center}
-
-    \vspace{2mm}
-    \begin{block}{Level 1: the whole microcontroller}
-        \centering CPU \quad RAM \quad Flash \quad GPIO \quad UART \quad ADC ---
-        all on one chip, connected by buses.
-    \end{block}
-
-    \vspace{2mm}
-    {\small The buses let the CPU \emph{reach} the rest of the chip.
-    The registers are what the CPU is \emph{made of}. Both sit one
-    level deeper than ``the microcontroller.''}
-\end{frame}
 
 \begin{frame}{The Three Buses}
 
@@ -522,17 +696,210 @@
     \end{block}
 \end{frame}
 
-\begin{frame}[plain]{Zoom 2: Inside the CPU}
+
+\begin{frame}{Memory-Mapped I/O}
+    \leavevmode
+    {\small The CPU talks to peripherals the \alert{same way} it
+    talks to memory: same address bus, same data bus, same read/write
+    control line.}
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{tikzpicture}[x=9mm, y=7mm]
+        \node[cpublk, minimum width=20mm, minimum height=10mm] (cpu)  at (0,0)   {CPU};
+        \node[memblk, minimum width=26mm, minimum height=7.5mm]  (ram)  at (5.4,1.4)  {RAM};
+        \node[blk,    minimum width=26mm, minimum height=7.5mm]  (gpio) at (5.4,-1.4) {GPIO peripheral};
+
+        % one shared trunk off the CPU, forking up to RAM and down to GPIO
+        \coordinate (trunk) at ([xshift=7mm]cpu.east);
+        \draw[busline] (cpu.east) -- (trunk);
+        \draw[flow] (trunk) |- (ram.west);
+        \draw[flow] (trunk) |- (gpio.west);
+        \node[lbl, anchor=south] at ([yshift=1mm]trunk) {\scriptsize address / data / control};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    \begin{block}{How it works}
+        {\small
+        \begin{itemize}\itemsep0pt
+            \item Each peripheral register gets an address in the
+                  memory map.
+            \item A read or write to that address reaches the
+                  register, not RAM --- the peripheral answers.
+        \end{itemize}}
+    \end{block}
+
+    \vspace{1mm}
+    {\footnotesize \alert{Key idea:} ordinary \texttt{LDR}/\texttt{STR}
+    reach a peripheral register --- the address alone decides who
+    responds.}
+\end{frame}
+
+%===============================================================================
+\section{Inside the CPU}
+%===============================================================================
+
+\begin{frame}{Two Halves: Execution Logic and Registers}
+    \leavevmode
+    {\small Inside the CPU, hardware splits into two parts. Only one
+    of them can reach memory directly.}
+
+    \vspace{3mm}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm]
+        \node[blk, minimum width=34mm, minimum height=20mm, align=center]
+            (exec) at (0,0) {\small Execution logic\\[1pt]
+                {\scriptsize Decoder, Control Unit, ALU}};
+        \node[cpublk, minimum width=34mm, minimum height=20mm, align=center]
+            (regs) at (5.6,0) {\small Registers\\[1pt]
+                {\scriptsize PC, IR, AR, DR, ACC}};
+        \node[memblk, minimum width=28mm, minimum height=14mm]
+            (mem) at (11.2,0) {\small Memory};
+
+        \draw[flow] (regs) -- (exec);
+        \draw[flow] ([yshift=3mm]regs.east) -- ([yshift=3mm]mem.west);
+        \draw[flow] ([yshift=-3mm]mem.west) -- ([yshift=-3mm]regs.east);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{The rule that shapes everything else}
+        \alert{Only the registers touch memory.} The decoder, control
+        unit, and ALU have \alert{no direct memory access} of their
+        own --- everything they need must first be fetched into a
+        register.
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Execution Logic: Three Roles}
+    \begin{columns}[T]
+    \begin{column}{.32\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=10mm]
+            \node[blk, minimum width=24mm, minimum height=12mm, align=center]
+                (dec) at (0,0) {\small Decoder};
+        \end{tikzpicture}
+        \end{center}
+        {\footnotesize Reads the raw bit pattern of an instruction
+        from the IR and works out \alert{what} operation and
+        \alert{what} operands it names.}
+    \end{column}
+    \begin{column}{.32\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=10mm]
+            \node[cpublk, minimum width=24mm, minimum height=12mm, align=center]
+                (cu) at (0,0) {\small Control\\Unit};
+        \end{tikzpicture}
+        \end{center}
+        {\footnotesize Generates the \alert{control signals} that
+        coordinate everything else: which register reads, which
+        writes, when the ALU runs.}
+    \end{column}
+    \begin{column}{.32\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=10mm]
+            \node[blk, minimum width=24mm, minimum height=12mm, align=center]
+                (alu) at (0,0) {\small ALU};
+        \end{tikzpicture}
+        \end{center}
+        {\footnotesize Does the arithmetic (add, subtract) and logic
+        (AND, OR, XOR). Its bit width is usually called \alert{``the
+        size of the processor.''}}
+    \end{column}
+    \end{columns}
+
+    \vspace{4mm}
+    \begin{block}{What ``32-bit'' means here}
+        4 bits was enough for a remote control. 8 served classic
+        microcontrollers (8051, PIC). The \alert{Cortex-M4 is 32
+        bits} --- the mainstream embedded choice today. Servers run
+        64.
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Accumulator: Where Results Live}
+	\begin{columns}[c, onlytextwidth]
+
+		% ---------------- left: diagram ----------------
+		\begin{column}{0.56\textwidth}
+			\centering
+			\begin{tikzpicture}[x=10mm, y=10mm]
+				% ---- geometry (all in units of 10 mm), ALU centred on x = 0 ----
+				\def\aluHW{2.4}      % half-width of the ALU's input edge
+				\def\aluTop{2.0}     % y of the input (top) edge
+				\def\aluBot{0.8}     % y of the output (bottom) edge
+				\def\aluTaper{0.8}   % how far the lower corners are pulled in
+				\def\aluNotchHW{0.5} % half-width of the notch
+				\def\aluNotch{0.2}   % depth of the notch
+				\def\inDX{1.2}       % ALU input points sit at x = -\inDX and +\inDX
+				\def\opY{3.4}        % y of the operand boxes
+				\def\loopX{-3.1}     % x of the vertical leg of the feedback loop
+
+				% ---- operands: centred above the ALU inputs, with a clear gap
+				% between them (centres 2.4 apart, boxes 2.0 wide) ----
+				\node[blk, minimum width=20mm, minimum height=9mm]
+				(op1) at (-\inDX,\opY) {operand 1};
+				\node[blk, minimum width=20mm, minimum height=9mm]
+				(op2) at ( \inDX,\opY) {operand 2};
+
+				% ---- ALU: notched trapezoid ----
+				\draw[draw=accentline, fill=accentfill, thick]
+				(-\aluHW,\aluTop)
+				-- (-\aluNotchHW,\aluTop)
+				-- (0,{\aluTop-\aluNotch})
+				-- (\aluNotchHW,\aluTop)
+				-- (\aluHW,\aluTop)
+				-- ({\aluHW-\aluTaper},\aluBot)
+				-- ({-\aluHW+\aluTaper},\aluBot)
+				-- cycle;
+				\node[font=\sffamily\small\bfseries] at (0,{(\aluTop+\aluBot)/2}) {ALU};
+
+				% ---- accumulator, directly below the ALU ----
+				\node[memblk, minimum width=26mm, minimum height=9mm]
+				(acc) at (0,-0.5) {Accumulator\\[-1pt]{\scriptsize (ACC)}};
+
+				% ---- flow ----
+				\draw[flow] (op1.south) -- (-\inDX,\aluTop);
+				\draw[flow] (op2.south) -- ( \inDX,\aluTop);
+				\draw[flow] (0,\aluBot) --
+				node[right, inner sep=3pt, font=\scriptsize\itshape] {result}
+				(acc.north);
+
+				% feedback: leaves ACC on its west side, runs up outside the ALU,
+				% and enters operand 1 from the west (arrowhead points into the box)
+				\draw[flow, dashed] (acc.west) -| (\loopX,\opY) -- (op1.west);
+				\node[font=\scriptsize\itshape, rotate=90, anchor=north, inner sep=2pt]
+				at (\loopX,{(\opY-0.5)/2}) {result fed back};
+			\end{tikzpicture}
+		\end{column}
+
+		% ---------------- right: explanation ----------------
+		\begin{column}{0.40\textwidth}
+			\small
+			\begin{itemize}
+				\setlength{\itemsep}{0.6em}
+				\item The \textbf{ACC} is a key general-purpose register.
+				\item \alert{Before} an ALU operation, it holds an operand.
+				\item \alert{After} the operation, it receives the result.
+				\item The dashed arrow shows why this matters: a result can become
+				the next operand, without ever leaving the CPU.
+			\end{itemize}
+		\end{column}
+
+	\end{columns}
+\end{frame}
+
+\begin{frame}[plain]{Putting It Together: The Full Picture}
     \begin{center}
     \includegraphics[width=.88\textwidth, height=.72\textheight, keepaspectratio]%
         {assets/cpu_inside.pdf}
     \end{center}
 
     \vspace{1mm}
-    {\small\centering The registers in the centre connect to memory.
-    The decoder, control unit and ALU on the left have \alert{no
-    direct memory access}. Everything they touch must first pass
-    through a register.\par}
+    {\small\centering Five registers, three execution units, one
+    memory. The $z = x + y$ trace on the next slides puts every one
+    of them to work.\par}
 \end{frame}
 
 \begin{frame}{Zoom 3: The Registers That Matter}
@@ -560,12 +927,13 @@
     \end{columns}
 
     \vspace{3mm}
-    \begin{block}{Why ``no direct memory access'' matters}
-        This is why \alert{load/store} architectures exist. On the
-        Cortex-M4, you cannot add two values that sit in memory
-        directly. You must \texttt{LDR} them into registers,
-        \texttt{ADD} them, then \texttt{STR} the result back. Chapters
-        5--7 explain this idea in more detail.
+    \begin{block}{The principle behind load/store architectures}
+        The ALU operates on \alert{register} operands only. Getting a
+        value from memory into a register, or a result back out,
+        takes a dedicated transfer. On the Cortex-M4 that is
+        \texttt{LDR} and \texttt{STR}: \texttt{LDR} the operands in,
+        \texttt{ADD} them in registers, \texttt{STR} the result back
+        out. Chapters 5--7 explain this idea in more detail.
     \end{block}
 
     \vspace{2mm}
@@ -575,7 +943,7 @@
 \end{frame}
 
 %===============================================================================
-\section{Tracing z = x + y}
+\section{Execution Cycle and Program Trace}
 %===============================================================================
 
 \begin{frame}{One Line of C, Traced in Hardware}
@@ -593,13 +961,13 @@
     \end{center}
 
     \vspace{1mm}
-    \begin{block}{We will use this one line to discover what a CPU actually does}
-        One line of C becomes three machine instructions. Every
-        register and operation from the last few slides gets a
-        \alert{job} to do in making this happen.
-    \end{block}
+    {\small One line of C becomes three machine instructions. Every
+    register and operation from the last few slides gets a
+    \alert{job} to do. \texttt{LOAD}/\texttt{ADD}/\texttt{STORE} are
+    \alert{teaching instructions} for this generic model --- Chapter 5
+    gives the real Cortex-M4 ones: \texttt{LDR}, \texttt{ADD}, \texttt{STR}.}
 
-    \vspace{3mm}
+    \vspace{2mm}
     \begin{columns}[T]
     \begin{column}{.46\textwidth}
         \textbf{Program memory}
@@ -659,16 +1027,12 @@
     \end{center}
 
     \vspace{3mm}
-    \begin{block}{This is much easier to remember than a list}
-        ``Here are five registers, memorise what they do'' gives
-        these concepts no real job to do. \alert{Every concept in the
-        next three slides appears here because this trace needs it.}
+    \begin{block}{The next three slides execute this table, step by step}
+        Each question above becomes one phase of
+        fetch--decode--execute. \alert{Watch each register earn its
+        answer.}
     \end{block}
 \end{frame}
-
-%===============================================================================
-\section{The Instruction Execution Cycle}
-%===============================================================================
 
 \begin{frame}{The CPU Has an Instruction. Now What?}
     \leavevmode
@@ -738,83 +1102,145 @@
 \end{frame}
 
 %===============================================================================
-\section{From C to a Pin}
+\section{Meet the Board}
 %===============================================================================
-
-\begin{frame}{We Can Now Answer the Question We Started With}
-    \leavevmode
-    \begin{center}
-    \fbox{\parbox{.7\textwidth}{\centering\vspace{2mm}
-    \large How does a program cause hardware to do something?
-    \vspace{2mm}}}
-    \end{center}
-
-    \vspace{3mm}
-    {\small We just traced \texttt{z = x + y;} through LOAD, ADD, and
-    STORE. These were all ordinary memory addresses, nothing more.
-    Now let us return to the board: what happens when the address is
-    not a memory cell, but a peripheral instead?}
+\begin{frame}{From Requirements to Hardware}
+	\begin{columns}[c]
+		\begin{column}{.48\textwidth}
+			\begin{center}
+\begin{tikzpicture}[x=10mm, y=8.8mm]
+	\node[blk, minimum width=42mm, minimum height=7.5mm] (req)  at (0,4.5) {Embedded system};
+	\node[blk, minimum width=42mm, minimum height=7.5mm] (need) at (0,3.0) {Needs computation \(+\)\\memory \(+\) I/O};
+	\node[blk, minimum width=42mm, minimum height=7.5mm] (q)    at (0,1.5) {What hardware\\provides these?};
+	\node[cpublk, minimum width=42mm, minimum height=7.5mm] (ans) at (0,0.0) {Microprocessor, or\\microcontroller};
+	\foreach \a/\b in {req/need, need/q, q/ans}{\draw[flow] (\a) -- (\b);}
+\end{tikzpicture}
+			\end{center}
+		\end{column}
+		\begin{column}{.48\textwidth}
+			An embedded system is a \emph{requirement}. Something must
+			satisfy that requirement.
+			\vspace{3mm}
+			\begin{block}{The question this raises}
+				\centering\alert{What kind of computer belongs inside an embedded system?}
+			\end{block}
+			\vspace{2mm}
+			{\small We will answer this question using one real board,
+			so every idea in this chapter has a physical home.}
+		\end{column}
+	\end{columns}
 \end{frame}
-
-\begin{frame}[fragile]{One Line of C, Back on the Board}
+\begin{frame}{Meet the Board: STM32 Nucleo-F446RE}
     \begin{columns}[c]
-    \begin{column}{.46\textwidth}
-        Look at this line. It appears in almost every STM32 program ever
-        written:
-
-        \vspace{2mm}
-\begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
-GPIOA->ODR |= (1U << 5);
-\end{lstlisting}
-
-        \vspace{2mm}
-        {\small You already know every symbol here: a pointer, a
-        structure member, a compound bitwise-OR assignment, and a
-        left shift.}
-
-        \vspace{2mm}
-        {\small What may not be obvious is that running this one
-        statement \alert{turns on an LED}: the LED on \texttt{PA5},
-        on the board you met at the start of this chapter.}
-    \end{column}
-    \begin{column}{.5\textwidth}
+    \begin{column}{.42\textwidth}
         \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[blk,    minimum width=40mm, minimum height=7.5mm] (c)   at (0,2.4)  {C statement};
-            \node[blk,    minimum width=40mm, minimum height=7.5mm] (reg) at (0,1.2)  {Memory-mapped register};
-            \node[blk,    minimum width=40mm, minimum height=7.5mm] (rmw) at (0,0.0)  {32-bit read--modify--write};
-            \node[blk,    minimum width=40mm, minimum height=7.5mm] (hw)  at (0,-1.2) {GPIO hardware};
-            \node[cpublk, minimum width=40mm, minimum height=7.5mm] (pin) at (0,-2.4) {Physical pin, then LED};
-            \foreach \a/\b in {c/reg, reg/rmw, rmw/hw, hw/pin}{\draw[flow] (\a) -- (\b);}
-            \node[lbl, anchor=west] at (0.3,1.8)  {names \texttt{0x40020014}};
-            \node[lbl, anchor=west] at (0.3,0.6)  {runs \texttt{LDR}, \texttt{ORR}, \texttt{STR}};
-            \node[lbl, anchor=west] at (0.3,-0.6) {bit 5 of the latch becomes 1};
-            \node[lbl, anchor=west] at (0.3,-1.8) {\texttt{PA5} rises to 3.3\,V};
-        \end{tikzpicture}
+        \includegraphics[width=\textwidth, height=.6\textheight, keepaspectratio]%
+            {assets/nucleo-board.jpg}
         \end{center}
+    \end{column}
+    \begin{column}{.54\textwidth}
+        \textbf{STM32 Nucleo-F446RE}
+        {\small
+        \begin{itemize}\itemsep1pt
+            \item \textbf{ST-LINK} debugger --- the upper third of the
+                  board, past the perforation. One USB cable handles
+                  power, programming, debugging, and a virtual COM port.
+            \item \textbf{USER button} (B1) on \alert{\texttt{PC13}}
+            \item \textbf{User LED} (LD2) on \alert{\texttt{PA5}}
+        \end{itemize}}
+
+        \vspace{2mm}
+        {\small The inner headers follow the Arduino shield layout.
+        The outer \textbf{morpho} headers bring out every remaining
+        pin.}
+
+        \vspace{2mm}
+        {\small \alert{Every blink program in this book drives
+        \texttt{PA5}.} Everything we discuss from here on will
+        eventually explain this board.}
     \end{column}
     \end{columns}
 \end{frame}
 
+%===============================================================================
+\section{From C to a Pin}
+%===============================================================================
+
+\begin{frame}{We Can Now Answer the Question We Started With}
+	\leavevmode
+	\begin{center}
+		\fbox{\parbox{.7\textwidth}{\centering\vspace{2mm}
+				\large How does a program cause hardware to do something?
+				\vspace{2mm}}}
+	\end{center}
+
+	\vspace{3mm}
+	{\small We just traced \texttt{z = x + y;} through LOAD, ADD, and
+		STORE --- ordinary memory addresses, nothing more. But the
+		\alert{same} load/store mechanism works on any address. Give it
+		the address of a peripheral register instead of a memory cell,
+		and it changes hardware, not a variable.}
+\end{frame}
+
+\begin{frame}[fragile]{One Line of C, Back on the Board}
+	\begin{columns}[c]
+		\begin{column}{.46\textwidth}
+			Look at this line. It appears in almost every STM32 program ever
+			written:
+
+			\vspace{2mm}
+			\begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
+	GPIOA->ODR |= (1U << 5);
+			\end{lstlisting}
+
+			\vspace{2mm}
+			{\small You already know every symbol here: a pointer, a
+				structure member, a compound bitwise-OR assignment, and a
+				left shift.}
+
+			\vspace{2mm}
+			{\small What may not be obvious is that running this one
+				statement \alert{turns on an LED}: the LED on \texttt{PA5},
+				on the board you met at the start of this chapter.}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{center}
+				\begin{tikzpicture}[x=10mm, y=10mm]
+					\node[blk,    minimum width=40mm, minimum height=7.5mm] (c)   at (0,2.4)  {C statement};
+					\node[blk,    minimum width=40mm, minimum height=7.5mm] (reg) at (0,1.2)  {Memory-mapped register};
+					\node[blk,    minimum width=40mm, minimum height=7.5mm] (rmw) at (0,0.0)  {32-bit read--modify--write};
+					\node[blk,    minimum width=40mm, minimum height=7.5mm] (hw)  at (0,-1.2) {GPIO hardware};
+					\node[cpublk, minimum width=40mm, minimum height=7.5mm] (pin) at (0,-2.4) {Physical pin, then LED};
+					\foreach \a/\b in {c/reg, reg/rmw, rmw/hw, hw/pin}{\draw[flow] (\a) -- (\b);}
+					\node[lbl, anchor=west] at (0.3,1.8)  {names \texttt{0x40020014}};
+					\node[lbl, anchor=west] at (0.3,0.6)  {runs \texttt{LDR}, \texttt{ORR}, \texttt{STR}};
+					\node[lbl, anchor=west] at (0.3,-0.6) {bit 5 of the latch becomes 1};
+					\node[lbl, anchor=west] at (0.3,-1.8) {\texttt{PA5} rises to 3.3\,V};
+				\end{tikzpicture}
+			\end{center}
+		\end{column}
+	\end{columns}
+\end{frame}
+
 \begin{frame}{The Bookend}
-    \leavevmode
-    \begin{block}{The CPU still does not know what an LED is}
-        It only knows how to execute instructions and access
-        addresses. Every step in that chain was ordinary: the same
-        \texttt{LDR}/\texttt{ORR}/\texttt{STR} pattern as any other
-        read-modify-write.
-    \end{block}
+	\leavevmode
+	\begin{block}{The CPU still does not know what an LED is}
+		It only executes instructions and accesses addresses. Every
+		step was ordinary: the same \texttt{LDR}/\texttt{ORR}/\texttt{STR}
+		pattern as any other read-modify-write.
+	\end{block}
 
-    \vspace{4mm}
-    \begin{center}
-    \fbox{\parbox{.78\textwidth}{\centering\vspace{2mm}
-    \large Turning on an LED is writing a number to an address.
-    \vspace{2mm}}}
-    \end{center}
+	\vspace{4mm}
+	\begin{center}
+		\fbox{\parbox{.78\textwidth}{\centering\vspace{2mm}
+				\large Turning on an LED is writing a number to an address.
+				\vspace{2mm}}}
+	\end{center}
 
-    \vspace{2mm}
-    {\small This is the same sentence from ``The One Question.'' Now
-    you fully understand it.}
+	\vspace{2mm}
+	{\small You asked this at the start of the chapter, as an
+		unexplained claim. Now you can derive it: from a C statement, to
+		a register write, to a voltage on a physical pin.}
 \end{frame}
 
 \begin{frame}{Summary: The Causal Chain}
