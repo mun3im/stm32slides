@@ -70,6 +70,8 @@
 \definecolor{bitmaskline}{HTML}{1565C0}
 \definecolor{bithitfill}{HTML}{FFE0B2}
 \definecolor{bithitline}{HTML}{E65100}
+\definecolor{ocre}{RGB}{52,177,201}
+\definecolor{kikuchiba}{HTML}{e29c45}
 \tikzset{
   blk/.style   = {rectangle, rounded corners=2pt, draw=blkline, fill=blkfill,
                   thick, align=center, font=\small, minimum height=9mm, inner sep=3pt},
@@ -625,46 +627,57 @@
 %===============================================================================
 
 \begin{frame}{The Three Buses}
+    \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=10mm, y=10mm]
+% three devices along the top
+\node[cpublk, minimum width=20mm, minimum height=10mm] (cpu) at (0.9,2.6) {CPU};
+\node[blk, fill=kikuchiba!22, draw=kikuchiba!85!black, minimum width=20mm, minimum height=10mm] (mem) at (3.6,2.6) {Memory};
+\node[blk, fill=ocre!12, draw=ocre, minimum width=20mm, minimum height=10mm] (io) at (6.3,2.6) {Input/\\Output};
 
-\begin{center} \begin{tikzpicture}[ >=Stealth, bus/.style={thick}, block/.style={draw, rounded corners, minimum width=2.5cm, minimum height=14mm, fill=blue!10} ] \node[block] (cpu) {CPU}; \node[block, right=5cm of cpu] (mem) {Memory / I/O};
-		% Address bus
-		\draw[->, red, bus] ([yshift=10pt]cpu.east) -- node[above] {\scriptsize Address Bus} ([yshift=10pt]mem.west);
-		% Data bus
-		\draw[<->, blue, bus] (cpu.east) -- node[above] {\scriptsize Data Bus} (mem.west);
-		% Control bus
-		\draw[<->, green!60!black, bus] ([yshift=-10pt]cpu.east) -- node[above] {\scriptsize Control Bus} ([yshift=-10pt]mem.west); \end{tikzpicture} \end{center}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l l l@{}}
-        \toprule
-        \textbf{Bus} & \textbf{Direction} & \textbf{Carries} \\
-        \midrule
-        \textbf{Address} & Unidirectional, CPU $\rightarrow$ device
-            & \emph{Which} location. Width sets the addressable range \\
-        \textbf{Data}    & Bidirectional
-            & \emph{What} value. Width sets how much moves per transfer \\
-        \textbf{Control} & Bidirectional
-            & \emph{When} and \emph{what kind}: read/write, timing, interrupts \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
+% Each device connects to each bus with a stub that stops at that bus.
+% CPU drives the address bus, exchanges data, drives control.
+\draw[flow, draw=ocre!80!black] (0.62,2.15) -- (0.62,1.68);
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
+    (0.9,2.15) -- (0.9,0.68);
+\draw[flow, draw=blkline]       (1.18,2.15) -- (1.18,-0.32);
 
-    \vspace{3mm}
-    \begin{block}{Address width sets the memory map}
-        $2^{n}$ addressable bytes for an $n$-bit address bus.
+% Memory and I/O receive the address and control, exchange data.
+\draw[{Stealth[length=2mm]}-, draw=ocre!80!black, thick] (3.32,1.68) -- (3.32,2.15);
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
+    (3.6,2.15) -- (3.6,0.68);
+\draw[{Stealth[length=2mm]}-, draw=blkline, thick]       (3.88,-0.32) -- (3.88,2.15);
 
-        \vspace{1mm}
-        $2^{16} = 64$\,KB \quad$\cdot$\quad $2^{20} = 1$\,MB \quad$\cdot$\quad
-        $2^{32} = \alert{4\,\text{GB}}$: the Cortex-M4
-    \end{block}
+\draw[{Stealth[length=2mm]}-, draw=ocre!80!black, thick] (6.02,1.68) -- (6.02,2.15);
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
+    (6.3,2.15) -- (6.3,0.68);
+\draw[{Stealth[length=2mm]}-, draw=blkline, thick]       (6.58,-0.32) -- (6.58,2.15);
 
-    \vspace{2mm}
-    {\small \textbf{You already know this:} an address is the input
-    to a \alert{decoder}. It works the same way as the one-of-$N$
-    selection you built with a 3-to-8 decoder, just at a much larger
-    scale.}
+% the bus bars, drawn last so they mask the stub crossings
+\node[blk, fill=ocre!10, draw=ocre!80!black, minimum width=68mm, minimum height=6.5mm] (abus) at (3.6,1.35) {Address bus};
+\node[blk, fill=kikuchiba!14, draw=kikuchiba!85!black, minimum width=68mm, minimum height=6.5mm] (dbus) at (3.6,0.35) {Data bus};
+\node[blk, minimum width=68mm, minimum height=6.5mm] (cbus) at (3.6,-0.65) {Control bus};
 
+\node[lbl, align=left, anchor=west, text=ocre!80!black] at (7.25,1.35) {one way:\\only the CPU drives it};
+\node[lbl, anchor=west, text=kikuchiba!60!black] at (7.25,0.35) {both ways};
+\node[lbl, align=left, anchor=west] at (7.25,-0.65) {timing and\\command lines};
+\end{tikzpicture}
+        }
+    \end{column}
+    \begin{column}{0.42\textwidth}
+        {\small
+        \begin{description}\itemsep4pt
+            \item[Address bus] \emph{Which} location. One-way, CPU $\rightarrow$ device. Width sets the addressable range.
+            \item[Data bus] \emph{What} value. Bidirectional. Width sets how much moves per transfer.
+            \item[Control bus] \emph{When} and \emph{what kind}: read/write, timing, interrupts. Bidirectional.
+        \end{description}}
+    \end{column}
+    \end{columns}
+
+    \vspace{4mm}
+    {\footnotesize \textbf{You already know this:} an address feeds a \alert{decoder}, like your 3-to-8 decoder, just at a larger scale.}
 \end{frame}
 
 
@@ -697,43 +710,151 @@
 \end{frame}
 
 
-\begin{frame}{Memory-Mapped I/O}
+\begin{frame}{Memory Organization: a $2^k \times m$ Array}
     \leavevmode
-    {\small The CPU talks to peripherals the \alert{same way} it
-    talks to memory: same address bus, same data bus, same read/write
-    control line.}
+    {\small Physically, memory is an array of $2^k$ locations, each $m$ bits wide.}
 
     \vspace{2mm}
     \begin{center}
-    \begin{tikzpicture}[x=9mm, y=7mm]
-        \node[cpublk, minimum width=20mm, minimum height=10mm] (cpu)  at (0,0)   {CPU};
-        \node[memblk, minimum width=26mm, minimum height=7.5mm]  (ram)  at (5.4,1.4)  {RAM};
-        \node[blk,    minimum width=26mm, minimum height=7.5mm]  (gpio) at (5.4,-1.4) {GPIO peripheral};
+    \resizebox{0.62\textwidth}{!}{%
+\begin{tikzpicture}[x=10mm, y=10mm, every node/.append style={align=center}]
+% the memory array itself
+\node[blk, fill=kikuchiba!18, draw=kikuchiba!85!black,
+      minimum width=32mm, minimum height=30mm] (mem) at (0,0)
+     {$2^k \times m$\\memory};
 
-        % one shared trunk off the CPU, forking up to RAM and down to GPIO
-        \coordinate (trunk) at ([xshift=7mm]cpu.east);
-        \draw[busline] (cpu.east) -- (trunk);
-        \draw[flow] (trunk) |- (ram.west);
-        \draw[flow] (trunk) |- (gpio.west);
-        \node[lbl, anchor=south] at ([yshift=1mm]trunk) {\scriptsize address / data / control};
-    \end{tikzpicture}
+% address lines in: one way, teal -- the same coding as the address bus earlier
+\draw[flow, draw=ocre!85!black, line width=1.1pt] (-3.5,0) -- (mem.west);
+\node[lbl, anchor=east, text=ocre!75!black, text width=22mm] at (-3.62,0)
+     {$k$ address lines};
+\node[lbl, anchor=south, text=ocre!70!black, font=\sffamily\scriptsize\itshape] at (-2.55,0.14)
+     {selects one\\location};
+
+% data lines: both ways, orange -- matching the data bus
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black,
+      line width=1.1pt] (mem.east) -- (3.5,0);
+\node[lbl, anchor=west, text=kikuchiba!60!black, text width=22mm] at (3.62,0)
+     {$m$ data lines};
+\node[lbl, anchor=south, text=kikuchiba!60!black, font=\sffamily\scriptsize\itshape] at (2.55,0.14)
+     {carries its\\contents};
+
+% the two numbers that define the array
+\node[lbl, anchor=south] at (0,1.72) {$2^k$ locations};
+\draw[draw=black!45, decorate, decoration={brace, amplitude=3pt}]
+    (-1.6,1.62) -- (1.6,1.62);
+\node[lbl, anchor=north] at (0,-1.72) {each $m$ bits wide};
+\draw[draw=black!45, decorate, decoration={brace, amplitude=3pt, mirror}]
+    (-1.6,-1.62) -- (1.6,-1.62);
+\end{tikzpicture}
+    }
     \end{center}
 
     \vspace{2mm}
-    \begin{block}{How it works}
+    \begin{block}{Reading the array}
         {\small
         \begin{itemize}\itemsep0pt
-            \item Each peripheral register gets an address in the
-                  memory map.
-            \item A read or write to that address reaches the
-                  register, not RAM --- the peripheral answers.
+            \item $k$ address lines select \alert{one of $2^k$} locations.
+            \item $m$ data lines carry the \alert{$m$-bit word} stored there.
+            \item Logically, a long numbered list: addresses $0$ through $2^k - 1$, written in hexadecimal.
         \end{itemize}}
     \end{block}
+\end{frame}
+
+
+\begin{frame}{Accessing Memory: Read versus Write}
+    \leavevmode
+    {\small Every access is the same three steps. Only the \alert{direction of the data} differs.}
+
+    \vspace{2mm}
+    \begin{columns}[T]
+    \begin{column}{0.485\textwidth}
+        \centering
+        {\bfseries\color{blkline} Read: memory $\rightarrow$ CPU}
+
+        \vspace{2mm}
+        \begin{tikzpicture}[x=1mm, y=1mm]
+            \node[cpublk, minimum width=13mm, minimum height=18mm] (cpu) at (0,0) {CPU};
+            \node[memblk, minimum width=15mm, minimum height=18mm] (mem) at (46,0) {Memory};
+            \draw[-{Stealth[length=2mm]}, thick, draw=red!70!black]   ([yshift=5.5mm]cpu.east |- cpu.center) -- ([yshift=5.5mm]mem.west |- mem.center);
+            \draw[-{Stealth[length=2mm]}, thick, draw=green!50!black] (cpu.east) -- (mem.west);
+            \draw[-{Stealth[length=2mm]}, thick, draw=blkline]        ([yshift=-5.5mm]mem.west |- mem.center) -- ([yshift=-5.5mm]cpu.east |- cpu.center);
+            \node[lbl, anchor=south] at (23,6.5)  {\texttt{0x2000}};
+            \node[lbl, anchor=south] at (23,0)  {\texttt{READ}};
+            \node[lbl, anchor=south] at (23,-5) {\texttt{0x2A}};
+        \end{tikzpicture}
+
+        \vspace{1mm}
+        \begin{enumerate}\itemsep1pt
+            \item[\textbf{1}] CPU puts the \alert{address} \texttt{0x2000} on the address bus.
+            \item[\textbf{2}] CPU asserts the \alert{READ} signal on the control bus.
+            \item[\textbf{3}] Memory responds with the \alert{data} \texttt{0x2A} on the data bus.
+        \end{enumerate}
+    \end{column}
+    \begin{column}{0.485\textwidth}
+        \centering
+        {\bfseries\color{accentline} Write: CPU $\rightarrow$ memory}
+
+        \vspace{2mm}
+        \begin{tikzpicture}[x=1mm, y=1mm]
+            \node[cpublk, minimum width=13mm, minimum height=18mm] (cpu) at (0,0) {CPU};
+            \node[memblk, minimum width=15mm, minimum height=18mm] (mem) at (46,0) {Memory};
+            \draw[-{Stealth[length=2mm]}, thick, draw=red!70!black]   ([yshift=5.5mm]cpu.east |- cpu.center) -- ([yshift=5.5mm]mem.west |- mem.center);
+            \draw[-{Stealth[length=2mm]}, thick, draw=green!50!black] (cpu.east) -- (mem.west);
+            \draw[-{Stealth[length=2mm]}, thick, draw=blkline]        ([yshift=-5.5mm]cpu.east |- cpu.center) -- ([yshift=-5.5mm]mem.west |- mem.center);
+            \node[lbl, anchor=south] at (23,6.5)  {\texttt{0x2004}};
+            \node[lbl, anchor=south] at (23,0)  {\texttt{WRITE}};
+            \node[lbl, anchor=south] at (23,-5) {\texttt{0x55}};
+        \end{tikzpicture}
+
+        \vspace{1mm}
+        \begin{enumerate}\itemsep1pt
+            \item[\textbf{1}] CPU puts the \alert{address} \texttt{0x2004} on the address bus.
+            \item[\textbf{2}] CPU asserts the \alert{WRITE} signal on the control bus.
+            \item[\textbf{3}] CPU puts the \alert{data} \texttt{0x55} on the data bus; memory stores it.
+        \end{enumerate}
+    \end{column}
+    \end{columns}
 
     \vspace{1mm}
-    {\footnotesize \alert{Key idea:} ordinary \texttt{LDR}/\texttt{STR}
-    reach a peripheral register --- the address alone decides who
-    responds.}
+    {\small \alert{Same address, same control, opposite data:} on a read the memory drives the data bus; on a write the CPU does.}
+\end{frame}
+
+
+\begin{frame}{Memory-Mapped I/O}
+    \leavevmode
+    {\small The CPU reaches peripherals the \alert{same way} it reaches memory:
+    one address space, one bus, the same \texttt{LDR}/\texttt{STR}.}
+
+    \vspace{1mm}
+    \begin{center}
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[x=1mm, y=1mm, every node/.append style={align=center}]
+        % CPU and the instruction it executes
+        \node[cpublk, minimum width=26mm, minimum height=36mm] (cpu) at (0,0) {CPU};
+        \node[font=\ttfamily\small, anchor=south] at (0,19) {LDR R0, [0x40020014]};
+
+        % the memory map: one list of addresses, high at top
+        \node[blk,    minimum width=58mm, minimum height=9mm, anchor=west] (gp) at (62,15)  {GPIOA registers};
+        \node[blk,    minimum width=58mm, minimum height=9mm, anchor=west] (gb) at (62,5.5) {other peripherals};
+        \node[memblk, minimum width=58mm, minimum height=9mm, anchor=west] (sr) at (62,-5)  {SRAM};
+        \node[memblk, minimum width=58mm, minimum height=9mm, anchor=west] (fl) at (62,-14.5) {Flash};
+        \node[font=\ttfamily\scriptsize, anchor=west] at (122,15)    {0x4002\,0000};
+        \node[font=\ttfamily\scriptsize, anchor=west] at (122,-5)    {0x2000\,0000};
+        \node[font=\ttfamily\scriptsize, anchor=west] at (122,-14.5) {0x0800\,0000};
+        \node[lbl, anchor=south] at (91,21) {one address space};
+
+        % highlight: the address picks the GPIOA band
+        \draw[ultra thick, draw=accentline] (gp.north west) rectangle (gp.south east);
+        \draw[-{Stealth[length=2.5mm]}, ultra thick, draw=accentline]
+            (cpu.east |- gp.west) -- node[above=1mm, font=\scriptsize, text=accentline]{address \texttt{0x40020014}} (gp.west);
+        \node[lbl, anchor=north] at (31,-4) {the \alert{address alone}\\decides who answers};
+    \end{tikzpicture}}
+    \end{center}
+
+    \vspace{0mm}
+    {\small \alert{Key idea:} each peripheral register has an address in the
+    memory map. A read or write there reaches the register, not RAM ---
+    the peripheral answers.}
 \end{frame}
 
 %===============================================================================
@@ -772,50 +893,56 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{The Execution Logic: Three Roles}
-    \begin{columns}[T]
-    \begin{column}{.32\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[blk, minimum width=24mm, minimum height=12mm, align=center]
-                (dec) at (0,0) {\small Decoder};
-        \end{tikzpicture}
-        \end{center}
-        {\footnotesize Reads the raw bit pattern of an instruction
-        from the IR and works out \alert{what} operation and
-        \alert{what} operands it names.}
+\begin{frame}{The CPU Faces Memory: PC, IR, AR, DR}
+    \leavevmode
+    {\small Four registers sit between the CPU and memory. Each one holds something that is \alert{going to} or \alert{coming from} memory.}
+
+    \vspace{2mm}
+    \begin{columns}[c]
+    \begin{column}{.56\textwidth}
+        \centering
+        \includegraphics[width=\linewidth, height=.62\textheight, keepaspectratio]%
+            {assets/cpu_inside.pdf}
     \end{column}
-    \begin{column}{.32\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[cpublk, minimum width=24mm, minimum height=12mm, align=center]
-                (cu) at (0,0) {\small Control\\Unit};
-        \end{tikzpicture}
-        \end{center}
-        {\footnotesize Generates the \alert{control signals} that
-        coordinate everything else: which register reads, which
-        writes, when the ALU runs.}
-    \end{column}
-    \begin{column}{.32\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[blk, minimum width=24mm, minimum height=12mm, align=center]
-                (alu) at (0,0) {\small ALU};
-        \end{tikzpicture}
-        \end{center}
-        {\footnotesize Does the arithmetic (add, subtract) and logic
-        (AND, OR, XOR). Its bit width is usually called \alert{``the
-        size of the processor.''}}
+    \begin{column}{.42\textwidth}
+        {\small
+        \begin{description}\itemsep5pt
+            \item[PC] Program Counter: the address of the \alert{next} instruction.
+            \item[IR] Instruction Register: the instruction just fetched.
+            \item[AR] Address Register: the address of the data being accessed.
+            \item[DR] Data Register: the value in transit to or from that address.
+        \end{description}}
     \end{column}
     \end{columns}
 
-    \vspace{4mm}
-    \begin{block}{What ``32-bit'' means here}
-        4 bits was enough for a remote control. 8 served classic
-        microcontrollers (8051, PIC). The \alert{Cortex-M4 is 32
-        bits} --- the mainstream embedded choice today. Servers run
-        64.
-    \end{block}
+    \vspace{2mm}
+    {\small Only these registers talk to memory. Everything else in the CPU works on what they hold.}
+\end{frame}
+
+\begin{frame}{The CPU Computes: Decoder, CU, ALU, ACC}
+    \leavevmode
+    {\small The rest of the CPU does the work on what the registers hold.}
+
+    \vspace{2mm}
+    \begin{columns}[c]
+    \begin{column}{.56\textwidth}
+        \centering
+        \includegraphics[width=\linewidth, height=.62\textheight, keepaspectratio]%
+            {assets/cpu_inside.pdf}
+    \end{column}
+    \begin{column}{.42\textwidth}
+        {\footnotesize
+        \begin{description}\itemsep4pt
+            \item[Decoder] Reads the bit pattern in IR and works out \alert{what} operation and \alert{which} operands it names.
+            \item[CU] Control Unit: generates the \alert{control signals}: which register reads, which writes, when the ALU runs.
+            \item[ALU] Arithmetic Logic Unit: add, subtract, AND, OR, XOR.
+            \item[ACC] Accumulator: operand and result of the ALU.
+        \end{description}}
+    \end{column}
+    \end{columns}
+
+    \vspace{2mm}
+    {\small The ALU's bit width is ``the size of the processor'': 4 bits for a remote control, 8 for classic microcontrollers (8051, PIC), \alert{32 for the Cortex-M4}, 64 for servers.}
 \end{frame}
 
 \begin{frame}{The Accumulator: Where Results Live}
@@ -890,56 +1017,32 @@
 	\end{columns}
 \end{frame}
 
-\begin{frame}[plain]{Putting It Together: The Full Picture}
+\begin{frame}{Inside the CPU: Recap}
+    \leavevmode
+    {\small Eight parts, two sides: four \alert{face memory}, four \alert{compute}.}
+
+    \vspace{2mm}
     \begin{center}
-    \includegraphics[width=.88\textwidth, height=.72\textheight, keepaspectratio]%
-        {assets/cpu_inside.pdf}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l l@{}}
+        \toprule
+        \textbf{Part} & \textbf{Side} & \textbf{Job} \\
+        \midrule
+        PC & Faces memory & Address of the next instruction \\
+        IR & Faces memory & The instruction just fetched \\
+        AR & Faces memory & Address of the data being accessed \\
+        DR & Faces memory & Data in transit to or from memory \\
+        Decoder & Computes & Works out what the instruction means \\
+        CU & Computes & Sequences the steps with control signals \\
+        ALU & Computes & Arithmetic and logic \\
+        ACC & Computes & Operand and result of the ALU \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
 
-    \vspace{1mm}
-    {\small\centering Five registers, three execution units, one
-    memory. The $z = x + y$ trace on the next slides puts every one
-    of them to work.\par}
-\end{frame}
-
-\begin{frame}{Zoom 3: The Registers That Matter}
-    \leavevmode
-    Five names appear on the previous diagram. Not all of them need
-    the same amount of attention yet:
-
     \vspace{2mm}
-    \begin{columns}[T]
-    \begin{column}{.48\textwidth}
-        \textbf{Must understand now}
-        \begin{itemize}
-            \item \textbf{PC} --- address of the \alert{next} instruction
-            \item \textbf{IR} --- the instruction just fetched
-            \item \textbf{ACC} --- operand and result of the ALU
-        \end{itemize}
-    \end{column}
-    \begin{column}{.48\textwidth}
-        \textbf{Can recognise, needn't memorise yet}
-        \begin{itemize}
-            \item \textbf{AR} --- address of the data being accessed
-            \item \textbf{DR} --- value in transit to or from that address
-        \end{itemize}
-    \end{column}
-    \end{columns}
-
-    \vspace{3mm}
-    \begin{block}{The principle behind load/store architectures}
-        The ALU operates on \alert{register} operands only. Getting a
-        value from memory into a register, or a result back out,
-        takes a dedicated transfer. On the Cortex-M4 that is
-        \texttt{LDR} and \texttt{STR}: \texttt{LDR} the operands in,
-        \texttt{ADD} them in registers, \texttt{STR} the result back
-        out. Chapters 5--7 explain this idea in more detail.
-    \end{block}
-
-    \vspace{2mm}
-    {\small Chapter 2 replaces this generic register set with the
-    Cortex-M4's actual sixteen registers. For now, just keep this
-    simple picture in mind.}
+    {\small The $z = x + y$ trace on the next slides puts every one of these to work. Chapter 2 replaces this generic register set with the Cortex-M4's actual sixteen registers.}
 \end{frame}
 
 %===============================================================================
