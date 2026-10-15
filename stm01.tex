@@ -100,6 +100,10 @@
   }
   \fi
 \end{tikzpicture}}}
+
+% Consistent micro-recall boxes
+\newcommand{\checkit}[1]{\par\vspace{0.3mm}\noindent\fcolorbox{accentline}{accentfill!35}{\parbox{.97\linewidth}{\footnotesize\textbf{\color{accentline}Check yourself:} #1}}\par}
+\newcommand{\applyit}[1]{\par\vspace{0.3mm}\noindent\fcolorbox{accentline}{accentfill!35}{\parbox{.97\linewidth}{\footnotesize\textbf{\color{accentline}Apply it:} #1}}\par}
 \tikzset{
   blk/.style   = {rectangle, rounded corners=2pt, draw=blkline, fill=blkfill,
                   thick, align=center, font=\small, minimum height=9mm, inner sep=3pt},
@@ -436,7 +440,7 @@
 	\end{block}
 
 	\vspace{1mm}
-	{\footnotesize \alert{Check yourself:} why might a washing machine use a microcontroller rather than a general-purpose PC?}
+	\applyit{why might a washing machine use a microcontroller rather than a general-purpose PC?}
 \end{frame}
 
 \begin{frame}{Microprocessor and Microcontroller}
@@ -591,7 +595,7 @@
 \section{Buses and Memory-Mapped I/O}
 %===============================================================================
 
-\begin{frame}{The Three Buses}
+\begin{frame}{The Three Buses}{Roadmap: the highways that carry \texttt{LDR} and \texttt{STR}}
 \setbeamercolor{cardblue}{bg=blue!5,fg=black}\setbeamercolor{cardgreen}{bg=green!5,fg=black}\setbeamercolor{cardred}{bg=red!5,fg=black}\setbeamercolor{cardgray}{bg=gray!10,fg=black}
     \begin{center}
     \resizebox{.6\textwidth}{!}{%
@@ -845,7 +849,7 @@
     {\small \alert{Same address, same control, opposite data:} on a read the memory drives the data bus; on a write the CPU does.}
 
     \vspace{1mm}
-    {\footnotesize \alert{Check yourself:} the CPU puts \texttt{0x2000} on the address bus and requests a read. Which bus carries the stored value back?}
+    \checkit{the CPU puts \texttt{0x2000} on the address bus and requests a read. Which bus carries the stored value back?}
 \end{frame}
 
 
@@ -887,7 +891,7 @@
     the LED from slide~5.}
 
     \vspace{1mm}
-    {\footnotesize \alert{Check yourself:} what determines whether a read reaches SRAM or a peripheral register?}
+    \checkit{what determines whether a read reaches SRAM or a peripheral register?}
 \end{frame}
 
 
@@ -954,10 +958,11 @@
 \section{Inside the CPU}
 %===============================================================================
 
-\begin{frame}{Two Halves: Execution Logic and Registers}
+\begin{frame}{Two Halves: Execution Logic and Registers}{Roadmap: the factory behind the highways}
     \leavevmode
-    {\small Inside the CPU, hardware splits into two parts. Only one
-    of them can reach memory directly.}
+    {\small The buses are highways; the CPU is a \alert{factory}. It has a
+    \alert{receiving dock} (registers that face memory) and an
+    \alert{assembly line} (decoder, control unit, ALU).}
 
     \vspace{3mm}
     \begin{center}
@@ -1192,11 +1197,9 @@
     \end{center}
 
     \vspace{1mm}
-    {\small One line of C becomes three machine instructions. Every
-    register and operation from the last few slides gets a
-    \alert{job} to do. \texttt{LOAD}/\texttt{ADD}/\texttt{STORE} are
-    \alert{teaching instructions} for this generic model --- Chapter 5
-    gives the real Cortex-M4 ones: \texttt{LDR}, \texttt{ADD}, \texttt{STR}.}
+    {\small One line of C becomes three instructions. \texttt{LOAD}/\texttt{ADD}/\texttt{STORE}
+    are plain-English \alert{teaching instructions} that keep the focus
+    on the \alert{flow of data}. The real Cortex-M4 ones come at the end.}
 
     \vspace{2mm}
     \begin{columns}[T]
@@ -1326,7 +1329,7 @@
     \vspace{1mm}
     {\footnotesize\centering\textbf{State:} PC \texttt{0x1002} $\to$ \texttt{0x1004} \quad ACC \texttt{1} $\to$ \texttt{3}\par}
     \vspace{1mm}
-    {\footnotesize\centering\alert{Check yourself:} ACC holds \texttt{3}. What must happen for it to appear at \texttt{0x2004}?\par}
+    \checkit{ACC holds \texttt{3}. What must happen for it to appear at \texttt{0x2004}?}
 \end{frame}
 
 \begin{frame}[plain]{Executing \texttt{STORE 0x2004}}
@@ -1345,8 +1348,8 @@
 
 \begin{frame}{One Line, Three Levels: C, Assembly, Machine Code}
     \leavevmode
-    {\small The trace used teaching instructions. On the real Cortex-M4
-    the compiler turns the same C line into this:}
+    {\small The reveal: this is what the compiler really generates. The
+    data flow is exactly the same.}
 
     \vspace{2mm}
     \begin{center}
@@ -1381,6 +1384,108 @@
     \texttt{x}, \texttt{y}, \texttt{z}. The Cortex-M4 adds only
     \alert{registers}, so \texttt{y} needs its own load: one C line, four
     16-bit machine instructions. Chapters 5--7 explain each one.}
+\end{frame}
+
+\begin{frame}{From Source to Executable}
+    \begin{columns}[c]
+    \begin{column}{.46\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=10mm, y=10mm, every node/.append style={align=center},
+    tool/.style={blk, fill=ocre!14, draw=ocre!85!black, font=\sffamily\small\bfseries},
+    artefact/.style={blk, minimum width=21mm}]
+\node[artefact] (c)   at (0,4.2)   {C};
+\node[artefact] (asm) at (2.6,4.2) {Assembly};
+\node[tool] (comp) at (0,3.0)   {Compiler};
+\node[tool] (as)   at (2.6,3.0) {Assembler};
+\draw[flow] (c) -- (comp);
+\draw[flow] (asm) -- (as);
+\draw[flow] (comp) -- (as);
+
+\node[artefact] (o1)  at (0,1.8)   {Object};
+\node[artefact] (o2)  at (2.6,1.8) {Object};
+\node[artefact] (lib) at (5.2,1.8) {Libraries};
+\draw[flow] (comp) -- (o1);
+\draw[flow] (as) -- (o2);
+
+\node[tool] (link) at (2.6,0.5) {Linker};
+\draw[flow] (o1)  |- (1.35,0.5) -- (link.west);
+\draw[flow] (o2)  -- (link);
+\draw[flow] (lib) |- (3.85,0.5) -- (link.east);
+
+\node[artefact] (exe) at (2.6,-0.8) {Executable};
+\draw[flow] (link) -- (exe);
+
+\node[blk, fill=kikuchiba!20, draw=kikuchiba!85!black, minimum width=21mm] (sim) at (0.6,-2.2) {Simulator};
+\node[cpublk, minimum width=21mm] (prog) at (4.6,-2.2) {Programmer};
+\draw[flow] (exe) -| (sim);
+\draw[flow] (exe) -| (prog);
+\node[lbl, anchor=north] at (0.6,-2.72) {testing by\\simulation};
+\node[lbl, anchor=north] at (4.6,-2.72) {testing on\\real hardware};
+\end{tikzpicture}
+        }
+    \end{column}
+    \begin{column}{.52\textwidth}
+        {\small
+        \begin{description}\itemsep3pt
+            \item[Compiler] C $\rightarrow$ assembly or object code. A \alert{cross-compiler} runs on the host but emits Cortex-M4 instructions.
+            \item[Assembler] assembly $\rightarrow$ machine code (the table on the previous slide).
+            \item[Linker] combines objects and libraries and \alert{assigns each piece an address} in Flash or RAM.
+            \item[Executable] runs in a \alert{simulator} or is loaded onto \alert{real hardware} by a programmer.
+        \end{description}}
+        \vspace{1mm}
+        {\footnotesize An IDE bundles these steps behind one button, but they are still separate stages.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Two Computers: Host and Target}
+    \begin{columns}[c]
+    \begin{column}{.58\textwidth}
+        \centering
+        \resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=10mm, y=10mm]
+\node[blk, fill=ocre!12, draw=ocre, minimum width=30mm] (src) at (2.1,3.3) {Source files};
+\node[blk, minimum width=30mm] (cc)   at (2.1,1.9)  {Cross-compiler\\and linker};
+\node[blk, minimum width=30mm] (term) at (2.1,0.2)  {Serial port\\terminal};
+\node[blk, minimum width=30mm] (dbg)  at (2.1,-1.5) {Cross debugger};
+\draw[flow] (src) -- (cc);
+
+\node[blk, fill=kikuchiba!20, draw=kikuchiba!85!black, minimum width=30mm] (code) at (8.6,1.9)  {Code space};
+\node[blk, fill=kikuchiba!20, draw=kikuchiba!85!black, minimum width=30mm] (run)  at (8.6,0.2)  {Running software\\outputs messages};
+\node[blk, fill=kikuchiba!20, draw=kikuchiba!85!black, minimum width=30mm] (hw)   at (8.6,-1.5) {Hardware debug\\support};
+
+\draw[flow] (cc) -- node[lbl, above, inner sep=3pt] {load object code} (code);
+\draw[{Stealth[length=2mm]}-] (term.east) -- node[lbl, above, inner sep=3pt] {serial} (run.west);
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=blkline, thick]
+    (dbg.east) -- node[lbl, above, inner sep=3pt] {JTAG / SWD} (hw.west);
+
+\begin{scope}[on background layer]
+\node[draw=ocre!70, fill=ocre!6, dashed, thick, rounded corners=3pt,
+      fit=(src)(cc)(term)(dbg), inner sep=5mm] (host) {};
+\node[draw=kikuchiba!80!black, fill=kikuchiba!7, dashed, thick, rounded corners=3pt,
+      fit=(code)(run)(hw), inner sep=5mm] (tgt) {};
+\end{scope}
+\node[font=\sffamily\small\bfseries, text=ocre!70!black, anchor=south] at (host.north) {Host Computer};
+\node[font=\sffamily\small\bfseries, text=kikuchiba!60!black, anchor=south] at (tgt.north) {Target Processor};
+\end{tikzpicture}
+        }
+    \end{column}
+    \begin{column}{.40\textwidth}
+        {\small
+        You write and build code on the \alert{host} (your laptop). It
+        runs on the \alert{target} (the Cortex-M4), which speaks a
+        different machine language. Three links connect them:
+        \begin{enumerate}\itemsep3pt
+            \item \textbf{Programming}: object code goes into the target's Flash.
+            \item \textbf{Serial}: the running program reports back to a terminal.
+            \item \textbf{Debug} (JTAG/SWD): halt the CPU and inspect it.
+        \end{enumerate}}
+    \end{column}
+    \end{columns}
+
+    \vspace{2mm}
+    {\small On a Nucleo board the \alert{ST-LINK} provides all three over one USB cable.}
 \end{frame}
 
 %===============================================================================
@@ -1522,6 +1627,7 @@
 			Address bus & \texttt{0x40020014} & the address of \texttt{GPIOA->ODR} \\
 			Control bus & \texttt{READ} / \texttt{WRITE} & \texttt{LDR} reads the register, \texttt{STR} writes it back \\
 			Data bus    & the register's bits & \texttt{ODR} before, then with bit 5 set \\
+			ALU         & \texttt{ORR}        & sets bit 5 between the load and the store \\
 			\bottomrule
 		\end{tabular}}
 	\end{center}
@@ -1534,7 +1640,7 @@
 	\end{center}
 
 	\vspace{1mm}
-	{\footnotesize \alert{Check yourself:} why can the CPU turn on an LED
+	\checkit{why can the CPU turn on an LED
 	without an instruction called \texttt{TURN\_ON\_LED}?}
 \end{frame}
 
