@@ -235,7 +235,7 @@
 	\vspace{4mm}
 	{\small By the end of this chapter you will be able to explain
 	\alert{every arrow} in this chain. You do not need to understand
-	it yet.}
+	it yet: \alert{this is our roadmap}.}
 \end{frame}
 
 %===============================================================================
@@ -883,7 +883,8 @@
     \vspace{0mm}
     {\small \alert{Key idea:} each peripheral register has an address in the
     memory map. A read or write there reaches the register, not RAM ---
-    the peripheral answers.}
+    the peripheral answers. This is the exact mechanism that will turn on
+    the LED from slide~5.}
 
     \vspace{1mm}
     {\footnotesize \alert{Check yourself:} what determines whether a read reaches SRAM or a peripheral register?}
@@ -933,7 +934,7 @@
         {\small \texttt{STR R0, [R1]} drives a pin.}
 
         \vspace{1mm}
-        {\footnotesize Consequence: an LED turns on.}
+        {\footnotesize Consequence: the LED from our roadmap turns on.}
     \end{column}
     \end{columns}
 
@@ -1507,23 +1508,34 @@
 	\leavevmode
 	{\small The chain from the first slides, now with every stage explained:}
 
-	\vspace{2mm}
+	\vspace{1mm}
 	\causalchain{1}
 
-	\vspace{3mm}
+	\vspace{2mm}
+	\begin{center}
+		{\footnotesize
+		\striped
+		\begin{tabular}{@{}l l l@{}}
+			\toprule
+			\textbf{Bus} & \textbf{Carries} & \textbf{In our chain} \\
+			\midrule
+			Address bus & \texttt{0x40020014} & the address of \texttt{GPIOA->ODR} \\
+			Control bus & \texttt{READ} / \texttt{WRITE} & \texttt{LDR} reads the register, \texttt{STR} writes it back \\
+			Data bus    & the register's bits & \texttt{ODR} before, then with bit 5 set \\
+			\bottomrule
+		\end{tabular}}
+	\end{center}
+
+	\vspace{1mm}
 	\begin{center}
 		\fbox{\parbox{.78\textwidth}{\centering\vspace{1mm}
 				\large Turning on an LED is writing a number to an address.
 				\vspace{1mm}}}
 	\end{center}
 
-	\vspace{2mm}
-	{\small The CPU never knows what an LED is. It only executes
-	instructions and accesses addresses.
-
 	\vspace{1mm}
-	\alert{Check yourself:} why can the CPU turn on an LED without an
-	instruction called \texttt{TURN\_ON\_LED}?}
+	{\footnotesize \alert{Check yourself:} why can the CPU turn on an LED
+	without an instruction called \texttt{TURN\_ON\_LED}?}
 \end{frame}
 
 \begin{frame}{Summary and What's Next}
