@@ -40,6 +40,7 @@
 % ragged-right fixed-width column -- must be defined in the preamble, never
 % inside a frame (\newcolumntype's #1 breaks beamer's frame scanner)
 \newcolumntype{R}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Table striping: odd rows white, even rows very light gray.
 % Needs \documentclass[...,xcolor=table]{beamer} (beamer loads xcolor itself,
@@ -72,6 +73,33 @@
 \definecolor{bithitline}{HTML}{E65100}
 \definecolor{ocre}{RGB}{52,177,201}
 \definecolor{kikuchiba}{HTML}{e29c45}
+
+% Causal chain used on the Destination slide (#1=0, labels only) and the
+% Bookend slide (#1=1, with the stage explanations revealed).
+\newcommand{\causalchain}[1]{%
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[x=1mm, y=1mm]
+  \foreach \i/\sty/\ttl/\sub in {
+      0/blk/{C statement}/{set bit 5 of ODR},
+      1/blk/{Machine\\instructions}/{LDR $\cdot$ ORR $\cdot$ STR},
+      2/blk/{Memory-mapped\\register}/{GPIOA ODR},
+      3/blk/{GPIO\\hardware}/{output driver},
+      4/cpublk/{Pin PA5\\and LED}/{3.3\,V on PA5}}{
+    \node[\sty, minimum width=30mm, minimum height=16mm, align=center, font=\small\bfseries]
+        (c\i) at ({\i*38},0) {\ttl\\[-1pt]{\scriptsize\mdseries \sub}};
+  }
+  \foreach \a/\b in {0/1,1/2,2/3,3/4}{\draw[flow] (c\a) -- (c\b);}
+  \ifnum#1=1
+  \foreach \i/\txt in {
+      0/{The compiler\\translates it},
+      1/{Read, modify,\\write one address},
+      2/{An address that\\is not RAM},
+      3/{Latches the bit,\\drives the pin},
+      4/{Voltage lights\\the LED}}{
+    \node[lbl, align=center, anchor=north, font=\footnotesize] at ({\i*38},-10) {\txt};
+  }
+  \fi
+\end{tikzpicture}}}
 \tikzset{
   blk/.style   = {rectangle, rounded corners=2pt, draw=blkline, fill=blkfill,
                   thick, align=center, font=\small, minimum height=9mm, inner sep=3pt},
@@ -194,163 +222,122 @@
 \end{frame}
 
 \begin{frame}{The Destination}
-	\begin{columns}[c]
-		% ---- Left: text ----
-		\begin{column}{.40\textwidth}
-			Before we learn the vocabulary, let us first see where we
-			are going.
+	\leavevmode
+	{\small Before we learn the vocabulary, let us see where we are
+	going. One line of C changes a physical pin:}
 
-			\vspace{2mm}
-			By the end of this chapter, you will be able to explain
-			\alert{every arrow} in this chain. You do not need to
-			understand it yet.
-		\end{column}
-		% ---- Right: flowchart ----
-		\begin{column}{.56\textwidth}
-			\begin{center}
-				\begin{tikzpicture}[x=10mm, y=8.2mm]
-					\foreach \i/\nm in {
-						0/{C statement},
-						1/{Machine instructions},
-						2/{CPU},
-						3/{Memory-mapped register},
-						4/{GPIO hardware},
-						5/{PA5}}{
-						\pgfmathtruncatemacro{\isLast}{\i==5}
-						\ifnum\isLast=1
-						\node[cpublk, minimum width=48mm, minimum height=6.5mm] (n\i) at (0,{-\i*1.15}) {\nm};
-						\else
-						\node[blk, minimum width=48mm, minimum height=6.5mm] (n\i) at (0,{-\i*1.15}) {\nm};
-						\fi
-					}
-					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5}{\draw[flow] (n\a) -- (n\b);}
-					\node[cpublk, minimum width=48mm, minimum height=6.5mm] (led) at (0,-6.9) {LED};
-					\draw[flow] (n5) -- (led);
-				\end{tikzpicture}
-			\end{center}
-		\end{column}
-	\end{columns}
+	\vspace{2mm}
+	\begin{center}\texttt{GPIOA->ODR |= (1U <{}< 5);}\end{center}
+
+	\vspace{3mm}
+	\causalchain{0}
+
+	\vspace{4mm}
+	{\small By the end of this chapter you will be able to explain
+	\alert{every arrow} in this chain. You do not need to understand
+	it yet.}
 \end{frame}
 
 %===============================================================================
 \section{Embedded Systems}
 %===============================================================================
 
-\begin{frame}{What Is a Computer?}
-    \leavevmode
-    {\small Every stored-program computer, since the earliest ones,
-    has had the same four components.}
+\begin{frame}{Components of the Computer}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Since 1946 all computers have had 4 components:
+            \end{itemize}
+            \begin{tabular}{r L{37mm}}
+            \\
+                \alert{Processor} & controls the system \\ \\
+                \alert{Memory} & contains program and data \\ \\
+                \alert{Input} & devices that get data from the outside world into the computer \\ \\
+                \alert{Output} & devices that present computation results to the outside world \\ \\
+%                \alert{Bus} & links them all \\
+            \end{tabular}
 
-    \vspace{2mm}
-    \begin{center}
-    \begin{tikzpicture}[x=9mm, y=8mm]
-        \node[cpublk, minimum width=28mm, minimum height=16mm] (cpu) at (0,0) {\small Central\\Processing\\Unit};
-        \node[blk,    minimum width=20mm, minimum height=9mm]  (in)  at (-5.6,0)  {\small Input\\Device};
-        \node[blk,    minimum width=20mm, minimum height=9mm]  (out) at (5.6,0)   {\small Output\\Device};
-        \node[memblk, minimum width=20mm, minimum height=9mm]  (mem) at (0,-2.8)  {\small Memory};
-
-        \draw[flow] (in)  -- (cpu.west);
-        \draw[flow] (cpu.east) -- (out);
-        \draw[flow] ([xshift=-4mm]cpu.south) -- ([xshift=-4mm]mem.north);
-        \draw[flow] ([xshift=4mm]mem.north)  -- ([xshift=4mm]cpu.south);
-
-        \node[lbl, anchor=south] at (-2.8,0.25) {data in};
-        \node[lbl, anchor=south] at (2.8,0.25)  {results out};
-        \node[lbl, anchor=east]  at (-0.55,-1.5) {read};
-        \node[lbl, anchor=west]  at (0.55,-1.5)  {write};
-    \end{tikzpicture}
-    \end{center}
-
-    \vspace{2mm}
-    \begin{block}{Computer}
-        A complete system that \alert{processes}, \alert{stores}, and
-        \alert{moves} data, and exerts \alert{control}, all under the
-        guidance of a program. It has a processor, memory, and
-        input/output (I/O) peripherals.
-    \end{block}
-\end{frame}
-
-\begin{frame}{The Four Basic Functions of a Computer}
-        \begin{center}
-	% Radial mind map, not a ranked list: the four functions carry no
-	% fixed priority over one another, so they branch outward from the
-	% CPU at four different angles instead of stacking top to bottom.
-	\begin{tikzpicture}[x=1mm,y=1mm]
-		% Top level
-		\node[cpublk, minimum width=17mm, minimum height=12mm] (cpu) at (0,20) {\small CPU};
-		% Second level
-		\node[blk, minimum width=22mm, minimum height=8mm, align=center] (stor) at (-45,0) {\scriptsize Data\\[-1pt]Storage}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (ctrl) at (-15,0) {\scriptsize Control}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (proc) at (15,0) {\scriptsize Data\\[-1pt]Processing}; \node[blk, minimum width=22mm, minimum height=8mm, align=center] (move) at (45,0) {\scriptsize Data\\[-1pt]Movement};
-		% Connections
-		\draw[flow] (cpu) -- (stor); \draw[flow] (cpu) -- (ctrl); \draw[flow] (cpu) -- (proc); \draw[flow] (cpu) -- (move);
-	\end{tikzpicture}
-\vspace{3mm}
-        {\small
-	\begin{itemize}\itemsep3pt
-		\item \textbf{Data Processing} --- arithmetic and logical
-		operations on data
-		\item \textbf{Data Storage} --- keeping program and data
-		in memory, short- or long-term
-		\item \textbf{Data Movement} --- transferring data
-		between CPU, memory, and I/O
-		\item \textbf{Control} --- sequencing and timing every
-		other operation correctly
-\end{itemize}}
-\end{center}
-%    \begin{columns}[c]
-%    \begin{column}{.46\textwidth}
-%    \end{column}
-%    \begin{column}{.46\textwidth}
-%    \end{column}
-%    \end{columns}
-\end{frame}
-
-\begin{frame}{Classifying Computers by Numbers}
-    \begin{columns}[c]
-    \begin{column}{.42\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=6mm]
-            % Box WIDTH and HEIGHT both scale with how many of each kind
-            % exist --- the opposite of physical size. A server is
-            % physically the largest machine here, but there are the
-            % fewest of them. Embedded's box height is roughly double
-            % Server's, to exaggerate the count difference.
-            \node[cpublk, minimum width=16mm, minimum height=6mm]  (srv) at (0,5.2)  {\scriptsize Server};
-            \node[blk,    minimum width=27mm, minimum height=8mm]  (per) at (0,2.9)  {\scriptsize Personal computer};
-            \node[blk,    minimum width=38mm, minimum height=10mm] (mob) at (0,0.3)  {\scriptsize Mobile device};
-            \node[memblk, minimum width=50mm, minimum height=12mm] (emb) at (0,-2.7) {\scriptsize Embedded system};
-
-            \draw[flow] (srv) -- (per);
-            \draw[flow] (per) -- (mob);
-            \draw[flow] (mob) -- (emb);
-        \end{tikzpicture}
-        \end{center}
-    \end{column}
-    \begin{column}{.54\textwidth}
-        {\footnotesize
-        \begin{itemize}\itemsep2pt
-            \item \textbf{Server} --- fewest units; shared by
-                  thousands of users at once
-            \item \textbf{Personal computer} --- one per desk
-            \item \textbf{Mobile device} --- one or more per person
-            \item \textbf{Embedded system} --- dozens per person,
-                  hidden inside everyday products
-        \end{itemize}}
-
-        \vspace{3mm}
-        \begin{block}{Box size is the count, not the physical size}
-            {\footnotesize A server is physically the \alert{largest}
-            machine here, but there are the \alert{fewest} of them.
-            An embedded system is tiny, but outnumbers every other
-            kind \alert{combined}.}
-        \end{block}
-    \end{column}
+            \vspace{2mm}
+            {\small Together they perform four functions: data \alert{processing}, \alert{storage}, \alert{movement}, and \alert{control}.}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+             \includegraphics[width=\textwidth]{assets/basic-computer.pdf}
+        \end{column}
     \end{columns}
 \end{frame}
 
+\begin{frame}{What Is the CPU?}
+    \begin{itemize}\itemsep6pt
+        \item The CPU is the \alert{brain} of the computer. It works by
+              executing a \alert{program}.
+        \item \textbf{Program}: a sequence of instructions that performs
+              a task.
+            \begin{itemize}
+                \item Think of running a program like \alert{playing music}.
+            \end{itemize}
+        \item \textbf{Instruction}: a binary code for the simplest
+              operation the processor can perform.
+            \begin{itemize}
+                \item Think of each instruction as \alert{one note}.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Memory}
+    \begin{itemize}\itemsep6pt
+        \item Memory is a $k \times m$ array of stored bits
+              ($k$ is usually $2^n$).
+            \begin{description}
+                \item[Address] unique $n$-bit identifier of a location
+                \item[Contents] $m$-bit value stored in that location
+            \end{description}
+        \item Two basic operations:
+            \begin{description}
+                \item[Read] get the value from a memory location
+                \item[Write] put a value into a memory location
+            \end{description}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Memory: ROM and RAM}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \textbf{ROM --- non-volatile}
+        \begin{itemize}\itemsep1pt
+            \item Contents survive with \alert{no power}
+            \item Holds the program: fixed at manufacture, or
+                  ``burned'' with a programmer
+            \item \textbf{Flash} is the dominant type: NAND or NOR
+            \item STM32 devices use \alert{NOR flash} for code
+        \end{itemize}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \textbf{RAM --- volatile}
+        \begin{itemize}\itemsep1pt
+            \item Contents \alert{lost} without power
+            \item Holds temporary data: variables, the stack
+            \item \textbf{SRAM}: fast, every embedded system has it
+            \item \textbf{DRAM}: cheaper, needs refresh; only larger
+                  systems bother
+        \end{itemize}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    \begin{block}{On the Nucleo-F446RE}
+        \textbf{512\,KB Flash} holds your program. \textbf{128\,KB
+        SRAM} holds your variables and stack. Chapter~3 returns to
+        this split in detail.
+    \end{block}
+\end{frame}
+
+
 \begin{frame}{What Makes a System Embedded}
     \leavevmode
-    {\small Every machine on the last slide is still just a computer:
-    processor, memory, I/O. The difference is \alert{what the
+    {\small Every computer, from server to thermostat, is processor,
+    memory, and I/O. Embedded systems outnumber every other kind
+    \alert{combined}: dozens per person, hidden inside everyday
+    products. The difference is \alert{what the
     processor is for}. A general-purpose computer is built to run
     whatever the user installs next. An embedded system is built into
     a product to perform one job.}
@@ -420,34 +407,37 @@
     system (BMS), and many more.\par}
 \end{frame}
 
+%===============================================================================
+\section{Microprocessor vs Microcontroller}
+%===============================================================================
+
 \begin{frame}{SWaP-C}{The constraints that bind}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l l l@{}}
-        \toprule
-        \textbf{Constraint} & \textbf{Why it binds} & \textbf{What it forces} \\
-        \midrule
-        \textbf{S}ize    & Fits inside the product it controls & Package, pin count, board area \\
-        \textbf{W}eight  & Portable, airborne, wearable        & Battery size, materials \\
-        \textbf{a}nd     &                                     & \\
-        \textbf{P}ower   & Battery life, thermal budget        & Clock speed, sleep modes, duty cycle \\
-        \textbf{C}ost    & Multiplied by production volume     & Part choice, external components \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
+	\begin{center}
+		{\small
+			\striped
+			\begin{tabular}{@{}l l l@{}}
+				\toprule
+				\textbf{Constraint} & \textbf{Why it binds} & \textbf{What it forces} \\
+				\midrule
+				\textbf{S}ize    & Fits inside the product it controls & Package, pin count, board area \\
+				\textbf{W}eight  & Portable, airborne, wearable        & Battery size, materials \\
+				\textbf{a}nd     &                                     & \\
+				\textbf{P}ower   & Battery life, thermal budget        & Clock speed, sleep modes, duty cycle \\
+				\textbf{C}ost    & Multiplied by production volume     & Part choice, external components \\
+				\bottomrule
+		\end{tabular}}
+	\end{center}
 
-    \vspace{3mm}
-    \begin{block}{Cost is multiplied, not added}
-        Saving RM0.50 on one part looks trivial. But at 500{,}000
-        units, that saving becomes \alert{RM250{,}000}. This is why
-        embedded engineers argue about single resistors.
-    \end{block}
+	\vspace{3mm}
+	\begin{block}{Cost is multiplied, not added}
+		Saving RM0.50 on one part looks trivial. But at 500{,}000
+		units, that saving becomes \alert{RM250{,}000}. This is why
+		embedded engineers argue about single resistors.
+	\end{block}
+
+	\vspace{1mm}
+	{\footnotesize \alert{Check yourself:} why might a washing machine use a microcontroller rather than a general-purpose PC?}
 \end{frame}
-
-%===============================================================================
-\section{Inside the Computer}
-%===============================================================================
 
 \begin{frame}{Microprocessor and Microcontroller}
 	\leavevmode
@@ -487,90 +477,65 @@
 \end{frame}
 
 
-\begin{frame}{The First Microprocessor}
-    \begin{columns}[c]
-    \begin{column}{.42\textwidth}
-        \begin{center}
-        \includegraphics[width=.5\textwidth]{assets/intel_4004.png}
-        \end{center}
-    \end{column}
-    \begin{column}{.54\textwidth}
-        {\small The first commercially produced microprocessor was
-        the \textbf{Intel 4004} (1971) --- a complete 4-bit CPU on
-        one chip. Every processor in this book descends from that
-        idea, scaled up over five decades.}
 
-        \vspace{3mm}
-        {\scriptsize\color{Gray!80} Image: Wikimedia Commons.}
-    \end{column}
-    \end{columns}
+\begin{frame}{Where the Chip Boundary Falls}
+	\leavevmode
+	\begin{center}
+	\resizebox{.78\textwidth}{!}{%
+	\begin{tikzpicture}[x=1mm, y=1mm]
+		% ---- microprocessor: only the CPU is on the chip ----
+		\node[font=\small\bfseries] at (35,52) {Microprocessor ($\mu$P)};
+		\node[draw=accentline, dashed, thick, rounded corners, minimum width=30mm, minimum height=22mm] at (35,38) {};
+		\node[cpublk, minimum width=22mm, minimum height=10mm] (cpu1) at (35,38) {CPU};
+		\node[font=\scriptsize, text=Gray] at (35,48.5) {the chip};
+		\node[memblk, minimum width=20mm, minimum height=9mm] (ram1) at (8,10)  {RAM};
+		\node[memblk, minimum width=20mm, minimum height=9mm] (rom1) at (35,10) {ROM};
+		\node[blk,    minimum width=20mm, minimum height=9mm] (io1)  at (62,10) {I/O};
+		\foreach \d in {ram1,rom1,io1}{\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick, dashed, draw=accentline] (cpu1.south) -- (\d.north);}
+		\node[font=\scriptsize, text=accentline, align=center] at (35,-2) {separate chips, wired on the board};
+
+		% ---- microcontroller: everything is on one chip ----
+		\node[font=\small\bfseries] at (118,52) {Microcontroller ($\mu$C)};
+		\node[draw=blkline, thick, rounded corners, minimum width=62mm, minimum height=45mm] at (118,28) {};
+		\node[font=\scriptsize, text=Gray] at (118,48.5) {one chip};
+		\node[cpublk, minimum width=22mm, minimum height=9mm] (cpu2) at (118,38) {CPU};
+		\node[memblk, minimum width=17mm, minimum height=8mm] (ram2) at (100,20) {SRAM};
+		\node[memblk, minimum width=17mm, minimum height=8mm] (rom2) at (118,20) {Flash};
+		\node[blk,    minimum width=17mm, minimum height=8mm] (io2)  at (136,20) {I/O};
+		\foreach \d in {ram2,rom2,io2}{\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick, draw=blkline] (cpu2.south) -- (\d.north);}
+		\draw[flow] (io2.south) -- (136,-4) node[below, font=\scriptsize, text=blkline] {sensors, LEDs};
+		\node[font=\scriptsize, text=blkline, align=center] at (105,-2) {everything inside one package};
+	\end{tikzpicture}}
+	\end{center}
+
+	\vspace{0mm}
+	{\small A microprocessor needs memory and I/O added around it. A
+	microcontroller brings them \alert{on the chip}: fewer parts, a
+	smaller board, a lower cost.}
 \end{frame}
 
-\begin{frame}{Memory: ROM and RAM}
-    \begin{columns}[T]
-    \begin{column}{.48\textwidth}
-        \textbf{ROM --- non-volatile}
-        \begin{itemize}\itemsep1pt
-            \item Contents survive with \alert{no power}
-            \item Holds the program: fixed at manufacture, or
-                  ``burned'' with a programmer
-            \item \textbf{Flash} is the dominant type: NAND or NOR
-            \item STM32 devices use \alert{NOR flash} for code
-        \end{itemize}
-    \end{column}
-    \begin{column}{.48\textwidth}
-        \textbf{RAM --- volatile}
-        \begin{itemize}\itemsep1pt
-            \item Contents \alert{lost} without power
-            \item Holds temporary data: variables, the stack
-            \item \textbf{SRAM}: fast, every embedded system has it
-            \item \textbf{DRAM}: cheaper, needs refresh; only larger
-                  systems bother
-        \end{itemize}
-    \end{column}
-    \end{columns}
-
-    \vspace{3mm}
-    \begin{block}{On the Nucleo-F446RE}
-        \textbf{512\,KB Flash} holds your program. \textbf{128\,KB
-        SRAM} holds your variables and stack. Chapter~3 returns to
-        this split in detail.
-    \end{block}
-\end{frame}
-
-\begin{frame}{Machine Code and Assembly Language}
+\begin{frame}{Every Embedded System Is Still a Computer}
     \leavevmode
-    {\small Step 1 of fetch--decode--execute reads a ``machine code
-    instruction.'' What is that, really?}
+    {\small To understand how firmware controls hardware, we must
+    first understand how a computer moves and processes information
+    internally.}
 
-    \vspace{2mm}
-    \begin{columns}[T]
-    \begin{column}{.48\textwidth}
-        \begin{block}{Machine language}
-            {\small The lowest level. A bit pattern, such as
-            \texttt{0001 1011}, that the Decoder is built to
-            interpret. This is the \alert{only} language the CPU
-            itself understands.}
-        \end{block}
-    \end{column}
-    \begin{column}{.48\textwidth}
-        \begin{block}{Assembly language}
-            {\small A human-readable \alert{mnemonic} per
-            instruction --- \texttt{MOV}, \texttt{ADD}, \texttt{MUL}
-            --- translated to machine code by an \textbf{assembler}.
-            One line in, one instruction out.}
-        \end{block}
-    \end{column}
-    \end{columns}
+    \vspace{5mm}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=8mm]
+        \node[blk,    minimum width=50mm, minimum height=8mm] (es)  at (0, 0) {Embedded System};
+        \node[blk,    minimum width=50mm, minimum height=8mm] (mc)  at (0,-1.4) {Microcontroller};
+        \node[cpublk, minimum width=50mm, minimum height=8mm] (cpu) at (0,-2.8) {CPU \,$+$\, Memory \,$+$\, I/O};
+        \node[memblk, minimum width=50mm, minimum height=8mm] (q)   at (0,-4.3) {\emph{How do these parts work together?}};
+        \draw[flow] (es)  -- (mc);
+        \draw[flow] (mc)  -- (cpu);
+        \draw[flow] (cpu) -- (q);
+    \end{tikzpicture}
+    \end{center}
 
     \vspace{3mm}
-    {\small A \textbf{cross assembler} runs on one computer (your PC)
-    and generates machine code for a different one (the Cortex-M4)
-    --- the normal situation in embedded development.}
-
-    \vspace{2mm}
-    {\small Chapter 5 returns to assembly language in depth, once the
-    Cortex-M4's own registers and instructions are in place.}
+    {\small The next sections open the microcontroller: buses,
+    memory, and the CPU itself.}
 \end{frame}
 
 \begin{frame}{Zooming In: From System to Operation}
@@ -678,8 +643,57 @@
 
     \vspace{4mm}
     {\footnotesize \textbf{You already know this:} an address feeds a \alert{decoder}, like your 3-to-8 decoder, just at a larger scale.}
+
+    \vspace{1mm}
+    {\footnotesize \emph{A simplified model: the Cortex-M4 implements these as a bus matrix with several buses. The three-bus picture is the idea behind them.}}
 \end{frame}
 
+
+\begin{frame}{The Address Bus}
+    \begin{itemize}\itemsep4pt
+        \item The address bus carries the address of the memory location
+              or I/O device selected for a transfer.
+        \item Its \alert{width} sets the addressing range: an $n$-bit
+              address bus reaches $2^n$ locations.
+    \end{itemize}
+
+    \vspace{3mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l c r@{}}
+        \toprule
+        \textbf{CPU} & \textbf{Address bus width} & \textbf{Addressable memory} \\
+        \midrule
+        8051   & 16 bits & $2^{16}$ = 65,536 bytes = 64\,KB \\
+        8086   & 20 bits & $2^{20}$ = 1,048,576 bytes = 1\,MB \\
+        68000  & 24 bits & $2^{24}$ = 16,777,216 bytes = 16\,MB \\
+        ARM Cortex-M4 & 32 bits & $2^{32}$ = 4,294,967,296 bytes = \alert{4\,GB} \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+\end{frame}
+
+\begin{frame}{The Data Bus}
+    \begin{itemize}\itemsep4pt
+        \item The width of the data bus sets how much data moves in
+              \alert{one transfer}.
+        \item Classic 8-bit microcontrollers have an 8-bit data bus.
+            \begin{itemize}
+                \item It moves 1 byte at a time.
+                \item A 32-bit word therefore takes 4 transfers.
+            \end{itemize}
+        \item The ARM Cortex-M4 has a 32-bit data bus.
+            \begin{itemize}
+                \item It moves 4 bytes at once, so a 32-bit word takes 1 transfer.
+            \end{itemize}
+        \item Some chips offer an external bus of selectable width
+              (8, 16 or 32 bits).
+            \begin{itemize}
+                \item A narrower bus is slower, but lets you use cheaper memory devices.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
 
 \begin{frame}{Using the Buses: Fetching an Instruction}
     \leavevmode
@@ -710,56 +724,44 @@
 \end{frame}
 
 
-\begin{frame}{Memory Organization: a $2^k \times m$ Array}
+\begin{frame}{Memory Organization: Addresses and Contents}
     \leavevmode
-    {\small Physically, memory is an array of $2^k$ locations, each $m$ bits wide.}
+    {\small Memory is a list of numbered cells. Each cell has an
+    \alert{address} and holds a value.}
 
-    \vspace{2mm}
-    \begin{center}
-    \resizebox{0.62\textwidth}{!}{%
-\begin{tikzpicture}[x=10mm, y=10mm, every node/.append style={align=center}]
-% the memory array itself
-\node[blk, fill=kikuchiba!18, draw=kikuchiba!85!black,
-      minimum width=32mm, minimum height=30mm] (mem) at (0,0)
-     {$2^k \times m$\\memory};
-
-% address lines in: one way, teal -- the same coding as the address bus earlier
-\draw[flow, draw=ocre!85!black, line width=1.1pt] (-3.5,0) -- (mem.west);
-\node[lbl, anchor=east, text=ocre!75!black, text width=22mm] at (-3.62,0)
-     {$k$ address lines};
-\node[lbl, anchor=south, text=ocre!70!black, font=\sffamily\scriptsize\itshape] at (-2.55,0.14)
-     {selects one\\location};
-
-% data lines: both ways, orange -- matching the data bus
-\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black,
-      line width=1.1pt] (mem.east) -- (3.5,0);
-\node[lbl, anchor=west, text=kikuchiba!60!black, text width=22mm] at (3.62,0)
-     {$m$ data lines};
-\node[lbl, anchor=south, text=kikuchiba!60!black, font=\sffamily\scriptsize\itshape] at (2.55,0.14)
-     {carries its\\contents};
-
-% the two numbers that define the array
-\node[lbl, anchor=south] at (0,1.72) {$2^k$ locations};
-\draw[draw=black!45, decorate, decoration={brace, amplitude=3pt}]
-    (-1.6,1.62) -- (1.6,1.62);
-\node[lbl, anchor=north] at (0,-1.72) {each $m$ bits wide};
-\draw[draw=black!45, decorate, decoration={brace, amplitude=3pt, mirror}]
-    (-1.6,-1.62) -- (1.6,-1.62);
-\end{tikzpicture}
-    }
-    \end{center}
-
-    \vspace{2mm}
-    \begin{block}{Reading the array}
+    \vspace{3mm}
+    \begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+        \centering
         {\small
-        \begin{itemize}\itemsep0pt
-            \item $k$ address lines select \alert{one of $2^k$} locations.
-            \item $m$ data lines carry the \alert{$m$-bit word} stored there.
-            \item Logically, a long numbered list: addresses $0$ through $2^k - 1$, written in hexadecimal.
+        \begin{tabular}{@{}c c@{}}
+            \toprule
+            \textbf{Address} & \textbf{Contents} \\
+            \midrule
+            \texttt{0x0000} & \texttt{3A} \\
+            \texttt{0x0001} & \texttt{F2} \\
+            \texttt{0x0002} & \texttt{17} \\
+            \texttt{0x0003} & \texttt{90} \\
+            \texttt{\ldots} & \texttt{\ldots} \\
+            \bottomrule
+        \end{tabular}}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+        {\small
+        \begin{itemize}\itemsep5pt
+            \item The \alert{address bus} selects one row.
+            \item The \alert{data bus} carries the contents of that row.
+            \item With $n$ address bits, memory has $2^n$ rows; each
+                  row is $m$ bits wide.
         \end{itemize}}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    \begin{block}{The addresses are the same, whether the row holds RAM, Flash or a peripheral register}
+        {\small That is the single fact that makes memory-mapped I/O work.}
     \end{block}
 \end{frame}
-
 
 \begin{frame}{Accessing Memory: Read versus Write}
     \leavevmode
@@ -817,6 +819,9 @@
 
     \vspace{1mm}
     {\small \alert{Same address, same control, opposite data:} on a read the memory drives the data bus; on a write the CPU does.}
+
+    \vspace{1mm}
+    {\footnotesize \alert{Check yourself:} the CPU puts \texttt{0x2000} on the address bus and requests a read. Which bus carries the stored value back?}
 \end{frame}
 
 
@@ -855,6 +860,69 @@
     {\small \alert{Key idea:} each peripheral register has an address in the
     memory map. A read or write there reaches the register, not RAM ---
     the peripheral answers.}
+
+    \vspace{1mm}
+    {\footnotesize \alert{Check yourself:} what determines whether a read reaches SRAM or a peripheral register?}
+\end{frame}
+
+
+\begin{frame}{Same Transaction, Different Destination}
+    \leavevmode
+    {\small The CPU uses the \alert{same instruction} for RAM and for a peripheral.
+    Only the address differs.}
+
+    \vspace{3mm}
+    \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+        \centering
+        {\bfseries\color{memline} Read RAM}
+
+        \vspace{2mm}
+        \resizebox{.94\linewidth}{!}{%
+        \begin{tikzpicture}[x=1mm, y=1mm]
+            \node[cpublk, minimum width=18mm, minimum height=12mm] (cpu) at (0,0) {CPU};
+            \node[memblk, minimum width=22mm, minimum height=12mm] (dst) at (44,0) {SRAM};
+            \draw[-{Stealth[length=2.5mm]}, thick, draw=memline]
+                (cpu.east) -- node[above, font=\scriptsize]{\texttt{0x2000\,0000}} (dst.west);
+        \end{tikzpicture}}
+
+        \vspace{2mm}
+        {\small \texttt{LDR R0, [R1]} returns the stored data.}
+
+        \vspace{1mm}
+        {\footnotesize Consequence: a value in memory moves into a register.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+        \centering
+        {\bfseries\color{accentline} Write GPIO}
+
+        \vspace{2mm}
+        \resizebox{.94\linewidth}{!}{%
+        \begin{tikzpicture}[x=1mm, y=1mm]
+            \node[cpublk, minimum width=18mm, minimum height=12mm] (cpu) at (0,0) {CPU};
+            \node[blk, fill=accentfill, draw=accentline, minimum width=22mm, minimum height=12mm] (dst) at (44,0) {GPIOA ODR};
+            \draw[-{Stealth[length=2.5mm]}, thick, draw=accentline]
+                (cpu.east) -- node[above, font=\scriptsize]{\texttt{0x4002\,0014}} (dst.west);
+        \end{tikzpicture}}
+
+        \vspace{2mm}
+        {\small \texttt{STR R0, [R1]} drives a pin.}
+
+        \vspace{1mm}
+        {\footnotesize Consequence: an LED turns on.}
+    \end{column}
+    \end{columns}
+
+    \vspace{4mm}
+    \begin{center}
+        \fbox{\parbox{.75\textwidth}{\centering\vspace{1mm}
+            \alert{Same bus transaction. Different destination. Different consequence.}
+            \vspace{1mm}}}
+    \end{center}
+
+    \vspace{1mm}
+    {\footnotesize Peripherals need \alert{no special instructions} ---
+    the address alone selects what the \texttt{LDR}/\texttt{STR} reaches.}
 \end{frame}
 
 %===============================================================================
@@ -886,10 +954,11 @@
 
     \vspace{3mm}
     \begin{block}{The rule that shapes everything else}
-        \alert{Only the registers touch memory.} The decoder, control
-        unit, and ALU have \alert{no direct memory access} of their
-        own --- everything they need must first be fetched into a
-        register.
+        In this generic teaching CPU, \alert{only the registers touch memory.}
+        The decoder, control unit, and ALU have \alert{no direct memory
+        access} of their own --- everything they need must first be
+        fetched into a register. Chapter 2 introduces the real
+        Cortex-M4 registers.
     \end{block}
 \end{frame}
 
@@ -1011,6 +1080,8 @@
 				\item \alert{After} the operation, it receives the result.
 				\item The dashed arrow shows why this matters: a result can become
 				the next operand, without ever leaving the CPU.
+				\item \emph{In this simplified model.} The Cortex-M4 has no dedicated
+				accumulator: any general-purpose register can play this role.
 			\end{itemize}
 		\end{column}
 
@@ -1048,6 +1119,38 @@
 %===============================================================================
 \section{Execution Cycle and Program Trace}
 %===============================================================================
+
+\begin{frame}{The CPU Has an Instruction. Now What?}
+    \leavevmode
+    \begin{center}
+    \fbox{\parbox{.8\textwidth}{\centering\vspace{2mm}
+    The CPU has fetched an instruction. What does it actually do with it?
+    \vspace{2mm}}}
+    \end{center}
+
+    \vspace{4mm}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm]
+        \node[cpublk, minimum width=26mm, minimum height=12mm] (f) at (0,0)   {Fetch};
+        \node[blk,    minimum width=26mm, minimum height=12mm] (d) at (4.2,0) {Decode};
+        \node[memblk, minimum width=26mm, minimum height=12mm] (e) at (8.4,0) {Execute};
+        \draw[flow] (f) -- (d);
+        \draw[flow] (d) -- (e);
+        \draw[flow] (e.south) -- (8.4,-1.4) -- (0,-1.4) -- (f.south);
+        \node[lbl, anchor=north] at (4.2,-1.45) {repeat, forever};
+        \node[lbl, anchor=north, align=center] at (0,-0.75)   {What instruction?\\read from memory};
+        \node[lbl, anchor=north, align=center] at (4.2,-0.75) {What does it mean?\\interpret the bit pattern};
+        \node[lbl, anchor=north, align=center] at (8.4,-0.75) {What must happen?\\perform the action};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    {\small This is a finite state machine, driven by the clock. You
+    built FSMs in digital electronics. \alert{A CPU is the largest one
+    you have met so far.} The loop never stops while the machine has
+    power. This is why an embedded program's \texttt{main()} is an
+    infinite loop \emph{by design}.}
+\end{frame}
 
 \begin{frame}{One Line of C, Traced in Hardware}
     \leavevmode
@@ -1137,41 +1240,44 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{The CPU Has an Instruction. Now What?}
+\begin{frame}{Machine Code and Assembly Language}
     \leavevmode
-    \begin{center}
-    \fbox{\parbox{.8\textwidth}{\centering\vspace{2mm}
-    The CPU has fetched an instruction. What does it actually do with it?
-    \vspace{2mm}}}
-    \end{center}
-
-    \vspace{4mm}
-    \begin{center}
-    \begin{tikzpicture}[x=10mm, y=10mm]
-        \node[cpublk, minimum width=26mm, minimum height=12mm] (f) at (0,0)   {Fetch};
-        \node[blk,    minimum width=26mm, minimum height=12mm] (d) at (4.2,0) {Decode};
-        \node[memblk, minimum width=26mm, minimum height=12mm] (e) at (8.4,0) {Execute};
-        \draw[flow] (f) -- (d);
-        \draw[flow] (d) -- (e);
-        \draw[flow] (e.south) -- (8.4,-1.4) -- (0,-1.4) -- (f.south);
-        \node[lbl, anchor=north] at (4.2,-1.45) {repeat, forever};
-        \node[lbl, anchor=north, align=center] at (0,-0.75)   {What instruction?\\read from memory};
-        \node[lbl, anchor=north, align=center] at (4.2,-0.75) {What does it mean?\\interpret the bit pattern};
-        \node[lbl, anchor=north, align=center] at (8.4,-0.75) {What must happen?\\perform the action};
-    \end{tikzpicture}
-    \end{center}
+    {\small Step 1 of fetch--decode--execute reads a ``machine code
+    instruction.'' What is that, really?}
 
     \vspace{2mm}
-    {\small This is a finite state machine, driven by the clock. You
-    built FSMs in digital electronics. \alert{A CPU is the largest one
-    you have met so far.} The loop never stops while the machine has
-    power. This is why an embedded program's \texttt{main()} is an
-    infinite loop \emph{by design}.}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{block}{Machine language}
+            {\small The lowest level. A bit pattern, such as
+            \texttt{0001 1011}, that the Decoder is built to
+            interpret. This is the \alert{only} language the CPU
+            itself understands.}
+        \end{block}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{block}{Assembly language}
+            {\small A human-readable \alert{mnemonic} per
+            instruction --- \texttt{MOV}, \texttt{ADD}, \texttt{MUL}
+            --- translated to machine code by an \textbf{assembler}.
+            One line in, one instruction out.}
+        \end{block}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    {\small A \textbf{cross assembler} runs on one computer (your PC)
+    and generates machine code for a different one (the Cortex-M4)
+    --- the normal situation in embedded development.}
+
+    \vspace{2mm}
+    {\small Chapter 5 returns to assembly language in depth, once the
+    Cortex-M4's own registers and instructions are in place.}
 \end{frame}
 
 \begin{frame}[plain]{Executing \texttt{LOAD 0x2000}}
     \begin{center}
-    \includegraphics[width=.82\textwidth, height=.74\textheight, keepaspectratio]%
+    \includegraphics[width=.82\textwidth, height=.64\textheight, keepaspectratio]%
         {assets/cpu_load.pdf}
     \end{center}
     \vspace{1mm}
@@ -1179,22 +1285,28 @@
     reaches the Accumulator. This answers questions 1--3 of the trace.
     Note step \textbf{6}: the \alert{PC increases during decode}, not
     after execute.\par}
+    \vspace{1mm}
+    {\footnotesize\centering\textbf{State:} PC \texttt{0x1000} $\to$ \texttt{0x1002} \quad ACC \texttt{?} $\to$ \texttt{1}\par}
 \end{frame}
 
 \begin{frame}[plain]{Executing \texttt{ADD 0x2002}}
     \begin{center}
-    \includegraphics[width=.82\textwidth, height=.74\textheight, keepaspectratio]%
+    \includegraphics[width=.82\textwidth, height=.64\textheight, keepaspectratio]%
         {assets/cpu_add.pdf}
     \end{center}
     \vspace{1mm}
     {\small\centering The value \texttt{2} is fetched, and the
     \alert{ALU} adds it to the Accumulator. The Accumulator becomes
     \texttt{3}. This answers questions 4 and 5.\par}
+    \vspace{1mm}
+    {\footnotesize\centering\textbf{State:} PC \texttt{0x1002} $\to$ \texttt{0x1004} \quad ACC \texttt{1} $\to$ \texttt{3}\par}
+    \vspace{1mm}
+    {\footnotesize\centering\alert{Check yourself:} ACC holds \texttt{3}. What must happen for it to appear at \texttt{0x2004}?\par}
 \end{frame}
 
 \begin{frame}[plain]{Executing \texttt{STORE 0x2004}}
     \begin{center}
-    \includegraphics[width=.82\textwidth, height=.74\textheight, keepaspectratio]%
+    \includegraphics[width=.82\textwidth, height=.64\textheight, keepaspectratio]%
         {assets/cpu_store.pdf}
     \end{center}
     \vspace{1mm}
@@ -1202,6 +1314,48 @@
     \texttt{0x2004}. This answers question 6. The program is now
     complete: three instructions, each made of several internal
     operations.\par}
+    \vspace{1mm}
+    {\footnotesize\centering\textbf{State:} PC \texttt{0x1004} $\to$ \texttt{0x1006} \quad ACC stays \texttt{3} \quad memory[\texttt{0x2004}] $=$ \texttt{3}\par}
+\end{frame}
+
+\begin{frame}{One Line, Three Levels: C, Assembly, Machine Code}
+    \leavevmode
+    {\small The trace used teaching instructions. On the real Cortex-M4
+    the compiler turns the same C line into this:}
+
+    \vspace{2mm}
+    \begin{center}
+    \fbox{\parbox{.5\textwidth}{\centering\vspace{1mm}
+        \textbf{C:}\quad \texttt{z = x + y;}
+        \vspace{1mm}}}
+    \end{center}
+
+    \vspace{0mm}
+    \begin{center}
+    $\downarrow$ {\scriptsize the \alert{compiler} turns C into assembly; the \alert{assembler} turns assembly into machine code}
+    \end{center}
+
+    \vspace{0mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l l l@{}}
+        \toprule
+        \textbf{Teaching} & \textbf{Assembly} & \textbf{Machine code} & \textbf{Binary} \\
+        \midrule
+        \texttt{LOAD x}  & \texttt{LDR R0, [R1]}  & \texttt{0x6808} & \texttt{0110 1000 0000 1000} \\
+        \texttt{LOAD y}  & \texttt{LDR R2, [R3]}  & \texttt{0x681A} & \texttt{0110 1000 0001 1010} \\
+        \texttt{ADD y}   & \texttt{ADD R0, R0, R2} & \texttt{0x4410} & \texttt{0100 0100 0001 0000} \\
+        \texttt{STORE z} & \texttt{STR R0, [R4]}  & \texttt{0x6020} & \texttt{0110 0000 0010 0000} \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{2mm}
+    {\small \texttt{R1}, \texttt{R3}, \texttt{R4} hold the addresses of
+    \texttt{x}, \texttt{y}, \texttt{z}. The Cortex-M4 adds only
+    \alert{registers}, so \texttt{y} needs its own load: one C line, four
+    16-bit machine instructions. Chapters 5--7 explain each one.}
 \end{frame}
 
 %===============================================================================
@@ -1327,67 +1481,59 @@
 
 \begin{frame}{The Bookend}
 	\leavevmode
-	\begin{block}{The CPU still does not know what an LED is}
-		It only executes instructions and accesses addresses. Every
-		step was ordinary: the same \texttt{LDR}/\texttt{ORR}/\texttt{STR}
-		pattern as any other read-modify-write.
-	\end{block}
+	{\small The chain from the first slides, now with every stage explained:}
 
-	\vspace{4mm}
+	\vspace{2mm}
+	\causalchain{1}
+
+	\vspace{3mm}
 	\begin{center}
-		\fbox{\parbox{.78\textwidth}{\centering\vspace{2mm}
+		\fbox{\parbox{.78\textwidth}{\centering\vspace{1mm}
 				\large Turning on an LED is writing a number to an address.
-				\vspace{2mm}}}
+				\vspace{1mm}}}
 	\end{center}
 
 	\vspace{2mm}
-	{\small You asked this at the start of the chapter, as an
-		unexplained claim. Now you can derive it: from a C statement, to
-		a register write, to a voltage on a physical pin.}
+	{\small The CPU never knows what an LED is. It only executes
+	instructions and accesses addresses.
+
+	\vspace{1mm}
+	\alert{Check yourself:} why can the CPU turn on an LED without an
+	instruction called \texttt{TURN\_ON\_LED}?}
 \end{frame}
 
-\begin{frame}{Summary: The Causal Chain}
-	\begin{columns}[c]
-		% ---- Left: flowchart ----
-		\begin{column}{.58\textwidth}
-			\begin{center}
-				\begin{tikzpicture}[x=10mm, y=7.8mm]
-					\foreach \i/\nm in {
-						0/{Embedded system},
-						1/{Microcontroller},
-						2/{CPU + memory + peripherals},
-						3/{CPU executes instructions},
-						4/{Instructions access addresses},
-						5/{Some addresses represent hardware registers},
-						6/{Writing a register changes hardware}}{
-						\node[blk, minimum width=50mm, minimum height=5.0mm, inner sep=1.2pt,
-						font=\scriptsize] (n\i) at (0,{-\i*1.05}) {\nm};
-					}
-					\node[cpublk, minimum width=50mm, minimum height=5.0mm, inner sep=1.2pt,
-					font=\scriptsize] (n7) at (0,-7.35)
-					{A C statement can therefore\\change a physical pin};
-					\foreach \a/\b in {0/1,1/2,2/3,3/4,4/5,5/6,6/7}{\draw[flow] (n\a) -- (n\b);}
-				\end{tikzpicture}
-			\end{center}
-		\end{column}
-		% ---- Right: terminology ----
-		\begin{column}{.38\textwidth}
-			{\scriptsize
-				\textbf{Terminology covered}\\[1mm]
-				\begin{itemize}
-					\item Embedded systems and SWaP-C
-					\item Microprocessor vs microcontroller
-					\item Buses
-					\item CPU registers, ALU, control unit
-					\item Fetch--decode--execute
-					\item Memory-mapped I/O
-				\end{itemize}
-				\vspace{3mm}
-				\textbf{Next: Chapter 2}\\[1mm]
-				Turns this generic CPU into the specific one on your
-				bench.}
-		\end{column}
-	\end{columns}
+\begin{frame}{Summary and What's Next}
+    \leavevmode
+    {\small You can now explain every stage of the chain on the
+    previous slide.}
+
+    \vspace{3mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \textbf{Concepts covered}
+        \begin{itemize}\itemsep1pt
+            \item Embedded systems and SWaP-C
+            \item Microprocessor vs. microcontroller
+            \item Address, data and control buses
+            \item CPU registers, decoder, CU, ALU
+            \item Fetch--decode--execute
+            \item Memory-mapped I/O
+        \end{itemize}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \textbf{The one takeaway}
+        \begin{block}{}
+            \alert{Turning on an LED is writing a number to an address.}
+        \end{block}
+
+        \vspace{2mm}
+        \textbf{Next: Chapter 2}
+        \begin{itemize}\itemsep1pt
+            \item The generic CPU becomes the specific Cortex-M4.
+            \item Its real sixteen registers, memory map, and modes.
+        \end{itemize}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 \end{document}
