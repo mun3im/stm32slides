@@ -24,7 +24,7 @@
 \usepackage{amssymb}
 \usepackage{multirow}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, calc, decorations.pathreplacing}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc, decorations.pathreplacing}
 \setbeamertemplate{itemize items}[square]
 \usepackage[scaled=.92]{beramono}
 \usepackage{listings}
@@ -592,60 +592,84 @@
 %===============================================================================
 
 \begin{frame}{The Three Buses}
-    \begin{columns}[c]
-    \begin{column}{0.56\textwidth}
-        \centering
-        \resizebox{\linewidth}{!}{%
-\begin{tikzpicture}[x=10mm, y=10mm]
-% three devices along the top
-\node[cpublk, minimum width=20mm, minimum height=10mm] (cpu) at (0.9,2.6) {CPU};
-\node[blk, fill=kikuchiba!22, draw=kikuchiba!85!black, minimum width=20mm, minimum height=10mm] (mem) at (3.6,2.6) {Memory};
-\node[blk, fill=ocre!12, draw=ocre, minimum width=20mm, minimum height=10mm] (io) at (6.3,2.6) {Input/\\Output};
+\setbeamercolor{cardblue}{bg=blue!5,fg=black}\setbeamercolor{cardgreen}{bg=green!5,fg=black}\setbeamercolor{cardred}{bg=red!5,fg=black}\setbeamercolor{cardgray}{bg=gray!10,fg=black}
+    \begin{center}
+    \resizebox{.6\textwidth}{!}{%
+    \begin{tikzpicture}[x=1mm, y=1mm, >=Stealth,
+        regbox/.style={draw=blkline, fill=white, thick, minimum width=34mm, minimum height=10mm, font=\small, align=center},
+        bl/.style={font=\small\bfseries, inner sep=1pt, align=center}]
+        \definecolor{addrc}{HTML}{C62828}
+        \definecolor{datac}{HTML}{1565C0}
+        \definecolor{ctrlc}{HTML}{2E7D32}
+        % ---- processor ----
+        \draw[draw=blkline, fill=blkfill, thick, rounded corners=2pt] (0,0) rectangle (46,66);
+        \node[font=\large\bfseries] at (23,60) {Processor};
+        \node[regbox] at (21,44) {Address Register};
+        \node[regbox] at (21,27) {Data Register};
+        \node[draw=blkline, fill=white, thick, ellipse, minimum width=28mm, minimum height=14mm, font=\small, align=center] at (21,10) {Bus\\Control};
 
-% Each device connects to each bus with a stub that stops at that bus.
-% CPU drives the address bus, exchanges data, drives control.
-\draw[flow, draw=ocre!80!black] (0.62,2.15) -- (0.62,1.68);
-\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
-    (0.9,2.15) -- (0.9,0.68);
-\draw[flow, draw=blkline]       (1.18,2.15) -- (1.18,-0.32);
-
-% Memory and I/O receive the address and control, exchange data.
-\draw[{Stealth[length=2mm]}-, draw=ocre!80!black, thick] (3.32,1.68) -- (3.32,2.15);
-\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
-    (3.6,2.15) -- (3.6,0.68);
-\draw[{Stealth[length=2mm]}-, draw=blkline, thick]       (3.88,-0.32) -- (3.88,2.15);
-
-\draw[{Stealth[length=2mm]}-, draw=ocre!80!black, thick] (6.02,1.68) -- (6.02,2.15);
-\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=kikuchiba!85!black, thick]
-    (6.3,2.15) -- (6.3,0.68);
-\draw[{Stealth[length=2mm]}-, draw=blkline, thick]       (6.58,-0.32) -- (6.58,2.15);
-
-% the bus bars, drawn last so they mask the stub crossings
-\node[blk, fill=ocre!10, draw=ocre!80!black, minimum width=68mm, minimum height=6.5mm] (abus) at (3.6,1.35) {Address bus};
-\node[blk, fill=kikuchiba!14, draw=kikuchiba!85!black, minimum width=68mm, minimum height=6.5mm] (dbus) at (3.6,0.35) {Data bus};
-\node[blk, minimum width=68mm, minimum height=6.5mm] (cbus) at (3.6,-0.65) {Control bus};
-
-\node[lbl, align=left, anchor=west, text=ocre!80!black] at (7.25,1.35) {one way:\\only the CPU drives it};
-\node[lbl, anchor=west, text=kikuchiba!60!black] at (7.25,0.35) {both ways};
-\node[lbl, align=left, anchor=west] at (7.25,-0.65) {timing and\\command lines};
-\end{tikzpicture}
+        % ---- memory ----
+        \draw[draw=memline, fill=memfill, thick, rounded corners=2pt] (96,0) rectangle (136,66);
+        \node[font=\large\bfseries] at (116,60) {Memory};
+        \foreach \r/\lab in {0/0,1/1,2/2,3/3}{
+            \draw[draw=cellline, fill=white] (113,{51-\r*8}) rectangle (132,{51-\r*8-8});
+            \node[font=\small, anchor=east] at (111,{47-\r*8}) {\lab};
         }
-    \end{column}
-    \begin{column}{0.42\textwidth}
-        {\small
-        \begin{description}\itemsep4pt
-            \item[Address bus] \emph{Which} location. One-way, CPU $\rightarrow$ device. Width sets the addressable range.
-            \item[Data bus] \emph{What} value. Bidirectional. Width sets how much moves per transfer.
-            \item[Control bus] \emph{When} and \emph{what kind}: read/write, timing, interrupts. Bidirectional.
-        \end{description}}
-    \end{column}
-    \end{columns}
+        \node[font=\Large\bfseries] at (123,17) {$\cdots$};
+        \draw[draw=cellline, fill=white] (113,3) rectangle (132,11);
+        \node[font=\small, anchor=east] at (111,7) {$2^a-1$};
 
-    \vspace{4mm}
-    {\footnotesize \textbf{You already know this:} an address feeds a \alert{decoder}, like your 3-to-8 decoder, just at a larger scale.}
+        % ---- address bus: one-way block arrow ----
+        \draw[thick, draw=addrc, fill=addrc!10] (46,41) -- (46,47) -- (87,47) -- (87,50.5) -- (96,44) -- (87,37.5) -- (87,41) -- cycle;
+        \node[bl, text=addrc, anchor=south] at (62,51) {address bus};
+        \node[bl, text=addrc, font=\footnotesize\bfseries] at (62,44) {$a$ bits};
+
+        % ---- data bus: two-way block arrow ----
+        \draw[thick, draw=datac, fill=datac!10] (46,27) -- (54,31.5) -- (54,29.5) -- (87,29.5) -- (87,32) -- (96,27) -- (87,22) -- (87,24.5) -- (54,24.5) -- (54,22.5) -- cycle;
+        \node[bl, text=datac, anchor=south] at (66,33) {data bus};
+        \node[bl, text=datac, font=\footnotesize\bfseries] at (66,27) {$d$ bits};
+
+        % ---- control lines ----
+        \foreach \y/\t/\dir in {16/read/->, 10/write/->, 4/done/<-}{
+            \draw[\dir, very thick, draw=ctrlc] (46,\y) -- (96,\y);
+            \node[bl, text=ctrlc, anchor=south, font=\footnotesize\bfseries] at (69,\y) {\t};
+        }
+    \end{tikzpicture}}
+    \end{center}
 
     \vspace{1mm}
-    {\footnotesize \emph{A simplified model: the Cortex-M4 implements these as a bus matrix with several buses. The three-bus picture is the idea behind them.}}
+    \begin{columns}[T]
+		\begin{column}{.32\textwidth}
+			\begin{beamercolorbox}[wd=\textwidth, center, rounded=true]{cardblue}
+				\textbf{\textcolor{blue!80!black}{Address Bus}} \\
+				\scriptsize\emph{Which} location. \\
+				One-way (CPU $\to$ Mem). \\
+				$a$ bits $\to 2^a$ locations.
+			\end{beamercolorbox}
+		\end{column}
+		\begin{column}{.32\textwidth}
+			\begin{beamercolorbox}[wd=\textwidth, center, rounded=true]{cardgreen}
+				\textbf{\textcolor{green!60!black}{Data Bus}} \\
+				\scriptsize\emph{What} value. \\
+				Two-way. \\
+				$d$ bits per transfer.
+			\end{beamercolorbox}
+		\end{column}
+		\begin{column}{.32\textwidth}
+			\begin{beamercolorbox}[wd=\textwidth, center, rounded=true]{cardred}
+				\textbf{\textcolor{red!70!black}{Control Bus}} \\
+				\scriptsize\emph{When \& How}. \\
+				Read, Write, Timing. \\
+				Coordinates the transfer.
+			\end{beamercolorbox}
+		\end{column}
+	\end{columns}
+
+	\vspace{2mm}
+	% --- Footer Note ---
+	\begin{beamercolorbox}[wd=\textwidth, center, rounded=true]{cardgray}
+		\footnotesize \textbf{You already know this:} an address feeds a \alert{decoder}, like your 3-to-8 decoder, just at a larger scale. \emph{Note: The Cortex-M4 uses a bus matrix with several physical buses, but this 3-bus model captures the core idea.}
+	\end{beamercolorbox}
 \end{frame}
 
 
