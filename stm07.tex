@@ -296,7 +296,6 @@ ADDS R0, R1, R2   ; updates N Z C V
         \texttt{B label}   & Unconditional branch --- the basic jump \\
         \texttt{BL label}  & \emph{Branch with link} --- LR = return address, then jump: a subroutine call \\
         \texttt{BX Rn}     & \emph{Branch and exchange} to an address in a register; \texttt{BX LR} returns \\
-        \texttt{BLX Rn}    & Call a subroutine whose address is in a register (function pointers) \\
         \bottomrule
     \end{tabular}}
     \end{center}
@@ -359,6 +358,69 @@ ADDS R0, R1, R2   ; updates N Z C V
     \end{columns}
 \end{frame}
 
+\begin{frame}[plain]{The Two Paths Through a Plain \texttt{if}}
+    \leavevmode
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=8.5mm,
+        % Match p14 ifelse-flow.pdf style: two-column rows (mnemonic | operand),
+        % thin stroke, branch rows get a light pink tint, others are outline-only.
+        row/.style   = {draw=black!55, thick, minimum height=6.5mm,
+                        font=\small\ttfamily, inner sep=3pt, anchor=west},
+        plain/.style = {row, fill=white},
+        branch/.style= {row, fill=accentfill!60, draw=accentline},
+        tag/.style   = {font=\sffamily\small, anchor=west, text=black!70},
+        itag/.style  = {font=\sffamily\small\itshape, anchor=west, text=black!55},
+        tick/.style  = {draw=black!55, thick}
+      ]
+        % Row positions (y top-to-bottom)
+        \def\colA{0}        % mnemonic column x, left edge
+        \def\wA{16mm}       % mnemonic column width
+        \def\colB{16mm}     % operand column x, left edge
+        \def\wB{30mm}       % operand column width
+        \def\rowh{6.5mm}
+        \def\pitch{1.0}     % row pitch in y units
+
+        \foreach \i/\mn/\op/\sty in {%
+            0/{CMP}/{R0, R1}/plain,
+            1/{BNE}/{endif}/branch,
+            2/{MOV}/{R2, \#1}/plain,
+            3/{...}/{}/plain}{
+          \pgfmathsetmacro{\y}{-\i*\pitch}
+          \node[\sty, minimum width=\wA] (a\i) at (\colA,\y) {\mn};
+          \node[\sty, minimum width=\wB] (b\i) at (\colB,\y) {\op};
+        }
+
+        % Right-side ticks + tags: branch, if-block, endif
+        \foreach \i/\lab in {1/{branch}, 2/{if-block}, 3/{endif}}{
+          \draw[tick] (b\i.east) -- ++(2mm,0) coordinate (t\i);
+        }
+        \node[tag]  at ($(t1)+(1mm,0)$) {branch};
+        \node[itag] at ($(t1)+(1mm,-3mm)$) {\emph{not taken}: $a = b$};
+        \node[tag]  at ($(t2)+(1mm,0)$) {if-block};
+        \node[tag]  at ($(t3)+(1mm,0)$) {endif};
+
+        % Left-side "taken" arrow: curves from BNE row left out, down, back right to endif row
+        \coordinate (l1) at ($(a1.west)+(-6mm,0)$);
+        \coordinate (l3) at ($(a3.west)+(-6mm,0)$);
+        \draw[flow, draw=accentline, line width=.8pt]
+            (a1.west) -- (l1) -- (l3) -- (a3.west);
+        \node[font=\sffamily\small, text=accentline, align=right, anchor=east]
+            at ($(l1)!0.5!(l3)+(-1mm,0)$)
+            {\textbf{taken}\\$a \ne b$};
+
+        % Pass-through "v" chevron on the boundary between BNE and MOV (fall through)
+        \coordinate (ft) at ($(b1.south)!0.5!(b2.north)$);
+        \node[font=\small\ttfamily\bfseries, text=black!65, inner sep=0pt]
+            at (ft) {\(\downarrow\)};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{1mm}
+    {\small\centering The conditional branch tests the \emph{opposite}
+    condition and jumps over the if-block. On $a = b$ the branch is
+    not taken, and execution \emph{falls through} into the block.\par}
+\end{frame}
+
 \begin{frame}[fragile]{The \texttt{if-else} Construct}
     \begin{columns}[T]
     \begin{column}{.22\textwidth}
@@ -375,12 +437,12 @@ else
     \end{column}
     \begin{column}{.4\textwidth}
         \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
-P   R0, R1          ; Compare a (R0) and b (R1)
-        BNE   else_block      ; If Z == 0 (not equal), branch to else
+		CMP   R0, R1
+        BNE   else_block
 
-        ; If-block: a == b
-        MOV   R2, #1          ; x = 1
-        B     endif           ; Branch past the else block
+; if-block: a == b
+        MOV   R2, #1
+        B     endif
 
 else_block
         ; Else-block: a != b
@@ -631,22 +693,6 @@ skip	SUBS   r2, #1
         of memory, since nothing else in the program ever changes them.
     \end{block}
 \end{frame}
-
-%===============================================================================
-\section{The Stack}
-%===============================================================================
-
-\begin{frame}{What Is a Stack?} \begin{itemize} \item A \alert{stack} is a region of ordinary SRAM managed using the \alert{Stack Pointer (SP, R13)}. \item It follows a \alert{last-in, first-out (LIFO)} rule: the most recently stored item is the first one removed. \item The stack can be located anywhere in the memory map. \item It is commonly used to hold \alert{return addresses}, \alert{saved registers}, and \alert{local variables}. \item All subroutines typically share the same stack. \end{itemize} \vspace{2mm} \begin{columns}[c] \begin{column}{.5\textwidth} \centering \includegraphics[width=.95\textwidth]{assets/what_is_a_stack.pdf} \end{column} \begin{column}{.46\textwidth} {\small \begin{itemize} \item The stack is typically initialized at the \alert{top of SRAM}. \item Initially, \texttt{SP} points to the top of the stack region. \item As items are pushed, \texttt{SP} moves toward \alert{lower addresses}. \item The heap, when present, typically grows upward from the opposite direction. \end{itemize} } \end{column} \end{columns} \end{frame}
-
-%-------------------------------------------------------------------------------
-\begin{frame}{How Does the Stack Grow?} \begin{itemize} \item The stack grows and shrinks by moving the \alert{Stack Pointer (SP)}. \item On a 32-bit Cortex-M processor, each stack word occupies \alert{4 bytes}. \end{itemize} \vspace{2mm} \begin{columns}[T] \begin{column}{.48\textwidth} \begin{block}{PUSH} \begin{enumerate} \item Move SP down by 4 bytes: \[ SP \leftarrow SP - 4 \] \item Store the value at the new SP address. \end{enumerate} \end{block} \end{column} \begin{column}{.48\textwidth} \begin{block}{POP} \begin{enumerate} \item Read the value at the current SP address. \item Move SP up by 4 bytes: \[ SP \leftarrow SP + 4 \] \end{enumerate} \end{block} \end{column} \end{columns} \vfill \centering \includegraphics[width=.7\textwidth]{assets/push_pop.pdf} \end{frame}
-
-%-------------------------------------------------------------------------------
-\begin{frame}[plain]{Why Is It Called Last-In, First-Out?} \leavevmode \begin{center} \includegraphics[width=.7\textwidth]{assets/push-pop-express.pdf} \end{center} \vspace{3mm} {\small Three \texttt{PUSH} operations place three registers on the stack. Because each new value is placed on top of the previous one, the first \texttt{POP} retrieves the value pushed last. } \vspace{2mm} \begin{block}{The LIFO rule} \centering The \alert{last value pushed} is the \alert{first value popped}. \end{block} \end{frame}
-
-%-------------------------------------------------------------------------------
-\begin{frame}{The Stack Must Stay Balanced} \begin{itemize} \item A subroutine may use the stack temporarily to save registers or other data. \item Before returning, it must restore the stack to the state it had on entry. \item In simple terms: \[ \boxed{\text{Every PUSH must eventually have a matching POP.}} \] \end{itemize} \vspace{3mm} \begin{block}{Example} \centering 3 registers pushed $\;\longrightarrow\;$ SP moves down by $3\times4=12$ bytes $\;\longrightarrow\;$ 3 registers popped $\;\longrightarrow\;$ SP returns to its original value \end{block} \vspace{3mm} {\small The order matters too: values must be popped in the \alert{reverse order} in which they were pushed. } \end{frame} %-------------------------------------------------------------------------------
-\begin{frame}{What Happens When the Rules Are Broken?} \leavevmode {\small The stack is ordinary memory. If \texttt{SP} moves outside the space or contents intended for the stack, the program can behave unpredictably. } \vspace{3mm} \begin{columns}[T] \begin{column}{.48\textwidth} \begin{block}{Too many PUSHes} \begin{itemize}\itemsep2pt \item \texttt{SP} keeps moving toward lower addresses. \item The stack can exceed its allocated region. \item It may collide with other memory regions. \item This is commonly called \alert{stack overflow}. \end{itemize} \end{block} \end{column} \begin{column}{.48\textwidth} \begin{block}{Too many POPs} \begin{itemize}\itemsep2pt \item \texttt{SP} moves beyond the valid stack contents. \item A \texttt{POP} may read data that was never pushed. \item The result may be incorrect data or a fault. \item This is commonly called \alert{stack underflow}. \end{itemize} \end{block} \end{column} \end{columns} \end{frame}
 
 %===============================================================================
 \section{Subroutines}
@@ -1015,7 +1061,7 @@ done
 \end{frame}
 
 %===============================================================================
-\section{Nested Functions}
+\section{The First Limitation: Nested Calls}
 %===============================================================================
 
 
@@ -1122,6 +1168,30 @@ done
 		\end{center}
 	}
 \end{frame}
+
+
+
+%===============================================================================
+\section{The Stack}
+%===============================================================================
+
+\begin{frame}{What Is a Stack?} \begin{itemize} \item A \alert{stack} is a region of ordinary SRAM managed using the \alert{Stack Pointer (SP, R13)}. \item It follows a \alert{last-in, first-out (LIFO)} rule: the most recently stored item is the first one removed. \item The stack can be located anywhere in the memory map. \item It is commonly used to hold \alert{return addresses}, \alert{saved registers}, and \alert{local variables}. \item All subroutines typically share the same stack. \end{itemize} \vspace{2mm} \begin{columns}[c] \begin{column}{.5\textwidth} \centering \includegraphics[width=.95\textwidth]{assets/what_is_a_stack.pdf} \end{column} \begin{column}{.46\textwidth} {\small \begin{itemize} \item The stack is typically initialized at the \alert{top of SRAM}. \item Initially, \texttt{SP} points to the top of the stack region. \item As items are pushed, \texttt{SP} moves toward \alert{lower addresses}. \item The heap, when present, typically grows upward from the opposite direction. \end{itemize} } \end{column} \end{columns} \end{frame}
+
+%-------------------------------------------------------------------------------
+\begin{frame}{How Does the Stack Grow?} \begin{itemize} \item The stack grows and shrinks by moving the \alert{Stack Pointer (SP)}. \item On a 32-bit Cortex-M processor, each stack word occupies \alert{4 bytes}. \end{itemize} \vspace{2mm} \begin{columns}[T] \begin{column}{.48\textwidth} \begin{block}{PUSH} \begin{enumerate} \item Move SP down by 4 bytes: \[ SP \leftarrow SP - 4 \] \item Store the value at the new SP address. \end{enumerate} \end{block} \end{column} \begin{column}{.48\textwidth} \begin{block}{POP} \begin{enumerate} \item Read the value at the current SP address. \item Move SP up by 4 bytes: \[ SP \leftarrow SP + 4 \] \end{enumerate} \end{block} \end{column} \end{columns} \vfill \centering \includegraphics[width=.7\textwidth]{assets/push_pop.pdf} \end{frame}
+
+%-------------------------------------------------------------------------------
+\begin{frame}[plain]{Why Is It Called Last-In, First-Out?} \leavevmode \begin{center} \includegraphics[width=.9\textwidth]{assets/push_pop_multiple.pdf} \end{center} \vspace{3mm} {\small Three \texttt{PUSH} operations place three registers on the stack. Because each new value is placed on top of the previous one, the first \texttt{POP} retrieves the value pushed last. } \vspace{2mm} \begin{block}{The LIFO rule} \centering The \alert{last value pushed} is the \alert{first value popped}. \end{block} \end{frame}
+
+%-------------------------------------------------------------------------------
+\begin{frame}{The Stack Must Stay Balanced} \begin{itemize} \item A subroutine may use the stack temporarily to save registers or other data. \item Before returning, it must restore the stack to the state it had on entry. \item In simple terms: \[ \boxed{\text{Every PUSH must eventually have a matching POP.}} \] \end{itemize} \vspace{3mm} \begin{block}{Example} \centering 3 registers pushed $\;\longrightarrow\;$ SP moves down by $3\times4=12$ bytes $\;\longrightarrow\;$ 3 registers popped $\;\longrightarrow\;$ SP returns to its original value \end{block} \vspace{3mm} {\small The order matters too: values must be popped in the \alert{reverse order} in which they were pushed. } \end{frame} %-------------------------------------------------------------------------------
+\begin{frame}{What Happens When the Rules Are Broken?} \leavevmode {\small The stack is ordinary memory. If \texttt{SP} moves outside the space or contents intended for the stack, the program can behave unpredictably. } \vspace{3mm} \begin{columns}[T] \begin{column}{.48\textwidth} \begin{block}{Too many PUSHes} \begin{itemize}\itemsep2pt \item \texttt{SP} keeps moving toward lower addresses. \item The stack can exceed its allocated region. \item It may collide with other memory regions. \item This is commonly called \alert{stack overflow}. \end{itemize} \end{block} \end{column} \begin{column}{.48\textwidth} \begin{block}{Too many POPs} \begin{itemize}\itemsep2pt \item \texttt{SP} moves beyond the valid stack contents. \item A \texttt{POP} may read data that was never pushed. \item The result may be incorrect data or a fault. \item This is commonly called \alert{stack underflow}. \end{itemize} \end{block} \end{column} \end{columns} \end{frame}
+
+%===============================================================================
+\section{The AAPCS}
+%===============================================================================
+
+%===============================================================================
 
 
 \begin{frame}[fragile]{Saving the Return Address}
@@ -1472,12 +1542,6 @@ AddNumbers
     hand-written assembly could never call each other safely. That shared
     answer is a formal convention: the \alert{AAPCS}.}
 \end{frame}
-
-%===============================================================================
-\section{The AAPCS}
-%===============================================================================
-
-%===============================================================================
 
 \begin{frame}{How Do Two Functions Agree on Anything?}
     \leavevmode

@@ -336,3 +336,7 @@ __pycache__/
 
 # Agent instructions local to the book repo, never belongs here
 CLAUDE.md
+
+# Loose files from other workflows, not part of this repo
+Chapter1_MCQ.xml
+mod01.pptx

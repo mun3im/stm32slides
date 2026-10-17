@@ -645,5 +645,429 @@ TIM2->CR1   |= (1U << 0);        // start
 	\end{columns}
 \end{frame}
 
+%===============================================================================
+\section{Addendum}
+%===============================================================================
+
+%% SysTick, viewed as a block diagram that maps every CTRL bit back to the
+%% datapath it controls. Diagram adapted (and redrawn in TikZ) from:
+%%   "ARM Cortex-M4 SysTick timer with programming example", microcontrollerslab.com,
+%%   https://microcontrollerslab.com/arm-cortex-m4-systick-timer-programming/
+%% The original was drawn for the TI TM4C123G (also Cortex-M4). The register
+%% map and the datapath are shared with every Cortex-M core, so this applies
+%% directly to the book's STM32F446RE. The TM4C uses the TI bit names
+%% COUNT/CLK_SRC/INTEN/ENB; ARM's CMSIS calls the same bits
+%% COUNTFLAG/CLKSOURCE/TICKINT/ENABLE. The alternate (slow) clock is
+%% implementation-defined: Internal/4 on the TM4C, HCLK/8 on STM32.
+
+\begin{frame}[plain]{SysTick, from Bits to Blocks}
+    \begin{center}
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[x=10mm, y=10mm,
+        src/.style  = {draw=black!55, fill=white, thick, rounded corners=1pt,
+                       align=center, font=\footnotesize, inner sep=3pt,
+                       minimum width=22mm, minimum height=7mm},
+        rld/.style  = {draw=blkline, fill=blkfill, thick, rounded corners=3pt,
+                       align=center, font=\footnotesize\bfseries, inner sep=3pt,
+                       minimum width=24mm, minimum height=8mm},
+        cnt/.style  = {draw=blkline, fill=blkfill!160, thick, rounded corners=3pt,
+                       align=center, font=\small\bfseries, inner sep=3pt,
+                       minimum width=22mm, minimum height=10mm, text=white},
+        % AND-gate and diamond are drawn as raw paths below; we only need
+        % the label font+colour here.
+        gatelbl/.style  = {font=\footnotesize\bfseries, text=white, align=center},
+        decnlbl/.style  = {font=\footnotesize\bfseries, text=white, align=center},
+        mux/.style  = {draw=memline, fill=memfill!200, thick, align=center,
+                       font=\footnotesize\bfseries, inner sep=3pt,
+                       minimum width=10mm, minimum height=16mm},
+        % bitfield row cells
+        bit/.style  = {draw=black!55, thick, align=center, inner sep=3pt,
+                       font=\footnotesize, minimum height=7mm},
+        bres/.style = {bit, fill=red!65!black, text=white, font=\footnotesize\bfseries},
+        bcnt/.style = {bit, fill=yellow!80!orange, font=\footnotesize\bfseries},
+        bclk/.style = {bit, fill=memline, text=white, font=\footnotesize\bfseries},
+        bint/.style = {bit, fill=blkline, text=white, font=\footnotesize\bfseries},
+        benb/.style = {bit, fill=accentline!90!black, text=white, font=\footnotesize\bfseries},
+        tag/.style  = {font=\footnotesize\sffamily, anchor=south},
+      ]
+        % ======== top row: datapath ========
+        % clock sources
+        \node[src] (sys)  at (0, 1.0) {System Clock};
+        \node[src] (slow) at (0,-0.4) {Internal / 4};
+
+        % MUX
+        \coordinate (muxTL) at (1.9, 1.6);
+        \coordinate (muxTR) at (3.1, 1.1);
+        \coordinate (muxBR) at (3.1,-0.5);
+        \coordinate (muxBL) at (1.9,-1.0);
+        \draw[draw=memline, fill=memfill!200, thick]
+            (muxTL) -- (muxTR) -- (muxBR) -- (muxBL) -- cycle;
+        \node[font=\footnotesize\bfseries] at (2.5, 0.3) {MUX};
+        \draw[flow, draw=memline] (sys.east)  -- ([xshift=-1mm]muxTL |- sys);
+        \draw[flow, draw=memline] (slow.east) -- ([xshift=-1mm]muxBL |- slow);
+        \coordinate (muxOut) at ($(muxTR)!0.5!(muxBR)$);
+
+        % ---- AND gate (flat left side, D-shaped right side) ----
+        % centred near (5.2, 0.3); 14 mm wide, 10 mm tall
+        \def\andCX{5.2}
+        \def\andCY{0.3}
+        \coordinate (andW)  at (\andCX-0.7,\andCY);        % input (left mid)
+        \coordinate (andTL) at (\andCX-0.7,\andCY+0.5);
+        \coordinate (andBL) at (\andCX-0.7,\andCY-0.5);
+        \coordinate (andTR) at (\andCX-0.0,\andCY+0.5);
+        \coordinate (andBR) at (\andCX-0.0,\andCY-0.5);
+        \coordinate (andE)  at (\andCX+0.7,\andCY);        % output tip (right mid)
+        \draw[draw=black, fill=black!85, thick]
+            (andBL) -- (andTL) -- (andTR)
+            arc[start angle=90, end angle=-90, radius=0.5]
+            -- cycle;
+        \node[gatelbl] at (\andCX-0.1,\andCY) {AND};
+        % Two input pads (visual only) on the flat left edge
+        \coordinate (andIn1) at (\andCX-0.7,\andCY+0.25);
+        \coordinate (andIn2) at (\andCX-0.7,\andCY-0.25);
+        \draw[flow, draw=memline] (muxOut) -- (andIn1);
+
+        % Counter
+        \node[cnt] (cnt) at (8.0, 0.3) {Counter};
+        \draw[flow, draw=blkline, line width=.9pt] (andE) -- (cnt.west);
+
+        % Reload register (above counter)
+        \node[rld] (rld) at (8.0, 2.8) {Reload Register};
+        \draw[flow, draw=blkline, line width=.9pt] (rld.south) -- (cnt.north);
+
+        % ---- Decision diamond ("Is it zero?") ----
+        \def\diaCX{11.6}
+        \def\diaCY{0.3}
+        \coordinate (diaN) at (\diaCX,\diaCY+0.9);
+        \coordinate (diaE) at (\diaCX+1.1,\diaCY);
+        \coordinate (diaS) at (\diaCX,\diaCY-0.9);
+        \coordinate (diaW) at (\diaCX-1.1,\diaCY);
+        \draw[draw=black, fill=black!85, thick]
+            (diaN) -- (diaE) -- (diaS) -- (diaW) -- cycle;
+        \node[decnlbl] at (\diaCX,\diaCY) {Is it\\zero?};
+        \draw[flow, draw=blkline, line width=.9pt] (cnt.east) -- (diaW);
+
+        % Yes: up from the diamond's north, over to reload (loop back)
+        \draw[flow, draw=blkline, line width=.9pt]
+            (diaN) -- ++(0,0.9) node[tag, anchor=south east, pos=0.6] {Yes}
+            -| (rld.east);
+
+        % No: down from the diamond's south, back under to the counter
+        \draw[flow, draw=blkline, line width=.9pt]
+            (diaS) -- ++(0,-0.9) node[tag, anchor=north east, pos=0.5] {No}
+            -| (cnt.south);
+
+        % ======== bottom row: CTRL / STCTRL bitfield ========
+        % Each cell: colour-coded, with bit range label above
+        \def\bary{-3.4}
+        \def\barh{8mm}
+        \def\barx{0.6}
+        \node[bres, minimum width=46mm, anchor=west] (bR1) at (\barx,\bary) {Reserved};
+        \node[tag]  at ($(bR1.north)+(0,0.5mm)$) {31 -- 17};
+        \node[bcnt, minimum width=10mm, right=0mm of bR1] (bC)  {COUNT};
+        \node[tag]  at ($(bC.north)+(0,0.5mm)$)  {16};
+        \node[bres, minimum width=36mm, right=0mm of bC]  (bR2) {Reserved};
+        \node[tag]  at ($(bR2.north)+(0,0.5mm)$) {15 -- 3};
+        \node[bclk, minimum width=14mm, right=0mm of bR2] (bK)  {CLK\_SRC};
+        \node[tag]  at ($(bK.north)+(0,0.5mm)$)  {2};
+        \node[bint, minimum width=12mm, right=0mm of bK]  (bI)  {INTEN};
+        \node[tag]  at ($(bI.north)+(0,0.5mm)$)  {1};
+        \node[benb, minimum width=10mm, right=0mm of bI]  (bE)  {ENB};
+        \node[tag]  at ($(bE.north)+(0,0.5mm)$)  {0};
+
+        % Caption under the bar
+        \node[font=\small\sffamily\bfseries, below=1mm of bR2]
+            {SysTick Control and Status Register};
+
+        % ======== coloured arrows from bits up to the controlled blocks ========
+        % ENB -> AND (bottom input, drives the second pad on the flat left edge)
+        \draw[flow, draw=accentline, line width=1pt]
+            (bE.north) -- ++(0,0.5) -| (andIn2);
+        % CLK_SRC -> MUX select (bottom)
+        \coordinate (muxSel) at ($(muxBL)!0.5!(muxBR)$);
+        \draw[flow, draw=memline, line width=1pt]
+            (bK.north) -- ++(0,0.3) -| (muxSel);
+        % COUNT -> set from zero (Yes branch, up-right of decision)
+        \draw[flow, draw=yellow!80!orange, line width=1pt]
+            ([yshift=2mm]diaS) -- ++(1.6,0) |- (bC.east);
+        % INTEN -> SysTick interrupt gating (terminates at the Yes line, since
+        % there is no second AND drawn in this diagram).
+        \draw[flow, draw=blkline, line width=1pt]
+            (bI.north) -- ++(0,0.3) -| ([xshift=4mm]diaN);
+    \end{tikzpicture}}
+    \end{center}
+
+    \vspace{1mm}
+    {\footnotesize\centering Every CTRL bit maps to one block in the
+    datapath. The TM4C's TI bit names (\texttt{ENB}, \texttt{INTEN},
+    \texttt{CLK\_SRC}, \texttt{COUNT}) are the same four bits CMSIS
+    exposes as \texttt{ENABLE}, \texttt{TICKINT}, \texttt{CLKSOURCE},
+    \texttt{COUNTFLAG}.\par}
+
+    \vspace{1mm}
+    {\scriptsize\centering\emph{Diagram adapted and redrawn from
+    microcontrollerslab.com, ``ARM Cortex-M4 SysTick timer with programming example''.}\par}
+\end{frame}
+
+\begin{frame}[plain]{SysTick's Three Registers, Bit by Bit}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm,
+        bit/.style   = {draw=black!55, thick, align=center,
+                        inner sep=3pt, font=\footnotesize,
+                        minimum height=7mm},
+        bres/.style  = {bit, fill=red!65!black, text=white, font=\footnotesize\bfseries},
+        bcur/.style  = {bit, fill=memline, text=white, font=\footnotesize\bfseries},
+        brld/.style  = {bit, fill=blkline, text=white, font=\footnotesize\bfseries},
+        bcnt/.style  = {bit, fill=yellow!80!orange, font=\footnotesize\bfseries},
+        bclk/.style  = {bit, fill=memline, text=white, font=\footnotesize\bfseries},
+        bint/.style  = {bit, fill=blkline!60!black, text=white, font=\footnotesize\bfseries},
+        benb/.style  = {bit, fill=accentline, text=white, font=\footnotesize\bfseries},
+        rbl/.style   = {font=\footnotesize\sffamily, anchor=south},
+        rname/.style = {font=\small\sffamily\bfseries, anchor=north},
+      ]
+        % ---- Row 1: Current Value register ----
+        \def\rowA{2.6}
+        \node[bres, minimum width=28mm, anchor=west] (a1) at (0,\rowA) {Reserved};
+        \node[rbl, anchor=south] at ($(a1.north)+(0,0mm)$) {31 -- 24};
+        \node[bcur, minimum width=84mm, right=0mm of a1] (a2) {Current Value};
+        \node[rbl, anchor=south] at ($(a2.north)+(0,0mm)$) {23 -- 0};
+        \node[rname, align=center] at ($(a1.south east)!0.5!(a2.south)+(0,-1mm)$)
+            {SysTick Current Value Register \texttt{(VAL)}};
+
+        % ---- Row 2: Reload register ----
+        \def\rowB{0.9}
+        \node[bres, minimum width=28mm, anchor=west] (b1) at (0,\rowB) {Reserved};
+        \node[rbl, anchor=south] at ($(b1.north)+(0,0mm)$) {31 -- 24};
+        \node[brld, minimum width=84mm, right=0mm of b1] (b2) {Reload Value};
+        \node[rbl, anchor=south] at ($(b2.north)+(0,0mm)$) {23 -- 0};
+        \node[rname, align=center] at ($(b1.south east)!0.5!(b2.south)+(0,-1mm)$)
+            {SysTick Reload Register \texttt{(LOAD)}};
+
+        % ---- Row 3: Control & Status register ----
+        \def\rowC{-0.9}
+        \node[bres, minimum width=48mm, anchor=west] (c1) at (0,\rowC) {Reserved};
+        \node[rbl, anchor=south] at ($(c1.north)+(0,0mm)$) {31 -- 17};
+        \node[bcnt, minimum width=12mm, right=0mm of c1] (c2) {COUNT};
+        \node[rbl, anchor=south] at ($(c2.north)+(0,0mm)$) {16};
+        \node[bres, minimum width=28mm, right=0mm of c2] (c3) {Reserved};
+        \node[rbl, anchor=south] at ($(c3.north)+(0,0mm)$) {15 -- 3};
+        \node[bclk, minimum width=14mm, right=0mm of c3] (c4) {CLK\_SRC};
+        \node[rbl, anchor=south] at ($(c4.north)+(0,0mm)$) {2};
+        \node[bint, minimum width=10mm, right=0mm of c4] (c5) {INTEN};
+        \node[rbl, anchor=south] at ($(c5.north)+(0,0mm)$) {1};
+        \node[benb, minimum width=8mm,  right=0mm of c5] (c6) {ENB};
+        \node[rbl, anchor=south] at ($(c6.north)+(0,0mm)$) {0};
+        \node[rname, align=center] at ($(c1.south)!0.5!(c6.south)+(0,-1mm)$)
+            {SysTick Control and Status Register \texttt{(CTRL)}};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    {\footnotesize\centering Three 32-bit registers. In each one the top
+    byte is \alert{Reserved}; the \texttt{VAL}/\texttt{LOAD} halves carry
+    the 24-bit count, and \texttt{CTRL} carries the four control bits
+    discussed on the previous slide. CMSIS names: \texttt{SysTick->VAL},
+    \texttt{SysTick->LOAD}, \texttt{SysTick->CTRL}.\par}
+
+    \vspace{1mm}
+    {\scriptsize\centering\emph{Register map adapted and redrawn from
+    microcontrollerslab.com, ``ARM Cortex-M4 SysTick timer with programming
+    example''.}\par}
+\end{frame}
+
+\begin{frame}{TI, ARM, and STMicro: Same SysTick, Three Register Names}
+    \leavevmode
+    {\small SysTick is a Cortex-M core peripheral --- same registers, same
+    bits on every vendor's chip. Only the \emph{name} the vendor's header
+    file uses changes.}
+
+    \vspace{3mm}
+    \begin{center}
+    {\footnotesize
+    \striped
+    \begin{tabular}{@{}l l l l@{}}
+        \toprule
+        \textbf{Bit} & \textbf{Function} & \textbf{TI (TM4C)} & \textbf{ARM / CMSIS} \\
+        \midrule
+        0  & Enable the counter               & \texttt{ENB}     & \texttt{ENABLE} \\
+        1  & Enable the SysTick interrupt     & \texttt{INTEN}   & \texttt{TICKINT} \\
+        2  & Clock source (1=core, 0=slow)    & \texttt{CLK\_SRC}& \texttt{CLKSOURCE} \\
+        16 & Set when counter wraps to zero   & \texttt{COUNT}   & \texttt{COUNTFLAG} \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{One implementation choice to watch}
+        {\small The slow clock source is \alert{implementation-defined} by
+        the Cortex-M architecture. TI's TM4C uses the system clock divided
+        by \alert{4}; STMicro's STM32 uses HCLK divided by \alert{8}; most
+        other Cortex-M vendors pick \alert{8} as well.}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Reading the Diagram from a Program's Point of View}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \begin{block}{Write to CTRL, left to right}
+            {\small
+            \begin{itemize}\itemsep1pt
+                \item \texttt{CLK\_SRC} picks the clock input to the MUX.
+                \item \texttt{INTEN} arms the interrupt path.
+                \item \texttt{ENB} switches on the AND gate, so the clock
+                      reaches the counter.
+            \end{itemize}}
+        \end{block}
+
+        \vspace{2mm}
+        {\small Three writes, in that order, is what \texttt{SysTick\_Config()}
+        does under the hood.}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \begin{block}{Read COUNT, from the top}
+            {\small
+            \begin{itemize}\itemsep1pt
+                \item Counter decrements each clock.
+                \item At zero: Yes-branch reloads from the Reload Register,
+                      and sets \texttt{COUNT}.
+                \item Reading \texttt{COUNT} (or writing \texttt{VAL})
+                      clears it.
+            \end{itemize}}
+        \end{block}
+
+        \vspace{2mm}
+        {\small The ARM TRM says this bit is \alert{sticky-until-read}: do
+        not use it for timing; use the interrupt instead.}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    \begin{block}{Why this picture is worth the detour}
+        {\small Chapter~10 showed the SysTick API. This diagram shows the
+        hardware behind it, so an unfamiliar vendor's SysTick code is
+        still readable: find \texttt{ENB}, \texttt{INTEN},
+        \texttt{CLK\_SRC}, and the reload value, and you can predict the
+        tick rate.}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Driving the Bits Directly}
+    \leavevmode
+    {\small No CMSIS helper. Write the four CTRL bits by hand, in the order
+    the diagram shows them --- clock source, interrupt enable, counter
+    enable --- after loading \texttt{LOAD} and clearing \texttt{VAL}.}
+
+    \vspace{2mm}
+\begin{lstlisting}[style=myc, basicstyle=\ttfamily\footnotesize]
+#include "stm32f4xx.h"                 /* STM32F446RE, Cortex-M4 */
+
+#define SYST_CTRL_ENABLE     (1U << 0) /* bit 0  -- ENB */
+#define SYST_CTRL_TICKINT    (1U << 1) /* bit 1  -- INTEN */
+#define SYST_CTRL_CLKSOURCE  (1U << 2) /* bit 2  -- CLK_SRC (1 = processor clock) */
+
+void systick_init_1ms(void) {
+    SysTick->LOAD = (SystemCoreClock / 1000U) - 1U;   /* 24-bit reload */
+    SysTick->VAL  = 0;                                /* clears count + COUNTFLAG */
+    SysTick->CTRL = SYST_CTRL_CLKSOURCE               /* use processor clock */
+                  | SYST_CTRL_TICKINT                 /* raise an interrupt  */
+                  | SYST_CTRL_ENABLE;                 /* start the counter   */
+}
+\end{lstlisting}
+
+    \vspace{2mm}
+    \begin{block}{The two things CMSIS does for you}
+        {\small \texttt{SysTick\_Config()} wraps the same four writes
+        \alert{plus} an \texttt{NVIC\_SetPriority(SysTick\_IRQn, \ldots)}
+        call, and returns \texttt{-1} if the reload value overflows 24
+        bits. Prefer the wrapper in portable code; use the raw form when
+        you need a specific priority or non-default clock source.}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Handler and Millisecond Delay}
+\begin{lstlisting}[style=myc, basicstyle=\ttfamily\footnotesize]
+static volatile uint32_t msTicks = 0;    /* ISR-shared, must be volatile */
+
+void SysTick_Handler(void) {             /* fires every 1 ms */
+    msTicks++;
+}
+
+void delay(uint32_t ms) {
+    uint32_t start = msTicks;
+    while ((msTicks - start) < ms) {
+        __WFI();                         /* sleep until the next tick */
+    }
+}
+\end{lstlisting}
+
+    \vspace{2mm}
+    \begin{columns}[T]
+    \begin{column}{.52\textwidth}
+        \begin{block}{Why unsigned subtraction}
+            {\footnotesize \texttt{msTicks - start} stays correct even
+            after \texttt{msTicks} wraps at $2^{32}$, because unsigned
+            wrap-around subtracts cleanly. \texttt{while (msTicks < start
+            + ms)} would \alert{fail} near the wrap.}
+        \end{block}
+    \end{column}
+    \begin{column}{.44\textwidth}
+        \begin{block}{Why \texttt{\_\_WFI()}}
+            {\footnotesize ``Wait For Interrupt'' sleeps the core until the
+            next SysTick fires. On a battery-powered board this is the
+            difference between a few \textmu A and tens of mA.}
+        \end{block}
+    \end{column}
+    \end{columns}
+
+    \vspace{2mm}
+    {\scriptsize\centering\emph{Handler and \texttt{delay()} pattern adapted
+    from Rohit Nimkar, \texttt{csrohit/bluepill-systick} (BSD 3-Clause),
+    with \texttt{\_\_WFI()} added. Full source:
+    \texttt{github.com/csrohit/bluepill-systick}.}\par}
+\end{frame}
+
+\begin{frame}{Portable: SysTick. Not Portable: Everything Around It.}
+    \leavevmode
+    {\small Same CMSIS source runs on both boards. The lines that change
+    are the ones that touch the vendor's silicon.}
+
+    \vspace{3mm}
+    \begin{center}
+    {\footnotesize
+    \striped
+    \begin{tabular}{@{}l l l@{}}
+        \toprule
+         & \textbf{Nucleo-F446RE} & \textbf{Blue Pill (STM32F103)} \\
+        \midrule
+        \multicolumn{3}{@{}l}{\textbf{SysTick code --- compiles unchanged}} \\
+        \texttt{SysTick\_Config(SystemCoreClock/1000)}
+                                   & 16\,000 (after reset) & 8\,000 (after reset) \\
+        \texttt{SysTick->CTRL/LOAD/VAL}, bit names
+                                   & identical             & identical \\
+        \texttt{SysTick\_Handler}, \texttt{\_\_WFI()}
+                                   & identical             & identical \\
+        \midrule
+        \multicolumn{3}{@{}l}{\textbf{Lines that must change}} \\
+        Core                       & Cortex-M4 (FPU, DSP)  & Cortex-M3 (no FPU, no DSP) \\
+        Max clock                  & 180 MHz               & 72 MHz \\
+        CMSIS header               & \texttt{stm32f4xx.h}  & \texttt{stm32f1xx.h} \\
+        LED pin / polarity         & PA5, active-high      & PC13, active-low (hw) \\
+        Port clock enable          & \texttt{RCC->AHB1ENR} bit 0 (GPIOA)
+                                   & \texttt{RCC->APB2ENR} bit 4 (GPIOC) \\
+        Pin mode register          & \texttt{MODER} (2 bits/pin)
+                                   & \texttt{CRH}/\texttt{CRL} (4 bits/pin) \\
+        Programmer                 & on-board ST-Link v2.1 & external ST-Link v2 (SWD) \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{block}{The pattern}
+        {\small SysTick is \alert{in the Arm core}, so it is portable across
+        every vendor's Cortex-M. GPIO, clocks and the LED are \alert{in the
+        vendor's silicon}, so they change on every chip.}
+    \end{block}
+\end{frame}
+
 \end{document}
 
