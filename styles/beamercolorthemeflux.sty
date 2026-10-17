@@ -90,7 +90,13 @@
 \setbeamercolor*{footer text}{fg=Gray}
 \setbeamercolor*{header title}{fg=primaryLight!20}
 \setbeamercolor*{header primary}{fg=white,bg=primaryLight}
-\setbeamercolor*{header secondary}{fg=white,bg=primary}
+% Logo box (top right of every frame): navy in the navy style, otherwise primary
+\definecolor{logobox}{HTML}{000080}
+\ifx\beamer@mytheme@style\beamer@mytheme@stylenavy
+	\setbeamercolor*{header secondary}{fg=white,bg=logobox}
+\else
+	\setbeamercolor*{header secondary}{fg=white,bg=primary}
+\fi
 \setbeamercolor*{secondary}{fg=secondary!10,bg=secondary}
 \setbeamercolor*{example text}{fg=tertiary}
 \setbeamercolor*{normal text}{fg=text}
