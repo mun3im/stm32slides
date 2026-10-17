@@ -194,7 +194,7 @@ total = a + b - c;
         \textbf{In assembly}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LDR  R0, =a
 	LDR  R0, [R0]   ; R0 = a
 	LDR  R1, =b
@@ -332,7 +332,7 @@ GPIOA->MODER |=
         \textbf{In assembly}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LDR  R3, =0x40020000
 	LDR  R0, [R3]
 	BIC  R0, R0, #0xC00   ; clear bits 11:10
@@ -482,7 +482,7 @@ GPIOA->MODER |=
 
 \begin{frame}[fragile]{Shifts as Ordinary Instructions}
     \leavevmode
-    \begin{lstlisting}[style=armasm]
+    \begin{lstlisting}[style=armasm, language=ARM]
 	LSL R0, R1, #2    ; R0 = R1 << 2   (R1 times 4)
 	LSR R0, R1, #1    ; R0 = R1 >> 1   (R1 divided by 2, unsigned)
 	ASR R0, R1, #1    ; R0 = R1 >> 1   (R1 divided by 2, signed)
@@ -600,7 +600,7 @@ total = 4 * a + b;
         \textbf{In assembly}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LSL  R2, R0, #2  ; R2 = a << 2
 	                 ;    = a * 4
 	ADD  R3, R2, R1  ; R3 = (4*a) + b
@@ -666,7 +666,7 @@ total = 4 * a + b;
 	\end{center}
 
 	\vspace{2mm}
-	\begin{lstlisting}[style=armasm]
+	\begin{lstlisting}[style=armasm, language=ARM]
 		ADD R0, R1, R2, LSR #3    ; R0 = R1 + (R2 >> 3)
 		ORR R0, R1, R2, LSL #2    ; R0 = R1 | (R2 << 2)
 	\end{lstlisting}
@@ -792,7 +792,7 @@ total = 4 * a + b;
     \begin{columns}[b]
     \begin{column}{0.48\textwidth}
         \textbf{1. Simple offset}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LDR R0, [R1, #8]
 	; address = R1 + 8
 	; R1 unchanged
@@ -800,14 +800,14 @@ total = 4 * a + b;
 
         \vspace{5mm}
         \textbf{2. Pre-indexed}: Calculate first, then access.
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LDR R0, [R1, #8]!
 	; address = R1 + 8
 	; R1 = R1 + 8
         \end{lstlisting}
         \vspace{5mm}
                 \textbf{3. Post-indexed}: Access first, then calculate.
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 	LDR R0, [R1], #8
 	; address = R1
     ; R1 = R1 + 8 (after)
@@ -932,7 +932,7 @@ total = 4 * a + b;
 \begin{frame}[fragile]{Scaled Register Offset}
 	\begin{columns}[T]
 		\begin{column}{.48\textwidth}
-			\begin{lstlisting}[style=armasm]
+			\begin{lstlisting}[style=armasm, language=ARM]
 	LDR R0, [R1, R2, LSL #2]
 			\end{lstlisting}
 
@@ -1009,7 +1009,7 @@ total = 4 * a + b;
 		\begin{column}{.50\textwidth}
 			\textbf{Typical ARM}
 
-			\begin{lstlisting}[style=armasm]
+			\begin{lstlisting}[style=armasm, language=ARM]
 	; R1 = array
 	; R2 = i
 	LDR R0, [R1, R2, LSL #2]
@@ -1105,7 +1105,7 @@ This is why array access on ARM is so cheap.
 		\end{column}
 		\begin{column}{.48\textwidth}
 			\textbf{ARM assembly}
-			\begin{lstlisting}[style=armasm]
+			\begin{lstlisting}[style=armasm, language=ARM]
 	LDR  R1, =array     ; base address
 	MOV  R0, #0         ; sum = 0
 	MOV  R2, #0         ; i = 0

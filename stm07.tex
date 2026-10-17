@@ -192,7 +192,7 @@
         \textbf{The \texttt{S} suffix}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 ADD  R0, R1, R2   ; flags unchanged
 
 ADDS R0, R1, R2   ; updates N Z C V
@@ -436,7 +436,7 @@ else
         \end{lstlisting}
     \end{column}
     \begin{column}{.4\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 		CMP   R0, R1
         BNE   else_block
 
@@ -496,7 +496,7 @@ for (i = 1; i <= 5; i++)
         \end{lstlisting}
     \end{column}
     \begin{column}{.37\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 		MOV   r0, #0
 		MOV   r1, #1
 loop
@@ -533,7 +533,7 @@ for (; x != 0; x >>= 1)
         \end{lstlisting}
     \end{column}
     \begin{column}{.5\textwidth}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 		LDR   r1, =0x5555
 		MOV   r0, #0       ; count = 0
 loop
@@ -580,7 +580,7 @@ do {
         \end{lstlisting}
     \end{column}
     \begin{column}{.4\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 		MOV   r0, #0
 		MOV   r1, #1
 loop
@@ -609,7 +609,7 @@ loop
         \textbf{Counting up}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\ttfamily\small]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\ttfamily\small]
      MOV  r0, #0
 loop
      ...          ; body
@@ -625,7 +625,7 @@ loop
         \textbf{Counting down}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\ttfamily\small]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\ttfamily\small]
      MOV  r0, #10
 loop
      ...          ; body
@@ -669,7 +669,7 @@ do {
         \end{lstlisting}
     \end{column}
     \begin{column}{.58\textwidth}
-        \begin{lstlisting}[style=armasm]
+        \begin{lstlisting}[style=armasm, language=ARM]
 		MOV    r0, #0          ; max
 		LDR    r1, =0x20001000 ; ptr
 		MOV    r2, #64         ; nwords
@@ -866,7 +866,7 @@ uint32_t state = read_gpioport();
 	convention: the return value goes in \alert{\texttt{R0}}.}
 
 	\vspace{2mm}
-	\begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+	\begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 read_gpioport
 		MOVW  R1, #0x0014   ; GPIOA_IDR low half
 		MOVT  R1, #0x4002   ; GPIOA_IDR high half
@@ -875,7 +875,7 @@ read_gpioport
 	\end{lstlisting}
 
 	\vspace{2mm}
-	\begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+	\begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 		BL    read_gpioport
 		; R0 now contains the GPIO port value
 	\end{lstlisting}
@@ -914,7 +914,7 @@ uint32_t read_bit(uint32_t port, uint32_t mask) {
 			returns.}
 		\end{column}
 		\begin{column}{.46\textwidth}
-			\begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+			\begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 read_bit
     AND   R0, R0, R1
     BX    LR
@@ -948,7 +948,7 @@ int counter(void) {
         \end{lstlisting}
     \end{column}
     \begin{column}{.5\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 counter
      LDR   R0, =n
      LDR   R1, [R0]
@@ -981,7 +981,7 @@ x = foo(y, z);
         \end{lstlisting}
     \end{column}
     \begin{column}{.6\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 foo
      LSLS  R0, R0, #1   ; a*2
      ADDS  R0, R0, R1   ; +b
@@ -989,7 +989,7 @@ foo
         \end{lstlisting}
 
         \vspace{2mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 ; y already in R0, z in R1
      BL    foo
      MOVS  R4, R0        ; x = result
@@ -1017,7 +1017,7 @@ int n = popcount(mask);
     nothing remains --- the same loop as the earlier Popcount example, now
     wrapped as a callable function:}
 
-    \begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 popcount
     MOV   R1, #0        ; count = 0
 loop
@@ -1038,7 +1038,7 @@ loop
     position.}
 
     \vspace{1mm}
-    \begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 popcount
     MOV   R1, #0        ; count = 0
     CMP   R0, #0
@@ -1197,7 +1197,7 @@ done
 \begin{frame}[fragile]{Saving the Return Address}
 	\begin{columns}[T]
 		\begin{column}{.6\textwidth}
-			\begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+			\begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 		BL    AddNumbers
 
 AddNumbers
@@ -1601,7 +1601,7 @@ AddNumbers
     			\texttt{LR}: \alert{save, use, restore}.}
 
     \vspace{2mm}
-    \begin{lstlisting}[style=armasm, basicstyle=\small\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\small\ttfamily]
 foo  PUSH {R4, R5}    ; save registers this function will use
      MOV  R4, #0
      MOV  R5, #0xAB

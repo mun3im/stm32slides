@@ -372,7 +372,7 @@ if (sensor_value == 0) { turn_on_led(); }
     \begin{columns}[T]
     \begin{column}{.48\textwidth}
         \textbf{Fragment A}
-\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}[language=ARM, basicstyle=\ttfamily\footnotesize]
     ADD [0x20000100], R1
 \end{lstlisting}
         {\footnotesize ``Add R1 to the memory word at \texttt{0x20000100}.''}
@@ -383,7 +383,7 @@ if (sensor_value == 0) { turn_on_led(); }
     \end{column}
     \begin{column}{.48\textwidth}
         \textbf{Fragment B}
-\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}[language=ARM, basicstyle=\ttfamily\footnotesize]
     MOV  R0, #5
     MOV  R1, #5
     CMP  R0, R1
@@ -853,7 +853,7 @@ int x = 10;    // <-- stop
     \end{column}
     \begin{column}{.34\textwidth}
         \textbf{Disassembly}
-\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\scriptsize]
+\begin{lstlisting}[language=ARM, basicstyle=\ttfamily\scriptsize]
 0x08000100: MOV R0, #10  <--
 0x08000104: STR R0, [SP, #4]
 0x08000108: LDR R0, [SP, #4]

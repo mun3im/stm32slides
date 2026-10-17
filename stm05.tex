@@ -227,7 +227,7 @@
 
     \vspace{2mm}
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 ; Define register aliases and constants
 VAL1    RN  R1               ; VAL1 is an alias for R1
 VAL2    RN  R2               ; VAL2 is an alias for R2
@@ -344,7 +344,7 @@ HERE    B    HERE            ; infinite loop to halt
 
     \vspace{2mm}
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 	LDR   R0, [R1]        ; load a  (memory -> register)
 	LDR   R2, [R1, #4]    ; load b  (memory -> register)
 	ADD   R0, R0, R2      ; process (register + register)
@@ -423,7 +423,7 @@ int f(int a, int b) {
         \textbf{In assembly}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	ADD   R0, R0, R1
 	BX    LR
         \end{lstlisting}
@@ -521,7 +521,7 @@ int f(int a, int b) {
     \vspace{3mm}
     \begin{columns}[T]
     \begin{column}{.48\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	MOV  R0, #0x11223344
 	STRB R0, [R1]
         \end{lstlisting}
@@ -530,7 +530,7 @@ int f(int a, int b) {
         {\small Stores only \texttt{0x44}. The upper 24 bits are ignored.}
     \end{column}
     \begin{column}{.48\textwidth}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	MOV  R0, #0x12345678
 	STRH R0, [R1]
         \end{lstlisting}
@@ -705,7 +705,7 @@ int f(int a, int b) {
 
     \vspace{2mm}
     \begin{block}{Prologue and epilogue}
-        \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	PUSH {LR}    ; prologue: save the return address
 	...          ; the function body
 	POP  {PC}    ; epilogue: return by loading PC directly
@@ -760,7 +760,7 @@ int f(int a, int b) {
 
     \vspace{2mm}
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	MOV R0, R1       ; R0 = R1
 	MOV R0, #25      ; R0 = 25
 	MVN R0, #0       ; R0 = 0xFFFFFFFF
@@ -784,7 +784,7 @@ int f(int a, int b) {
 
     \vspace{2mm}
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\large\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\large\ttfamily]
 	LDR R0, =0x40020014
     \end{lstlisting}
     \end{center}
@@ -817,7 +817,7 @@ int f(int a, int b) {
 
     \vspace{2mm}
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 ; build 0x40020014 (GPIOA->ODR), one halfword at a time
 	MOVW R0, #0x0014   ; R0 = 0x00000014, high half cleared
 	MOVT R0, #0x4002   ; R0 = 0x40020014, high half set, low half kept
@@ -841,7 +841,7 @@ int f(int a, int b) {
 \begin{frame}[fragile]{Reading It Back}
     \leavevmode
     \begin{center}
-    \begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+    \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 	MOVW R3, #0x0014
 	MOVT R3, #0x4002   ; "R3 is being given a 32-bit address"
 	LDR  R2, [R3]      ; "...and now something is read through it"
@@ -894,7 +894,7 @@ c = a + b;
         \textbf{The listing}
 
         \vspace{1mm}
-        \begin{lstlisting}[style=armasm, basicstyle=\footnotesize\ttfamily]
+        \begin{lstlisting}[style=armasm, language=ARM, basicstyle=\footnotesize\ttfamily]
 	LDR  R3, [R7, #4]
 	LDR  R2, [R7, #8]
 	ADD  R3, R3, R2
@@ -1642,7 +1642,7 @@ c = a + b;
 %%------------------------------------------------------------------
 \begin{frame}[fragile]{Memory Copy Example}
 
-	\begin{lstlisting}[style=armasm, basicstyle=\normalsize\ttfamily]
+	\begin{lstlisting}[style=armasm, language=ARM, basicstyle=\normalsize\ttfamily]
 		LDR R0, =0x2000
 		LDR R1, =0x2004
 		LDR R2, [R0]

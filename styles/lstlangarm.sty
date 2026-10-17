@@ -480,9 +480,13 @@
   morekeywords={uint32_t,__IO,__asm},
 }
 
+% The book selects ARM listings with language=ARM. Alias it to the dialect
+% defined above so slide listings can use exactly the same setting.
+\lstdefinelanguage{ARM}[ARM]{Assembler}{}
+
 \lstdefinestyle{armasm}{
   style=codebase,
-  language=[ARM]Assembler,             % the language of the code
+  language=ARM,                        % the language of the code
   backgroundcolor=\color{asmbgcolor},  % ARM assembly gets the cool blue background, distinct from C
   morekeywords={adr, .global},
 }

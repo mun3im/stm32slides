@@ -76,4 +76,4 @@ These fail silently. The deck compiles with no error, so check the PDF.
 3. A TikZ picture wider than its column overflows into the next column.
 4. `lstlisting` and `\verb` need `\begin{frame}[fragile]`.
 5. `\newcolumntype` must be in the preamble, never inside a frame.
-6. Use `language={[ARM]Assembler}` for ARM listings, not `language=ARM`.
+6. Use `language=ARM` for ARM listings, as in the book. `styles/lstlangarm.sty` defines `ARM` as an alias of the `[ARM]Assembler` dialect.
