@@ -141,7 +141,6 @@
 %===============================================================================
 \section{Why This Matters}
 %===============================================================================
-
 \begin{frame}{Why This Chapter Matters}
     \begin{columns}[T]
     \begin{column}{.47\textwidth}
@@ -163,10 +162,44 @@
     \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{The Payoff}{What these three lines of C actually do}
+    \leavevmode
+    By the end of this chapter, you will understand \alert{exactly} how these two lines of C turn on a physical pin on your Nucleo board:
 
+    \vspace{3mm}
+    \begin{center}
+    \begin{minipage}{.72\textwidth}
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
+volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
+*gpioa_odr |= (1U << 5);     // PA5 rises to 3.3 V -- the user LED
+\end{lstlisting}
+    \end{minipage}
+    \end{center}
+
+    \vspace{3mm}
+    {\small Three things in that code need an answer, and each becomes a section of this chapter:}
+
+    \vspace{1mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.56\textwidth}@{}}
+        \toprule
+        \textbf{Question raised} & \textbf{Where this chapter answers it} \\
+        \midrule
+        What is \texttt{0x40020014}? & Memory-mapped I/O \& the 4\,GB memory map \\
+        What does the \texttt{*} mean? & Pointers, \texttt{\&} and \texttt{*} \\
+        Why \texttt{volatile}? & When memory changes without C changing it \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{1mm}
+    {\small\centering Every abstract concept that follows --- addresses, pointer arithmetic, fixed-width types, \texttt{volatile} --- is a \alert{necessary tool} to make these two lines light the LED.\par}
+\end{frame}
 
 %===============================================================================
-\section{Memory and Addresses}
+\section{Memory as a Numbered Array of Bytes}
 %===============================================================================
 
 \begin{frame}{Memory Is a Numbered Array of Bytes}
@@ -196,7 +229,6 @@
 		An address identifies a location; it is not the value stored there.
 	\end{block}
 \end{frame}
-
 \begin{frame}{Storing a Word}
 	\leavevmode
 
@@ -245,6 +277,10 @@
 	\end{columns}
 \end{frame}
 
+%===============================================================================
+\section{A Variable Has an Address}
+%===============================================================================
+
 \begin{frame}{A Variable Has an Address}
 	\leavevmode
 
@@ -277,7 +313,7 @@
 \end{frame}
 
 %===============================================================================
-\section{Pointers}
+\section{A Pointer Holds an Address}
 %===============================================================================
 
 \begin{frame}[fragile]{A Pointer Holds an Address}{A variable whose value is an address}
@@ -330,6 +366,10 @@ uint32_t v = *p;    // v becomes 42
     \end{center}
 \end{frame}
 
+%===============================================================================
+\section{Arrays Are Address Arithmetic}
+%===============================================================================
+
 \begin{frame}{Arrays Are Address Arithmetic}
     \begin{columns}[c]
     \begin{column}{.46\textwidth}
@@ -368,7 +408,6 @@ uint32_t v = *p;    // v becomes 42
     \end{column}
     \end{columns}
 \end{frame}
-
 \begin{frame}[fragile]{Pointer Arithmetic}
     \leavevmode
     A pointer already holds an address. Adding an integer to it moves that
@@ -410,7 +449,6 @@ q + 1;        // 0x20000101  (+1)
         computes the right address by itself.
     \end{block}
 \end{frame}
-
 \begin{frame}{Three Sentences to Remember}
     \leavevmode
     So far, three ideas are enough to explain how C reaches an address of
@@ -435,7 +473,7 @@ q + 1;        // 0x20000101  (+1)
 \end{frame}
 
 %===============================================================================
-\section{The Memory Map}
+\section{Where Those Addresses Lead}
 %===============================================================================
 
 \begin{frame}{Where Those Addresses Lead}
@@ -511,6 +549,12 @@ q + 1;        // 0x20000101  (+1)
 				\end{itemize}
 
 				\vspace{2mm}
+				{\footnotesize\itshape You will spend 99\% of your time
+				in the three colored bands above. The grey ``other''
+				regions are reserved, bit-band aliases, or external bus
+				space --- advanced topics you can safely ignore.}
+
+				\vspace{2mm}
 				A pointer, as we just saw, is only a number. So what
 				happens when that number points into the peripheral
 				region?
@@ -520,7 +564,7 @@ q + 1;        // 0x20000101  (+1)
 \end{frame}
 
 %===============================================================================
-\section{Memory-Mapped I/O}
+\section{Memory-Mapped I/O: The Central Idea}
 %===============================================================================
 
 \begin{frame}[fragile]{The Central Idea}
@@ -552,7 +596,6 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
     \vspace{1mm}
     {\small (Why \texttt{volatile}? We come back to that shortly.)}
 \end{frame}
-
 \begin{frame}{Because All Three Share One Address Space}
     \leavevmode
     {\small The CPU needs no special instructions for hardware:
@@ -568,7 +611,6 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
         each in turn.
     \end{block}
 \end{frame}
-
 \begin{frame}{The Conceptual Spine}
     \leavevmode
     {\small This is the conceptual spine of the whole book: how an
@@ -588,7 +630,7 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
 \end{frame}
 
 %===============================================================================
-\section{Types and Qualifiers}
+\section{Choosing Fixed-Width Types}
 %===============================================================================
 
 \begin{frame}{Fixed-Width Types}
@@ -627,7 +669,6 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
         gets cut off. Add them into a wider type instead.
     \end{block}
 \end{frame}
-
 \begin{frame}{Data Sizes and Alignment}
     \leavevmode
     {\small A pointer's type does not only set the step size in pointer
@@ -673,6 +714,10 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
     \end{block}
 \end{frame}
 
+%===============================================================================
+\section{When Memory Can Change Without C Changing It}
+%===============================================================================
+
 \begin{frame}{When Memory Can Change Without C Changing It}
     \leavevmode
     {\small Every C program relies on one basic assumption, so basic
@@ -708,7 +753,6 @@ volatile uint32_t *gpioa_odr = (volatile uint32_t *)0x40020014;
         embedded code.
     \end{block}
 \end{frame}
-
 \begin{frame}[fragile]{\texttt{volatile} in Practice}
     \leavevmode
 \begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
@@ -731,6 +775,45 @@ while ((*status & 1) == 0) {
     an ISR talks to the main loop using nothing more than a flag.}
 \end{frame}
 
+\begin{frame}[fragile]{Spot the Bug}{Why might this loop never exit?}
+    \leavevmode
+    The hardware sets bit~0 of the status register as soon as a sample is
+    ready. Yet the program below sometimes spins forever, even on
+    hardware that is clearly doing its job.
+
+    \vspace{3mm}
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\footnotesize]
+uint32_t *status = (uint32_t *)0x40011000;    // note: NOT volatile
+while ((*status & 1) == 0) {
+    /* wait for sample */
+}
+\end{lstlisting}
+
+    \vspace{3mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \textbf{Your prediction}
+        {\small
+        \begin{itemize}\itemsep1pt
+            \item What does an optimizing compiler assume about \texttt{*status} across loop iterations?
+            \item How many times does it actually read the address?
+            \item What would happen if the compiler kept the value in a register?
+        \end{itemize}}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \textbf{The answer}
+        {\small The compiler sees that nothing inside the loop writes to \texttt{*status}, so by assumption 1 of the previous slide, one read is enough: it \alert{caches the first value in a register} and never touches the address again. The hardware changes memory, but the register never changes --- the loop condition is false forever.}
+
+        \vspace{1mm}
+        {\small \textbf{Fix:} declare \texttt{status} as \texttt{volatile uint32\_t *}.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+%===============================================================================
+\section{const: A Brief Aside}
+%===============================================================================
+
 \begin{frame}[fragile]{A Brief Aside: \texttt{const}}
     \leavevmode
     \texttt{const} is a promise: the program will not change this
@@ -752,7 +835,7 @@ const uint8_t sine_table[256] = {
 \end{frame}
 
 %===============================================================================
-\section{From Pointer to Instruction}
+\section{What a Pointer Becomes}
 %===============================================================================
 
 \begin{frame}{What a Pointer Becomes}
@@ -789,6 +872,10 @@ const uint8_t sine_table[256] = {
     dereference is not an abstraction, it \emph{is} one of these two
     instructions.}
 \end{frame}
+
+%===============================================================================
+\section{Where Variables Live}
+%===============================================================================
 
 \begin{frame}{Where Variables Live}
     \leavevmode
@@ -858,6 +945,132 @@ const uint8_t sine_table[256] = {
         usual causes are deep recursion and large local arrays.
     \end{block}
 \end{frame}
+
+%===============================================================================
+\section{Reading Memory in a Debugger}
+%===============================================================================
+
+\begin{frame}[fragile]{Reading Memory in a Debugger}{The debugger is a window on the same memory map}
+    \leavevmode
+    Consider:
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\footnotesize]
+uint32_t readings[4] = { 10, 20, 30, 40 };     // suppose at 0x20000100
+\end{lstlisting}
+
+    \vspace{1mm}
+    A memory window shows the bytes at those addresses directly:
+    \begin{center}
+    \begin{tikzpicture}[
+        x=10mm, y=6mm,
+        every node/.style={font=\footnotesize\ttfamily},
+        head/.style={font=\footnotesize\ttfamily\bfseries},
+        mcell/.style={draw=blkline, fill=blkfill, minimum width=10mm, minimum height=5.5mm, align=center},
+        maddr/.style={draw=blkline, fill=accentfill, minimum width=22mm, minimum height=5.5mm, align=center}
+    ]
+        \node[maddr,head] at (-.5,0) {Address};
+        \foreach \i/\h in {1/00,2/01,3/02,4/03,5/04,6/05,7/06,8/07}{\node[mcell,head] at (\i,0) {\h};}
+        \node[maddr] at (-.5,-1) {0x20000100};
+        \node[maddr] at (-.5,-2) {0x20000108};
+        \foreach \i/\v in {1/0A,2/00,3/00,4/00, 5/14,6/00,7/00,8/00}{\node[mcell] at (\i,-1) {\v};}
+        \foreach \i/\v in {1/1E,2/00,3/00,4/00, 5/28,6/00,7/00,8/00}{\node[mcell] at (\i,-2) {\v};}
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{1mm}
+    {\small Row address $+$ column offset gives the byte address. Column \texttt{04} does \alert{not} mean address \texttt{0x04} --- it is an offset of 4 bytes from the row's address. This is the same arithmetic as \texttt{readings[1]} at \texttt{0x20000100 + 1$\times$4}.}
+\end{frame}
+
+\begin{frame}{Bytes Are Not the Same as Values}
+    \leavevmode
+    {\small A debugger shows one byte per cell; a C variable may be larger than one byte. These are two views of the \alert{same} object.}
+
+    \vspace{3mm}
+    \begin{columns}[c]
+    \begin{column}{.5\textwidth}
+        {\small
+        \texttt{uint32\_t x = 42;} where $42 = \texttt{0x0000002A}$. On the Cortex-M4 (little-endian):}
+        \vspace{2mm}
+        \begin{center}
+            {\small
+            \striped
+            \begin{tabular}{ccccc}
+                \toprule
+                \textbf{Address} & \texttt{+0} & \texttt{+1} & \texttt{+2} & \texttt{+3} \\
+                \midrule
+                \texttt{0x20000100} & \texttt{2A} & \texttt{00} & \texttt{00} & \texttt{00} \\
+                \bottomrule
+            \end{tabular}}
+        \end{center}
+    \end{column}
+    \begin{column}{.46\textwidth}
+        \textbf{Three questions to ask of a dump}
+        {\small
+        \begin{enumerate}\itemsep1pt
+            \item What address does this byte occupy?
+            \item How many bytes belong to the object?
+            \item How does the object's \alert{type} interpret those bytes?
+        \end{enumerate}}
+        \vspace{2mm}
+        {\small The same bytes mean different values when interpreted with different types.}
+    \end{column}
+    \end{columns}
+
+    \vspace{2mm}
+    \begin{block}{A debugging habit}
+        When a variable has an unexpected value, inspect the \alert{bytes in memory} first, not the C expression that produced it. Vague ``why is it wrong?'' becomes concrete questions about addresses, bytes, and type.
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Predict the Dump}{Draw the arrows yourself before reading on}
+    \leavevmode
+    Given the declaration below, placed at \texttt{0x20000100}:
+
+    \vspace{2mm}
+    \begin{center}
+    \begin{minipage}{.6\textwidth}
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\footnotesize]
+uint32_t readings[4] = { 10, 20, 30, 40 };
+\end{lstlisting}
+    \end{minipage}
+    \end{center}
+
+    \vspace{1mm}
+    \begin{columns}[c]
+    \begin{column}{.56\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[
+            x=7mm, y=6mm,
+            every node/.style={font=\scriptsize\ttfamily},
+            head/.style={font=\scriptsize\ttfamily\bfseries},
+            mcell/.style={draw=blkline, fill=blkfill, minimum width=7mm, minimum height=5.5mm, align=center},
+            maddr/.style={draw=blkline, fill=accentfill, minimum width=18mm, minimum height=5.5mm, align=center}
+        ]
+            \node[maddr,head] at (-.5,0) {Address};
+            \foreach \i/\h in {1/00,2/01,3/02,4/03,5/04,6/05,7/06,8/07}{\node[mcell,head] at (\i,0) {\h};}
+            \node[maddr] at (-.5,-1) {0x20000100};
+            \node[maddr] at (-.5,-2) {0x20000108};
+            \foreach \i in {1,...,8}{\node[mcell] at (\i,-1) {?};}
+            \foreach \i in {1,...,8}{\node[mcell] at (\i,-2) {?};}
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.42\textwidth}
+        \textbf{Fill in the sixteen cells.}
+        {\small
+        \begin{enumerate}\itemsep1pt
+            \item At what address does \texttt{readings[2]} begin?
+            \item Which four cells does its value occupy?
+            \item Which byte, in little-endian order, holds the \texttt{0x1E}?
+        \end{enumerate}}
+        \vspace{2mm}
+        {\small \textbf{Answers}: \texttt{readings[2]} is at \texttt{0x20000100 + 2$\times$4 = 0x20000108}, occupying cells \texttt{+00..+03} of the second row. The byte \texttt{1E} lives at \texttt{0x20000108} itself --- least-significant byte first.}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+%===============================================================================
+\section{Summary}
+%===============================================================================
 
 \begin{frame}{Summary}
 	\begin{columns}[c]

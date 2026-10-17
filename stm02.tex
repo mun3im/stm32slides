@@ -129,9 +129,6 @@
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \begin{document}
 \titlepage
-%===============================================================================
-\section{Why This Matters}
-%===============================================================================
 \begin{frame}{Why This Chapter Matters}
     \begin{columns}[T]
     \begin{column}{.47\textwidth}
@@ -154,9 +151,50 @@
     \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{The Payoff}{One line of C --- a tour through the whole chapter}
+    \leavevmode
+    By the end of this chapter, you will know \alert{exactly} how this one line of C travels through the hardware:
+
+    \vspace{3mm}
+    \begin{center}
+    \begin{minipage}{.72\textwidth}
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\normalsize]
+if (sensor_value == 0) { turn_on_led(); }
+\end{lstlisting}
+    \end{minipage}
+    \end{center}
+
+    \vspace{3mm}
+    {\small Each step on that trip is a section of this chapter:}
+
+    \vspace{1mm}
+    \begin{center}
+    {\small
+    \striped
+    \begin{tabular}{@{}l R{.60\textwidth}@{}}
+        \toprule
+        \textbf{What the hardware does} & \textbf{Where this chapter answers it} \\
+        \midrule
+        Load \texttt{sensor\_value} from memory into a register
+            & Load-store principle; the register set \\
+        Compare the register to zero using the ALU
+            & RISC and the ALU; CPU time equation \\
+        Record the result as a flag
+            & The APSR condition flags (N, Z, C, V) \\
+        Branch on that flag --- change the PC
+            & The register set (PC) and pipeline \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{1mm}
+    {\small\centering Keep this one line in mind. Every abstract term that follows --- ISA, RISC, pipeline, APSR, memory map --- is a tool the hardware uses to execute it.\par}
+\end{frame}
+
 %===============================================================================
-\section{Architecture and Organization}
+\section{Architecture vs.\ Organization}
 %===============================================================================
+
 \begin{frame}{Three Layers Called ``Architecture''}
     \leavevmode
     \begin{center}
@@ -166,14 +204,14 @@
         \toprule
         \textbf{Layer} & \textbf{What it specifies} \\
         \midrule
-        \textbf{Instruction Set}\newline\textbf{Architecture (ISA)}
+        \textbf{Instruction Set Architecture (ISA)}
             & The language the processor understands: instruction formats,
               register set, addressing modes. Visible to an assembly programmer.
               \emph{x86, ARM, RISC-V} \\[2mm]
         \textbf{Microarchitecture}
             & How that ISA is implemented in silicon: control signals, cache
               size, pipeline depth, ALU internals \\[2mm]
-        \textbf{Platform}\newline\textbf{architecture}
+        \textbf{Platform Architecture}
             & How the processor reaches the rest of the system: buses, memory controllers,
               DMA. \emph{ARM's AMBA} \\
         \bottomrule
@@ -187,68 +225,9 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{Von Neumann Architecture}
-    \begin{columns}[c]
-    \begin{column}{.42\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[cpublk, minimum width=20mm, minimum height=30mm] (cpu) at (0,0) {CPU};
-            \node[memblk, minimum width=20mm, minimum height=30mm] (mem) at (3.6,0) {Code\\+\\Data\\Memory};
-            % one shared bus: three lines, one label on the middle one
-            \draw[busline, line width=1.2pt, draw=secondary]
-                  ([yshift=4mm]cpu.east) -- ([yshift=4mm]mem.west);
-            \draw[busline, line width=1.2pt, draw=primary]
-                  (cpu.east) -- (mem.west);
-            \draw[busline, line width=1.2pt, draw=Gray]
-                  ([yshift=-4mm]cpu.east) -- ([yshift=-4mm]mem.west);
-            \node[lbl, anchor=north] at (1.8,-0.62) {one shared bus};
-        \end{tikzpicture}
-        \end{center}
-    \end{column}
-    \begin{column}{.56\textwidth}
-        \begin{itemize}
-            \item A \alert{single} storage system holds both program and data.
-            \item An instruction typically needs \alert{two clock cycles}: one to fetch the instruction, another to fetch its data.
-            \item Instruction and data cannot travel at the same time, since they share one bus.
-            \item Simple and inexpensive, but the shared bus quickly becomes a bottleneck.
-        \end{itemize}
-    \end{column}
-    \end{columns}
-    \vspace{2mm}
-    {\small This shared-bus limit is called the \alert{Von Neumann bottleneck}. The next slide shows an architecture built to remove it.}
-\end{frame}
-
-\begin{frame}{Harvard Architecture}
-    \begin{columns}[c]
-    \begin{column}{.46\textwidth}
-        \begin{center}
-        \begin{tikzpicture}[x=10mm, y=10mm]
-            \node[cpublk, minimum width=20mm, minimum height=30mm] (cpu)  at (0,0) {CPU};
-            \node[memblk, minimum width=20mm, minimum height=11mm] (code) at (3.6,0.95)  {Code\\Memory};
-            \node[memblk, minimum width=20mm, minimum height=11mm] (data) at (3.6,-0.95) {Data\\Memory};
-            % buses run due east-west; labels sit on the line with a white gap
-            \draw[busline, line width=1.2pt, draw=secondary]
-                  (cpu.east |- code) -- node[lbl, fill=white, inner sep=1.5pt,
-                  text=secondary] {bus 1} (code.west);
-            \draw[busline, line width=1.2pt, draw=primary]
-                  (cpu.east |- data) -- node[lbl, fill=white, inner sep=1.5pt,
-                  text=primary] {bus 2} (data.west);
-        \end{tikzpicture}
-        \end{center}
-    \end{column}
-    \begin{column}{.52\textwidth}
-        \begin{itemize}
-            \item \alert{Two separate memories} for program and data, each with its own bus.
-            \item With pipelining, an instruction can complete in \alert{one cycle}: the next instruction is fetched while the current one reads its data.
-            \item Most modern architectures are Harvard, or a close variant of it.
-        \end{itemize}
-    \end{column}
-    \end{columns}
-    \vspace{2mm}
-    \begin{block}{What the Cortex-M4 actually is}
-        A \alert{modified Harvard} machine. It has separate instruction and data buses (three AHB-Lite interfaces), but a \alert{single unified address space}. You get the speed of Harvard, but you can still load a constant stored in flash with an ordinary load instruction.
-    \end{block}
-\end{frame}
+%===============================================================================
+\section{RISC and the Load-Store Principle}
+%===============================================================================
 
 \begin{frame}{CISC vs RISC}
     \begin{center}
@@ -271,7 +250,6 @@
         RISC moves complexity out of the hardware decoder and into the compiler. The result is a set of simple instructions that pipeline cleanly, and behave in a predictable way.
     \end{block}
 \end{frame}
-
 \begin{frame}[fragile]{Memory Access vs.\ Register Architecture}
 	\begin{columns}[T]
 		\begin{column}{.48\textwidth}
@@ -308,31 +286,184 @@
 		\end{column}
 	\end{columns}
 \end{frame}
-
 \begin{frame}{The Load-Store Principle}
     \leavevmode
+    \begin{columns}[c]
+    \begin{column}{.5\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=7mm, y=7mm]
+        % ---- inside the processor ----
+        \node[blk, minimum width=24mm, minimum height=10mm, font=\footnotesize]
+             (rf) at (0,1.4) {Register file};
+        \node[cpublk, minimum width=24mm, minimum height=8mm, font=\footnotesize\bfseries]
+             (alu) at (0,-0.9) {ALU};
+
+        % operands down into the ALU, result back up
+        \draw[flow] ([xshift=-6mm]rf.south) -- ([xshift=-6mm]alu.north);
+        \draw[flow] ([xshift=-1mm]rf.south) -- ([xshift=-1mm]alu.north);
+        \node[lbl, anchor=east, font=\tiny] at (-0.55,0.25) {operands};
+        \draw[flow] ([xshift=6mm]alu.north) -- ([xshift=6mm]rf.south);
+        \node[lbl, anchor=west, font=\tiny] at (0.75,0.25) {result};
+
+        % ---- memory, outside the processor ----
+        \node[memblk, minimum width=20mm, minimum height=20mm, font=\footnotesize]
+             (mem) at (6.0,1.4) {Memory};
+
+        % ---- the only two paths that cross the boundary ----
+        \draw[flow, draw=accentline, line width=1pt]
+            ([yshift=3mm]mem.west) -- node[lbl, above, inner sep=2pt, font=\tiny, text=accentline] {\texttt{LDR}} ([yshift=3mm]rf.east);
+        \draw[flow, draw=accentline, line width=1pt]
+            ([yshift=-3mm]rf.east) -- node[lbl, above, inner sep=2pt, font=\tiny, text=accentline] {\texttt{STR}} ([yshift=-3mm]mem.west);
+
+        \begin{scope}[on background layer]
+        \node[draw=Gray, dashed, thick, rounded corners=3pt,
+              fit=(rf)(alu), inner sep=3mm] (proc) {};
+        \end{scope}
+        \node[font=\scriptsize\bfseries, anchor=south west] at ([xshift=1mm]proc.north west) {Processor};
+
+        \node[lbl, anchor=north, text width=58mm, font=\tiny\itshape]
+             at (3.0,-2.15)
+             {no path runs from memory to the ALU --- every operand must first be loaded into a register};
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \fbox{\parbox{.95\linewidth}{\centering\vspace{1mm}
+        \textbf{Key idea:} the ALU never operates directly on memory. Data must first move into a register.
+        \vspace{1mm}}}
+
+        \vspace{3mm}
+        {\small \texttt{LDR} $\to$ ALU operation $\to$ \texttt{STR}: this is the \alert{only} way the ALU ever touches memory. Even \texttt{x = x + 1;} costs \alert{three} instructions, never one. This pattern shapes every assembly example in Chapters~5 and~6.}
+
+        \vspace{3mm}
+        {\small \textbf{Digital-electronics connection:} registers sit only a few gate delays from the ALU. Memory sits across a bus, with address decoding and longer settling times. Forcing operands through registers first is what lets the clock run fast.}
+    \end{column}
+    \end{columns}
+\end{frame}
+\begin{frame}{More Instructions Does Not Mean Slower}
     \begin{center}
-    \fbox{\parbox{.8\textwidth}{\centering\vspace{1mm}
-    \textbf{Key idea:} the ALU never operates directly on memory. Data must first move into a register.
+    \fbox{\parbox{.86\textwidth}{\centering\vspace{1mm}
+    CPU time $=$ Instruction Count $\times$ Cycles per Instruction $\times$ Clock period
     \vspace{1mm}}}
     \end{center}
-    \vspace{2mm}
+    \vspace{4mm}
     \begin{center}
-    \begin{tikzpicture}[x=10mm, y=10mm]
-        \node[memblk, minimum width=24mm, minimum height=11mm] (mem) at (0,0)   {Memory};
-        \node[blk,    minimum width=24mm, minimum height=11mm] (reg) at (4.2,0) {Registers};
-        \node[cpublk, minimum width=24mm, minimum height=11mm] (alu) at (8.4,0) {ALU};
-        \draw[flow] ([yshift=2.5mm]mem.east) -- node[lbl, above] {\texttt{LDR}} ([yshift=2.5mm]reg.west);
-        \draw[flow] ([yshift=-2.5mm]reg.west) -- node[lbl, below] {\texttt{STR}} ([yshift=-2.5mm]mem.east);
-        \draw[flow, <->] (reg.east) -- node[lbl, above] {operands} (alu.west);
-    \end{tikzpicture}
+    {\small
+    \striped
+    \begin{tabular}{@{}l l l@{}}
+        \toprule
+        \textbf{Term} & \textbf{RISC effect} & \textbf{Why} \\
+        \midrule
+        Instruction count & \alert{Higher} & More, simpler instructions per task \\
+        Cycles per instruction & \alert{Lower} & Each instruction finishes in one cycle \\
+        Clock period & \alert{Lower} & A simple decoder permits a faster clock \\
+        \bottomrule
+    \end{tabular}}
     \end{center}
-    \vspace{1mm}
-    {\small\centering \texttt{LDR} $\to$ ALU operation $\to$ \texttt{STR}: this is the \alert{only} way the ALU ever touches memory. Even \texttt{x = x + 1;} costs \alert{three} instructions, never one. This pattern shapes every assembly example in Chapters~5 and~6.\par}
-    \vspace{1mm}
-    {\small \textbf{Digital-electronics connection:} registers sit only a few gate delays from the ALU. Memory sits across a bus, with address decoding and longer settling times. Forcing operands through registers first is what lets the clock run fast.}
+    \vspace{3mm}
+    {\small The product of all three terms is what matters in the end. RISC improves two of the three terms, which is why it usually wins.}
 \end{frame}
 
+\begin{frame}[fragile]{Spot the Bug}{What is wrong with these two Cortex-M instructions?}
+    \leavevmode
+    Both of the fragments below were written by students used to CISC assembly. Neither one assembles on a Cortex-M4. Say why, in each case, before reading the answer.
+
+    \vspace{3mm}
+    \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+        \textbf{Fragment A}
+\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\footnotesize]
+    ADD [0x20000100], R1
+\end{lstlisting}
+        {\footnotesize ``Add R1 to the memory word at \texttt{0x20000100}.''}
+
+        \vspace{2mm}
+        \textbf{Why it fails}
+        {\footnotesize The ALU can only read its operands from the register file. Memory is \alert{not} an operand of an arithmetic instruction. The right version is three instructions: \texttt{LDR}, \texttt{ADD}, \texttt{STR}.}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        \textbf{Fragment B}
+\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\footnotesize]
+    MOV  R0, #5
+    MOV  R1, #5
+    CMP  R0, R1
+    ; which flag is now 1?
+\end{lstlisting}
+
+        \textbf{Predict}
+        {\footnotesize \texttt{CMP} subtracts \texttt{R1} from \texttt{R0} and throws the difference away. Here $5 - 5 = 0$, so the \alert{Z (Zero) flag} is set. The N, C, V flags are 0. This is why a C \texttt{if (x == y)} works.}
+    \end{column}
+    \end{columns}
+
+    \vspace{2mm}
+    {\small\centering Both answers rest on one rule each: the \alert{load-store principle} on the left, and the \alert{APSR records every ALU result} on the right.\par}
+\end{frame}
+
+%===============================================================================
+\section{Von Neumann and Harvard Architectures}
+%===============================================================================
+
+\begin{frame}{Von Neumann Architecture}
+    \begin{columns}[c]
+    \begin{column}{.42\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=10mm]
+            \node[cpublk, minimum width=20mm, minimum height=30mm] (cpu) at (0,0) {CPU};
+            \node[memblk, minimum width=20mm, minimum height=30mm] (mem) at (3.6,0) {Code\\+\\Data\\Memory};
+            % one shared bus: three lines, one label on the middle one
+            \draw[busline, line width=1.2pt, draw=secondary]
+                  ([yshift=4mm]cpu.east) -- ([yshift=4mm]mem.west);
+            \draw[busline, line width=1.2pt, draw=primary]
+                  (cpu.east) -- (mem.west);
+            \draw[busline, line width=1.2pt, draw=Gray]
+                  ([yshift=-4mm]cpu.east) -- ([yshift=-4mm]mem.west);
+            \node[lbl, anchor=north] at (1.8,-0.62) {one shared bus};
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.56\textwidth}
+        \begin{itemize}
+            \item A \alert{single} storage system holds both program and data.
+            \item An instruction typically needs \alert{two clock cycles}: one to fetch the instruction, another to fetch its data.
+            \item Instruction and data cannot travel at the same time, since they share one bus.
+            \item Simple and inexpensive, but the shared bus quickly becomes a bottleneck.
+        \end{itemize}
+    \end{column}
+    \end{columns}
+    \vspace{2mm}
+    {\small This shared-bus limit is called the \alert{Von Neumann bottleneck}. The next slide shows an architecture built to remove it.}
+\end{frame}
+\begin{frame}{Harvard Architecture}
+    \begin{columns}[c]
+    \begin{column}{.46\textwidth}
+        \begin{center}
+        \begin{tikzpicture}[x=10mm, y=10mm]
+            \node[cpublk, minimum width=20mm, minimum height=30mm] (cpu)  at (0,0) {CPU};
+            \node[memblk, minimum width=20mm, minimum height=11mm] (code) at (3.6,0.95)  {Code\\Memory};
+            \node[memblk, minimum width=20mm, minimum height=11mm] (data) at (3.6,-0.95) {Data\\Memory};
+            % buses run due east-west; labels sit on the line with a white gap
+            \draw[busline, line width=1.2pt, draw=secondary]
+                  (cpu.east |- code) -- node[lbl, fill=white, inner sep=1.5pt,
+                  text=secondary] {bus 1} (code.west);
+            \draw[busline, line width=1.2pt, draw=primary]
+                  (cpu.east |- data) -- node[lbl, fill=white, inner sep=1.5pt,
+                  text=primary] {bus 2} (data.west);
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \begin{column}{.52\textwidth}
+        \begin{itemize}
+            \item \alert{Two separate memories} for program and data, each with its own bus.
+            \item With pipelining, an instruction can complete in \alert{one cycle}: the next instruction is fetched while the current one reads its data.
+            \item Most modern architectures are Harvard, or a close variant of it.
+        \end{itemize}
+    \end{column}
+    \end{columns}
+    \vspace{2mm}
+    \begin{block}{What the Cortex-M4 actually is}
+        A \alert{modified Harvard} machine. It has separate instruction and data buses (three AHB-Lite interfaces), but a \alert{single unified address space}. You get the speed of Harvard, but you can still load a constant stored in flash with an ordinary load instruction.
+    \end{block}
+\end{frame}
 \begin{frame}{Von Neumann vs Harvard: Why It Matters for Pipelining}
     \begin{center}
     \begin{tikzpicture}[x=10mm, y=10mm]
@@ -369,6 +500,10 @@
     \end{column}
     \end{columns}
 \end{frame}
+
+%===============================================================================
+\section{Pipelining}
+%===============================================================================
 
 \begin{frame}[plain]{Pipelining}
     \leavevmode
@@ -410,7 +545,6 @@
         \item RISC instructions are simpler, so they are much easier to build a pipeline for.
     \end{itemize}
 \end{frame}
-
 \begin{frame}{What a Pipeline Costs}
     \begin{columns}[T]
     \begin{column}{.48\textwidth}
@@ -436,34 +570,10 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{More Instructions Does Not Mean Slower}
-    \begin{center}
-    \fbox{\parbox{.86\textwidth}{\centering\vspace{1mm}
-    CPU time $=$ Instruction Count $\times$ Cycles per Instruction $\times$ Clock period
-    \vspace{1mm}}}
-    \end{center}
-    \vspace{4mm}
-    \begin{center}
-    {\small
-    \striped
-    \begin{tabular}{@{}l l l@{}}
-        \toprule
-        \textbf{Term} & \textbf{RISC effect} & \textbf{Why} \\
-        \midrule
-        Instruction count & \alert{Higher} & More, simpler instructions per task \\
-        Cycles per instruction & \alert{Lower} & Each instruction finishes in one cycle \\
-        Clock period & \alert{Lower} & A simple decoder permits a faster clock \\
-        \bottomrule
-    \end{tabular}}
-    \end{center}
-    \vspace{3mm}
-    {\small The product of all three terms is what matters in the end. RISC improves two of the three terms, which is why it usually wins.}
-\end{frame}
-
-
 %===============================================================================
-\section{ARM and the Cortex Profiles}
+\section{ARM Cortex Profiles}
 %===============================================================================
+
 \begin{frame}{A Short History of ARM}
     {\small\centering\emph{So why did ARM choose this approach?} To understand the Cortex-M4, we first look at where ARM came from, and how its processor families grew.\par}
     \vspace{2mm}
@@ -488,7 +598,6 @@
         ARM was designed to be small because Acorn was a small company with a limited budget. That early constraint later became the reason ARM came to dominate the embedded and mobile markets. This is the same cost-and-power argument as in Chapter~1.
     \end{block}
 \end{frame}
-
 \begin{frame}{ARM Does Not Make Chips}{Why there is an ST logo on an ARM core}
     \begin{columns}[c]
     \begin{column}{.42\textwidth}
@@ -513,15 +622,6 @@
         {\small \textbf{ARM} defines the instruction-set architecture and licenses cores. \textbf{Cortex} names families of processor cores built around it. For embedded systems, the family we use is \alert{Cortex-M}.}
     \end{block}
 \end{frame}
-
-%\begin{frame}[plain]{ARM Cortex: Three Profiles}
-%    \begin{center}
-%    \includegraphics[width=.92\textwidth]{assets/arm-diverse-architecture.png}
-%    \end{center}
-%    \vspace{1mm}
-%    {\small\centering ARM organises its cores into three profiles. This course uses \alert{Cortex-M}; everything that follows applies specifically to that profile.\par}
-%\end{frame}
-
 \begin{frame}{The Three Cortex Profiles}
 	\begin{center}
 		{\small
@@ -547,7 +647,6 @@
 	\vspace{1mm}
 	{\small\centering So where does the Cortex-M4 fit inside the Cortex-M family? That is next.\par}
 \end{frame}
-
 \begin{frame}{The Cortex-M Family}
 	\begin{center}
 		{\small
@@ -595,7 +694,6 @@
 		\end{column}
 	\end{columns}
 \end{frame}
-
 \begin{frame}[plain]{Cortex-M4 Features}{The specification, in one place}
 	\begin{columns}[c]
 		\begin{column}{.55\textwidth}
@@ -628,223 +726,10 @@
 	{\small Every row above has already appeared in this chapter, except the last one. That last row is the reason Chapter~4 is written in C, not assembly.\par}
 \end{frame}
 
-\begin{frame}{Memory-Mapped I/O}{The idea the rest of the course rests on}
-    \begin{block}{There is no special instruction for I/O}
-        A peripheral register is just an address. You turn an LED on with the same \texttt{STR} instruction you use to write to a variable. Only the address is different.
-    \end{block}
-    \vspace{3mm}
-    \begin{center}
-    \striped
-    \begin{tabular}{lll}
-        \toprule
-        \textbf{What you write in C} & \textbf{What it becomes} & \textbf{Where it lands} \\
-        \midrule
-        \texttt{c = a + b;}              & \texttt{STR R2, [R3]} & SRAM, \texttt{0x2000\,xxxx} \\
-        \texttt{GPIOA->ODR |= (1<<5);}   & \texttt{STR R2, [R3]} & \alert{peripheral}, \texttt{0x4002\,0014} \\
-        \bottomrule
-    \end{tabular}
-    \end{center}
-    \vspace{3mm}
-    {\small Same instruction, same registers, different address. And one of those addresses lights a real LED on \texttt{PA5}. That is the whole trick. Chapter~8 is where you put it to use.}
-\end{frame}
-
 %===============================================================================
-\section{STM32: The Chip and the Boards}
+\section{The Cortex-M4 Register Set}
 %===============================================================================
-\begin{frame}{From ARM to the Board on Your Desk}
-    \leavevmode
-    Four names are easy to confuse: ARM, Cortex-M4, STM32, Nucleo. Each name is a different layer of the same stack.
 
-    \vspace{3mm}
-    \begin{center}
-    \begin{tikzpicture}[node distance=4mm]
-        \node[blk,    minimum width=88mm] (arm)    {\textbf{ARM} --- defines and licenses the architecture and processor IP};
-        \node[blk,    minimum width=88mm, below=of arm]    (cortex) {\textbf{Cortex-M4} --- the processor core built to that architecture};
-        \node[blk,    minimum width=88mm, below=of cortex] (stm32)  {\textbf{STM32F446RE} --- ST's microcontroller containing that core};
-        \node[cpublk, minimum width=88mm, below=of stm32]  (nucleo) {\textbf{Nucleo-F446RE} --- the development board built around that MCU};
-        \foreach \a/\b in {arm/cortex, cortex/stm32, stm32/nucleo}{\draw[flow] (\a) -- (\b);}
-    \end{tikzpicture}
-    \end{center}
-
-    \vspace{2mm}
-    {\small\centering Every slide from here on sits at one of these four levels. Keeping them separate is the best way to avoid confusing ``ARM,'' ``the chip,'' and ``the board.''\par}
-\end{frame}
-
-\begin{frame}{What Is an STM32?}
-    \begin{block}{STM32}
-        \textbf{ST}Microelectronics' family of \textbf{32}-bit microcontrollers, each built around a licensed \alert{ARM Cortex-M} core.
-    \end{block}
-    \vspace{2mm}
-    \begin{columns}[T]
-    \begin{column}{.46\textwidth}
-        \textbf{ARM supplies the core}
-        \begin{itemize}
-            \item The Cortex-M4 datapath, registers, and instruction set: everything covered so far in this chapter.
-            \item The same core, across every vendor's chips.
-        \end{itemize}
-        \vspace{1mm}
-        {\small So Cortex-M4 code can move between different chips, at the core level.}
-    \end{column}
-    \begin{column}{.5\textwidth}
-        \textbf{ST adds everything else}
-        \begin{itemize}
-            \item Flash and SRAM, in specific sizes
-            \item Peripherals: GPIO, timers, ADC, DAC, UART, SPI, I\textsuperscript{2}C, CAN, USB
-            \item Clock tree, power management, packaging
-        \end{itemize}
-        \vspace{1mm}
-        {\small These parts are \alert{not} portable. They are ST's own design. Chapters~8--13 focus on programming them.}
-    \end{column}
-    \end{columns}
-    \vspace{2mm}
-    {\small The family covers many market needs: \textbf{F} (general purpose), \textbf{L} (low power), \textbf{G} (advanced general purpose), \textbf{H} (high performance), \textbf{WB} (wireless), \textbf{U} (ultra-low power). We use an \alert{STM32F4}.}
-\end{frame}
-
-\begin{frame}[plain]{Reading the Part Number}{Every character means something}
-    \begin{center}
-    \includegraphics[height=.6\textheight, keepaspectratio]%
-        {assets/stm32-naming.png}
-    \end{center}
-    \vspace{1mm}
-    \begin{center}
-    {\small
-    \begin{tabular}{@{}ccccccc@{}}
-        \textbf{STM32} & \textbf{F} & \textbf{446} & \textbf{R} & \textbf{E} &
-        \textbf{T} & \textbf{6} \\
-        32-bit MCU & Foundation & high perf.\ + & 64 pins & 512\,KB &
-        plastic & $-40$ to \\
-                   &            & DSP with FPU &        & flash   & TQFP   & $+85\,^\circ$C \\
-    \end{tabular}}
-    \end{center}
-    \vspace{1mm}
-    {\small\centering A part number is a specification. It is not a serial number.\par}
-\end{frame}
-
-\begin{frame}[plain]{The Chip Itself}{STM32F446RE in LQFP64}
-    \begin{columns}[c]
-    \begin{column}{.5\textwidth}
-        \begin{center}
-        \includegraphics[width=\textwidth, height=.76\textheight, keepaspectratio]%
-            {assets/f446-lqfp64.png}
-        \end{center}
-    \end{column}
-    \begin{column}{.46\textwidth}
-        \textbf{STM32F446RE}
-        \begin{itemize}
-            \item Core: ARM Cortex-M4
-            \item Clock: up to 180\,MHz
-            \item Flash: 512\,KB
-            \item SRAM: 128\,KB
-            \item FPU and DSP: single-precision floating-point and DSP instructions for real-time work
-            \item Rich peripheral set: GPIO, timers, UART, I\textsuperscript{2}C, SPI, CAN, USB
-        \end{itemize}
-        \vspace{2mm}
-        {\small \textbf{R} = 64 pins and \textbf{T} = LQFP, exactly as the part number said two slides ago.}
-    \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[plain]{STM32 Boards}{The three you will actually use}
-	\begin{columns}[T]
-		\begin{column}{.32\textwidth}
-			\begin{minipage}[c][.48\textheight][c]{\linewidth}
-				\centering
-				\includegraphics[width=\linewidth, keepaspectratio]%
-				{assets/NUCLEO-F446RE.jpg}
-			\end{minipage}
-			\vspace{1mm}
-			\centering\textbf{Nucleo-F446RE}
-			{\small
-				\begin{itemize}\itemsep0pt
-					\item Our running board all semester
-					\item ST-LINK built in --- no separate debugger needed
-					\item Arduino Uno pinout \(+\) morpho headers
-			\end{itemize}}
-		\end{column}
-		\begin{column}{.32\textwidth}
-			\begin{minipage}[c][.48\textheight][c]{\linewidth}
-				\centering
-				\includegraphics[width=.85\linewidth, keepaspectratio]%
-				{assets/blue_pill.jpg}
-			\end{minipage}
-			\vspace{1mm}
-			\centering\textbf{Blue Pill}
-			{\small
-				\begin{itemize}\itemsep0pt
-					\item Not made by ST; one of many third-party boards
-					\item Cheapest way to get a Cortex-M4 on a breadboard
-					\item Debugger \alert{not} included --- needs the ST-LINK
-			\end{itemize}}
-		\end{column}
-		\begin{column}{.32\textwidth}
-			\begin{minipage}[c][.48\textheight][c]{\linewidth}
-				\centering
-				\includegraphics[width=.6\linewidth, keepaspectratio]%
-				{assets/st-link-v2.jpg}
-			\end{minipage}
-			\vspace{1mm}
-			\centering\textbf{ST-LINK V2}
-			{\small
-				\begin{itemize}\itemsep0pt
-					\item External programmer/debugger over SWD
-					\item What the Blue Pill needs; the Nucleo has one built in
-					\item Same tool, same workflow, either board
-			\end{itemize}}
-		\end{column}
-	\end{columns}
-	\vspace{2mm}
-	{\small\centering Same Cortex-M4 core, same ISA, but very different boards.\par}
-\end{frame}
-
-\begin{frame}{The Nucleo-F446RE Board}{What ST adds around the chip}
-    \begin{columns}[c]
-    \begin{column}{.48\textwidth}
-        \begin{center}
-        \includegraphics[width=\textwidth, height=.62\textheight, keepaspectratio]%
-            {assets/nucleo-annotated.png}
-        \end{center}
-    \end{column}
-    \begin{column}{.48\textwidth}
-        The Nucleo board adds four useful features that make experiments easy:
-        \begin{itemize}
-            \item \alert{ST-Link debugger} --- the detachable top section. One USB cable supplies power, programming, and debugging. No separate programmer is needed.
-            \item \alert{User button and LED} --- \texttt{PC13} and \texttt{PA5}. Enough to check a program works, with no external wiring.
-            \item \alert{Arduino connector} --- accepts standard off-the-shelf shields.
-            \item \alert{Morpho connector} --- brings out every STM32 pin, including the ones the Arduino header cannot reach.
-        \end{itemize}
-    \end{column}
-    \end{columns}
-    \vspace{1mm}
-    {\small Full details are in the \emph{STM32 Nucleo-64 Boards User Manual} (UM1724).\par}
-\end{frame}
-
-\begin{frame}[plain]{Nucleo-F446RE Pinout}
-    \begin{columns}[c]
-    \begin{column}{.5\textwidth}
-        \begin{center}
-        \includegraphics[width=\textwidth, height=.74\textheight, keepaspectratio]%
-            {assets/nucleo-pinout.png}
-        \end{center}
-    \end{column}
-    \begin{column}{.46\textwidth}
-        Two connector systems share the board:
-        \vspace{2mm}
-        \begin{itemize}
-            \item \alert{Arduino} headers (CN5--CN10, magenta) --- \texttt{D0--D15}, \texttt{A0--A5}. Accept standard shields.
-            \item \alert{Morpho} headers (CN7, CN10, blue) --- every STM32 pin, including the ones the Arduino header leaves out.
-        \end{itemize}
-        \vspace{3mm}
-        {\small Pins used throughout the course:\\
-        \texttt{PA5} --- user LED \quad(Arduino \texttt{D13})\\
-        \texttt{PC13} --- user button}
-    \end{column}
-    \end{columns}
-\end{frame}
-
-
-%===============================================================================
-\section{Cortex-M4 Programmer's Model}
-%===============================================================================
 \begin{frame}{Now: The Programmer's View}
     \leavevmode
     \begin{center}
@@ -859,7 +744,6 @@
     \vspace{4mm}
     {\small This is the question we opened the chapter with: \emph{``This detailed view is called the programmer's model --- the part of the hardware that software can actually see.''} We can now describe that model in detail: registers, flags, memory, and peripherals.}
 \end{frame}
-
 \begin{frame}[plain]{The Complete Register Set}{Core registers in focus; special registers for reference}
 	\begin{center}
 	\begin{tikzpicture}[x=1mm, y=1mm]
@@ -896,7 +780,6 @@
 	\end{tikzpicture}
 	\end{center}
 \end{frame}
-
 \begin{frame}{The Cortex-M4 Core Registers}
 	\begin{center}
 		{\small
@@ -926,7 +809,6 @@
 	\vspace{1mm}
 	{\small \texttt{SP} is really two banked registers, \texttt{MSP} and \texttt{PSP}, chosen by \texttt{CONTROL}. The mask registers (\texttt{PRIMASK}, \texttt{FAULTMASK}, \texttt{BASEPRI}) control interrupts. Not every Cortex-M core has them; Chapter~9 comes back to this.}
 \end{frame}
-
 \begin{frame}{A Debugging Gotcha: Reading the PC}
     \begin{block}{The surprise}
         \texttt{MOV R0, PC} does \alert{not} give you the address of that
@@ -955,6 +837,44 @@
         \end{itemize}
     \end{column}
     \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{PC+4 in the Debugger}{The same instruction seen three ways}
+    \leavevmode
+    Set a breakpoint on the \texttt{MOV} below. Three windows in your IDE now show the same instant, from three angles:
+
+    \vspace{2mm}
+    \begin{columns}[T]
+    \begin{column}{.30\textwidth}
+        \textbf{C source}
+\begin{lstlisting}[language=C, basicstyle=\ttfamily\scriptsize]
+int x = 10;    // <-- stop
+\end{lstlisting}
+    \end{column}
+    \begin{column}{.34\textwidth}
+        \textbf{Disassembly}
+\begin{lstlisting}[language={[ARM]Assembler}, basicstyle=\ttfamily\scriptsize]
+0x08000100: MOV R0, #10  <--
+0x08000104: STR R0, [SP, #4]
+0x08000108: LDR R0, [SP, #4]
+\end{lstlisting}
+    \end{column}
+    \begin{column}{.30\textwidth}
+        \textbf{Register window}
+        \begin{center}
+        \begin{tikzpicture}[x=1mm, y=1mm]
+            \node[cell, minimum width=28mm, minimum height=5mm, font=\scriptsize\ttfamily] at (0,8) {R0 = 0x00000000};
+            \node[cpublk, minimum width=28mm, minimum height=5mm, font=\scriptsize\ttfamily] at (0,2) {PC = \textbf{0x08000104}};
+            \node[cell, minimum width=28mm, minimum height=5mm, font=\scriptsize\ttfamily] at (0,-4) {LR = 0x08000201};
+        \end{tikzpicture}
+        \end{center}
+    \end{column}
+    \end{columns}
+
+    \vspace{3mm}
+    \begin{block}{What to notice}
+        The \texttt{MOV} sits at \texttt{0x08000100}, but the debugger shows \texttt{PC = 0x08000104}. The PC is reading the instruction \alert{after} the one the arrow points at --- because by the time \texttt{MOV} executes, the pipeline has already \alert{fetched} the \texttt{STR} behind it. This is not an off-by-one bug. It is the pipeline, visible for the first time outside a textbook figure.
+    \end{block}
 \end{frame}
 
 \begin{frame}[fragile]{Connecting Registers to C}
@@ -995,6 +915,10 @@ int z = x + y;    // at 0x2004
     of places where your variables must \alert{physically be} before
     the ALU can touch them.}
 \end{frame}
+
+%===============================================================================
+\section{The Application Program Status Register (APSR)}
+%===============================================================================
 
 \begin{frame}[plain]{The APSR Condition Flags}
 	\begin{center}
@@ -1040,6 +964,10 @@ int z = x + y;    // at 0x2004
 	{\small \textbf{This is how a processor makes decisions:} the C statement \texttt{if (x == y)} works by subtracting, throwing away the difference, and testing the \textbf{Z} flag. \textbf{C} is the carry-out of the final full adder. \textbf{V} is the XOR of the carries into and out of the MSB. These are circuits you have already built.}
 \end{frame}
 
+%===============================================================================
+\section{The 4\,GB Memory Map}
+%===============================================================================
+
 \begin{frame}[plain]{The Generic ARMv7-M Memory Map}
 	\begin{columns}[c]
 	\begin{column}{.52\textwidth}
@@ -1074,7 +1002,6 @@ int z = x + y;    // at 0x2004
 	\end{column}
 	\end{columns}
 \end{frame}
-
 \begin{frame}{The Regions That Matter to You}
 	{\small\emph{Most of that 4\,GB does not matter to us. These are the regions you need to remember.}}
 
@@ -1117,8 +1044,13 @@ int z = x + y;    // at 0x2004
 	\begin{block}{On your STM32F446RE}
 		512\,KB of Flash and 128\,KB of SRAM fill only a small part of the regions above. The rest of the map is \alert{reserved}, not missing. Reading an address with nothing there causes a HardFault.
 	\end{block}
-\end{frame}
 
+	\vspace{1mm}
+	{\footnotesize\itshape You will spend 99\% of your time in just three
+	of these regions: \alert{Code} (Flash), \alert{SRAM}, and
+	\alert{Peripherals}. External RAM, external devices, and the
+	bit-band alias are advanced topics this book does not use.}
+\end{frame}
 \begin{frame}[plain]{The 4\,GB Memory Map}{The STM32F446RE inside it}
 	\begin{center}
 		\begin{tikzpicture}[x=10mm, y=7mm]
@@ -1172,7 +1104,44 @@ int z = x + y;    // at 0x2004
 	\vspace{1mm}
 	{\small\centering \emph{Now let's see where the real STM32 resources live.} ARM \alert{fixes} this layout for every Cortex-M device. This is why the NVIC sits at the same address on every vendor's chip. Reading an empty region causes a \alert{HardFault}. This is why a wild pointer crashes loudly, instead of failing quietly.\par}
 \end{frame}
-
+\begin{frame}{Memory-Mapped I/O}{The idea the rest of the course rests on}
+    \begin{block}{There is no special instruction for I/O}
+        A peripheral register is just an address. You turn an LED on with the same \texttt{STR} instruction you use to write to a variable. Only the address is different.
+    \end{block}
+    \vspace{3mm}
+    \begin{center}
+    \striped
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{What you write in C} & \textbf{What it becomes} & \textbf{Where it lands} \\
+        \midrule
+        \texttt{c = a + b;}              & \texttt{STR R2, [R3]} & SRAM, \texttt{0x2000\,xxxx} \\
+        \texttt{GPIOA->ODR |= (1<<5);}   & \texttt{STR R2, [R3]} & \alert{peripheral}, \texttt{0x4002\,0014} \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{3mm}
+    {\small Same instruction, same registers, different address. And one of those addresses lights a real LED on \texttt{PA5}. That is the whole trick. Chapter~8 is where you put it to use.}
+\end{frame}
+\begin{frame}{Two Buses, Two Speeds}{AMBA: AHB for fast, APB for slow}
+    \begin{columns}[c]
+    \begin{column}{.52\textwidth}
+        \begin{center}
+        \includegraphics[width=\linewidth, height=.68\textheight, keepaspectratio]{assets/amba-bus.pdf}
+        \end{center}
+    \end{column}
+    \begin{column}{.44\textwidth}
+        The peripheral region is not one single bus. STM32 chips use the
+        \alert{AMBA} standard, with two buses in particular:
+        \begin{itemize}
+            \item \alert{AHB} (High-performance) --- CPU, memory, and fast peripherals (GPIO, DMA).
+            \item \alert{APB} (Peripheral) --- slower peripherals, reached through a bridge from AHB.
+        \end{itemize}
+        \vspace{2mm}
+        {\small So \texttt{RCC->AHB1ENR} and \texttt{RCC->APB2ENR} are two different registers in every peripheral chapter from here on. A clock enabled on the wrong bus register is a clock that was never enabled at all.}
+    \end{column}
+    \end{columns}
+\end{frame}
 \begin{frame}[plain]{Byte Order: Endianness}
 	\begin{center}
 		\begin{tikzpicture}[x=10mm, y=8mm]
@@ -1219,6 +1188,42 @@ int z = x + y;    // at 0x2004
 	{\small\centering Both conventions store the \alert{same four bytes}. They only differ in which end sits at the lowest address. The Cortex-M4 is \alert{little-endian}, like x86, so raw memory dumps look the same on the target and on a typical PC.\par}
 \end{frame}
 
+\begin{frame}{The Chapter 2 Mantra}{Three sentences that explain the rest of the book}
+    \leavevmode
+    When something later in the course looks strange --- a C statement that compiles into more instructions than you expected, a debugger value that is off by four, an \texttt{if} that behaves oddly --- one of these three sentences almost always resolves it:
+
+    \vspace{5mm}
+    \begin{center}
+    \begin{tikzpicture}[x=10mm, y=14mm]
+        \node[cpublk, minimum width=100mm, minimum height=12mm, align=center, font=\normalsize]
+            (m1) at (0,2) {\textbf{1.}~~ The ALU only speaks to registers};
+        \node[cpublk, minimum width=100mm, minimum height=12mm, align=center, font=\normalsize]
+            (m2) at (0,1) {\textbf{2.}~~ The pipeline is always looking ahead};
+        \node[cpublk, minimum width=100mm, minimum height=12mm, align=center, font=\normalsize]
+            (m3) at (0,0) {\textbf{3.}~~ The APSR leaves breadcrumbs for the PC};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{3mm}
+    \begin{center}
+    {\footnotesize
+    \striped
+    \begin{tabular}{@{}c R{.72\textwidth}@{}}
+        \toprule
+        \textbf{Mantra} & \textbf{When it rescues you} \\
+        \midrule
+        1 & Why does \texttt{x = x + 1;} become three instructions, not one? --- load-store. \\
+        2 & Why does \texttt{MOV R0, PC} return the address \emph{after} the \texttt{MOV}? --- pipeline. \\
+        3 & How does an \texttt{if (x == y)} actually work? --- \texttt{CMP} subtracts, Z flag is tested, PC branches. \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+\end{frame}
+
+%===============================================================================
+\section{Summary}
+%===============================================================================
+
 \begin{frame}{Summary}
 	\begin{columns}[c]
 		\begin{column}{.62\textwidth}
@@ -1252,6 +1257,199 @@ int z = x + y;    // at 0x2004
 				If a peripheral is an address, a pointer is how C reaches it.}
 		\end{column}
 	\end{columns}
+\end{frame}
+
+%===============================================================================
+\section{Addendum}
+%===============================================================================
+
+\begin{frame}{Addendum --- STM32: The Chip and the Boards}
+    \begin{block}{Why these frames sit here}
+        The next frames cover the STM32F446RE chip and the Nucleo board that holds it. The book covers these only briefly, so the frames are parked in this Addendum as staging for the next edition. To hide them from a lecture build, move \texttt{\textbackslash end\{document\}} up to just before \texttt{\textbackslash section\{Addendum\}}.
+    \end{block}
+\end{frame}
+\begin{frame}{From ARM to the Board on Your Desk}
+    \leavevmode
+    Four names are easy to confuse: ARM, Cortex-M4, STM32, Nucleo. Each name is a different layer of the same stack.
+
+    \vspace{3mm}
+    \begin{center}
+    \begin{tikzpicture}[node distance=4mm]
+        \node[blk,    minimum width=88mm] (arm)    {\textbf{ARM} --- defines and licenses the architecture and processor IP};
+        \node[blk,    minimum width=88mm, below=of arm]    (cortex) {\textbf{Cortex-M4} --- the processor core built to that architecture};
+        \node[blk,    minimum width=88mm, below=of cortex] (stm32)  {\textbf{STM32F446RE} --- ST's microcontroller containing that core};
+        \node[cpublk, minimum width=88mm, below=of stm32]  (nucleo) {\textbf{Nucleo-F446RE} --- the development board built around that MCU};
+        \foreach \a/\b in {arm/cortex, cortex/stm32, stm32/nucleo}{\draw[flow] (\a) -- (\b);}
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2mm}
+    {\small\centering Every slide from here on sits at one of these four levels. Keeping them separate is the best way to avoid confusing ``ARM,'' ``the chip,'' and ``the board.''\par}
+\end{frame}
+\begin{frame}{What Is an STM32?}
+    \begin{block}{STM32}
+        \textbf{ST}Microelectronics' family of \textbf{32}-bit microcontrollers, each built around a licensed \alert{ARM Cortex-M} core.
+    \end{block}
+    \vspace{2mm}
+    \begin{columns}[T]
+    \begin{column}{.46\textwidth}
+        \textbf{ARM supplies the core}
+        \begin{itemize}
+            \item The Cortex-M4 datapath, registers, and instruction set: everything covered so far in this chapter.
+            \item The same core, across every vendor's chips.
+        \end{itemize}
+        \vspace{1mm}
+        {\small So Cortex-M4 code can move between different chips, at the core level.}
+    \end{column}
+    \begin{column}{.5\textwidth}
+        \textbf{ST adds everything else}
+        \begin{itemize}
+            \item Flash and SRAM, in specific sizes
+            \item Peripherals: GPIO, timers, ADC, DAC, UART, SPI, I\textsuperscript{2}C, CAN, USB
+            \item Clock tree, power management, packaging
+        \end{itemize}
+        \vspace{1mm}
+        {\small These parts are \alert{not} portable. They are ST's own design. Chapters~8--13 focus on programming them.}
+    \end{column}
+    \end{columns}
+    \vspace{2mm}
+    {\small The family covers many market needs: \textbf{F} (general purpose), \textbf{L} (low power), \textbf{G} (advanced general purpose), \textbf{H} (high performance), \textbf{WB} (wireless), \textbf{U} (ultra-low power). We use an \alert{STM32F4}.}
+\end{frame}
+\begin{frame}[plain]{Reading the Part Number}{Every character means something}
+    \begin{center}
+    \includegraphics[height=.6\textheight, keepaspectratio]%
+        {assets/stm32-naming.png}
+    \end{center}
+    \vspace{1mm}
+    \begin{center}
+    {\small
+    \begin{tabular}{@{}ccccccc@{}}
+        \textbf{STM32} & \textbf{F} & \textbf{446} & \textbf{R} & \textbf{E} &
+        \textbf{T} & \textbf{6} \\
+        32-bit MCU & Foundation & high perf.\ + & 64 pins & 512\,KB &
+        plastic & $-40$ to \\
+                   &            & DSP with FPU &        & flash   & TQFP   & $+85\,^\circ$C \\
+    \end{tabular}}
+    \end{center}
+    \vspace{1mm}
+    {\small\centering A part number is a specification. It is not a serial number.\par}
+\end{frame}
+\begin{frame}[plain]{The Chip Itself}{STM32F446RE in LQFP64}
+    \begin{columns}[c]
+    \begin{column}{.5\textwidth}
+        \begin{center}
+        \includegraphics[width=\textwidth, height=.76\textheight, keepaspectratio]%
+            {assets/f446-lqfp64.png}
+        \end{center}
+    \end{column}
+    \begin{column}{.46\textwidth}
+        \textbf{STM32F446RE}
+        \begin{itemize}
+            \item Core: ARM Cortex-M4
+            \item Clock: up to 180\,MHz
+            \item Flash: 512\,KB
+            \item SRAM: 128\,KB
+            \item FPU and DSP: single-precision floating-point and DSP instructions for real-time work
+            \item Rich peripheral set: GPIO, timers, UART, I\textsuperscript{2}C, SPI, CAN, USB
+        \end{itemize}
+        \vspace{2mm}
+        {\small \textbf{R} = 64 pins and \textbf{T} = LQFP, exactly as the part number said two slides ago.}
+    \end{column}
+    \end{columns}
+\end{frame}
+\begin{frame}[plain]{STM32 Boards}{The three you will actually use}
+	\begin{columns}[T]
+		\begin{column}{.32\textwidth}
+			\begin{minipage}[c][.48\textheight][c]{\linewidth}
+				\centering
+				\includegraphics[width=\linewidth, keepaspectratio]%
+				{assets/NUCLEO-F446RE.jpg}
+			\end{minipage}
+			\vspace{1mm}
+			\centering\textbf{Nucleo-F446RE}
+			{\small
+				\begin{itemize}\itemsep0pt
+					\item Our running board all semester
+					\item ST-LINK built in --- no separate debugger needed
+					\item Arduino Uno pinout \(+\) morpho headers
+			\end{itemize}}
+		\end{column}
+		\begin{column}{.32\textwidth}
+			\begin{minipage}[c][.48\textheight][c]{\linewidth}
+				\centering
+				\includegraphics[width=.85\linewidth, keepaspectratio]%
+				{assets/blue_pill.jpg}
+			\end{minipage}
+			\vspace{1mm}
+			\centering\textbf{Blue Pill}
+			{\small
+				\begin{itemize}\itemsep0pt
+					\item Not made by ST; one of many third-party boards
+					\item Cheapest way to get a Cortex-M4 on a breadboard
+					\item Debugger \alert{not} included --- needs the ST-LINK
+			\end{itemize}}
+		\end{column}
+		\begin{column}{.32\textwidth}
+			\begin{minipage}[c][.48\textheight][c]{\linewidth}
+				\centering
+				\includegraphics[width=.6\linewidth, keepaspectratio]%
+				{assets/st-link-v2.jpg}
+			\end{minipage}
+			\vspace{1mm}
+			\centering\textbf{ST-LINK V2}
+			{\small
+				\begin{itemize}\itemsep0pt
+					\item External programmer/debugger over SWD
+					\item What the Blue Pill needs; the Nucleo has one built in
+					\item Same tool, same workflow, either board
+			\end{itemize}}
+		\end{column}
+	\end{columns}
+	\vspace{2mm}
+	{\small\centering Same Cortex-M4 core, same ISA, but very different boards.\par}
+\end{frame}
+\begin{frame}{The Nucleo-F446RE Board}{What ST adds around the chip}
+    \begin{columns}[c]
+    \begin{column}{.48\textwidth}
+        \begin{center}
+        \includegraphics[width=\textwidth, height=.62\textheight, keepaspectratio]%
+            {assets/nucleo-annotated.png}
+        \end{center}
+    \end{column}
+    \begin{column}{.48\textwidth}
+        The Nucleo board adds four useful features that make experiments easy:
+        \begin{itemize}
+            \item \alert{ST-Link debugger} --- the detachable top section. One USB cable supplies power, programming, and debugging. No separate programmer is needed.
+            \item \alert{User button and LED} --- \texttt{PC13} and \texttt{PA5}. Enough to check a program works, with no external wiring.
+            \item \alert{Arduino connector} --- accepts standard off-the-shelf shields.
+            \item \alert{Morpho connector} --- brings out every STM32 pin, including the ones the Arduino header cannot reach.
+        \end{itemize}
+    \end{column}
+    \end{columns}
+    \vspace{1mm}
+    {\small Full details are in the \emph{STM32 Nucleo-64 Boards User Manual} (UM1724).\par}
+\end{frame}
+\begin{frame}[plain]{Nucleo-F446RE Pinout}
+    \begin{columns}[c]
+    \begin{column}{.5\textwidth}
+        \begin{center}
+        \includegraphics[width=\textwidth, height=.74\textheight, keepaspectratio]%
+            {assets/nucleo-pinout.png}
+        \end{center}
+    \end{column}
+    \begin{column}{.46\textwidth}
+        Two connector systems share the board:
+        \vspace{2mm}
+        \begin{itemize}
+            \item \alert{Arduino} headers (CN5--CN10, magenta) --- \texttt{D0--D15}, \texttt{A0--A5}. Accept standard shields.
+            \item \alert{Morpho} headers (CN7, CN10, blue) --- every STM32 pin, including the ones the Arduino header leaves out.
+        \end{itemize}
+        \vspace{3mm}
+        {\small Pins used throughout the course:\\
+        \texttt{PA5} --- user LED \quad(Arduino \texttt{D13})\\
+        \texttt{PC13} --- user button}
+    \end{column}
+    \end{columns}
 \end{frame}
 
 \end{document}
