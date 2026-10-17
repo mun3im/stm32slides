@@ -39,8 +39,15 @@
 \def\beamer@mytheme@styleblue{blue}%
 \def\beamer@mytheme@stylered{red}%
 \def\beamer@mytheme@stylegray{gray}%
+\def\beamer@mytheme@stylenavy{navy}%
 
-\ifx\beamer@mytheme@style\beamer@mytheme@stylegreen%
+\ifx\beamer@mytheme@style\beamer@mytheme@stylenavy%
+	% Navy: deep dark blue, teal secondary for contrast
+	\definecolor{primaryLight}{HTML}{1B3A78}
+	\definecolor{primary}{HTML}{0A1F4D}
+	\definecolor{secondary}{HTML}{1F8A8A}
+	\definecolor{tertiary}{HTML}{5B7FBF}
+\else\ifx\beamer@mytheme@style\beamer@mytheme@stylegreen%
 	% Green
     \definecolor{primaryLight}{HTML}{77933c}
     \definecolor{primary}{HTML}{4f622a}
@@ -72,7 +79,7 @@
       	\definecolor{primary}{HTML}{2d3e50}
       	\definecolor{secondary}{HTML}{d15306}
       	\definecolor{tertiary}{HTML}{35837b}
-    \fi\fi\fi%
+    \fi\fi\fi\fi%
 \fi%
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

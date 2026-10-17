@@ -11,7 +11,7 @@ chapter of the course book. They cover the ARM Cortex-M4 on the STM32F446RE
 |---|---|
 | `stm01.tex` ... `stm14.tex` | The slide sources. One deck per chapter. |
 | `stm01.pdf` ... `stm14.pdf` | The built slides, ready to use. |
-| `styles/` | The Flux beamer theme (`gray` style) and `lstlangarm.sty`, the ARM assembly listing language. |
+| `styles/` | The Flux beamer theme (`navy` style, a deep dark blue added to `styles/beamercolorthemeflux.sty`) and `lstlangarm.sty`, the ARM assembly listing language. |
 | `assets/` | The images and figures the decks include. |
 
 Only the files needed to read and rebuild the slides are here.
